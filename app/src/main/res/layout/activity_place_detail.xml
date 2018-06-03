@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.placedetail.PlaceDetailActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/placeDetailToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/lightGrey"
+        app:titleTextColor="@color/darkGrey"
+        app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+    <FrameLayout
+        android:id="@+id/placeDetailFLall"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="168dp" />
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:gravity="center"
+            android:background="@color/lightGrey">
+
+            <TextView
+                android:id="@+id/placeDetailTVtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Place Title"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/placeDetailTVaddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Street Pintor Hermenegildo Lanz 2 1C"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/placeDetailTVregion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="Granada, Spain"
+                android:textAlignment="center" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:id="@+id/placeDetailLLopen"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:id="@+id/placeDetailFLwhen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal">
+
+                <ImageView
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    app:srcCompat="@drawable/calendar"
+                    android:layout_gravity="center_horizontal" />
+
+                <View
+                    android:layout_width="80dp"
+                    android:layout_height="25dp"
+                    android:background="@color/white"
+                    android:alpha="0.8"
+                    android:layout_gravity="center_vertical" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/placeDetailWhen"
+                    android:textStyle="bold" />
+
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_weight="1.2"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/placeDetailLLopeningHours1"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp">
+
+                    <TextView
+                        android:id="@+id/placeDetailTVdays1"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        tools:text="Mon/Fri"
+                        android:textAlignment="center"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/placeDetailTVhours1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:text="10:00-14:30 16:30:20:00"
+                        android:textAlignment="center" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/placeDetailLLopeningHours2"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/placeDetailTVdays2"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        tools:text="Sat"
+                        android:textAlignment="center"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/placeDetailTVhours2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:text="10:00-14:30 16:30:20:00"
+                        android:textAlignment="center" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/placeDetailLLopeningHours3"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/placeDetailTVdays3"
+                        android:layout_width="80dp"
+                        android:layout_height="wrap_content"
+                        tools:text="Sat"
+                        android:textAlignment="center"
+                        android:textStyle="bold"/>
+                    <TextView
+                        android:id="@+id/placeDetailTVhours3"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        tools:text="10:00-14:30 16:30:20:00"
+                        android:textAlignment="center" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/lightGrey"
+            android:paddingLeft="90dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:id="@+id/placeDetailIVrule1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/law_place" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule1title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule1subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking is forbidden"
+                    android:textSize="14sp"
+                    android:gravity="center_vertical"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/lightGrey"
+            android:paddingLeft="110dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:id="@+id/placeDetailIVrule2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/law_place" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule2title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule2subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking is forbidden"
+                    android:textSize="14sp"
+                    android:gravity="center_vertical"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="4dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@color/lightGrey"
+            android:paddingLeft="90dp"
+            android:paddingVertical="8dp">
+
+            <ImageView
+                android:id="@+id/placeDetailIVrule3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/law_place" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule3title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:gravity="center_vertical"/>
+
+                <TextView
+                    android:id="@+id/placeDetailTVrule3subtitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:text="Smoking is forbidden"
+                    android:textSize="14sp"
+                    android:gravity="center_vertical"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="16dp" />
+        
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:paddingTop="65dp">
+
+        <ImageView
+            android:id="@+id/placeDetailIVphoto"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            android:layout_gravity="center_horizontal"
+            android:src="@drawable/place_icon" />
+
+    </LinearLayout>
+
+        <FrameLayout
+            android:id="@+id/placeDetailFLiconsOpenPlace"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="85dp"
+            android:paddingHorizontal="55dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/placeDetailIVmeetingsIcon"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:src="@drawable/calendar" />
+
+            <ImageView
+                android:id="@+id/placeDetailIVgamesIcon"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:layout_gravity="right"
+                android:src="@drawable/standar_game" />
+
+        </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:id="@+id/placeDetailIVrules"
+            android:layout_width="185dp"
+            android:layout_height="185dp"
+            android:layout_gravity="bottom"
+            android:scrollX="92dp"
+            android:src="@drawable/law_place" />
+
+    </LinearLayout>
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBarPlaceDetail"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"/>
+
+</FrameLayout>

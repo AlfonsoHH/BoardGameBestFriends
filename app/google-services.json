@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "241782299389",
+    "firebase_url": "https://optimal-mender-200311.firebaseio.com",
+    "project_id": "optimal-mender-200311",
+    "storage_bucket": "optimal-mender-200311.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241782299389:android:72abee82ba37e640",
+        "android_client_info": {
+          "package_name": "com.example.alfonsohernandez.boardgamebestfriends"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "241782299389-ias1gr6t2qhkroiijp39j97i3rjusj78.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.alfonsohernandez.boardgamebestfriends",
+            "certificate_hash": "dd42930623ec713877d7393d92eb13ba3ffc1fac"
+          }
+        },
+        {
+          "client_id": "241782299389-qre174tkl0gt4g17pjiveho0p2b1nud6.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "241782299389-qre174tkl0gt4g17pjiveho0p2b1nud6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcuwaNfzCAnMo6qElnP6tW0iJCAlfLlmI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "241782299389-qre174tkl0gt4g17pjiveho0p2b1nud6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

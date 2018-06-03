@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BoardGameBestFriends</string>
+    <string name="addGroupTitle">Título</string>
+    <string name="addGroupTitleHint">Escribe el nombre aquí</string>
+    <string name="addGroupDescription">Descripción</string>
+    <string name="addGroupDescriptionHint">Escribe sobre que va aquí</string>
+    <string name="addGroupAddDialog">Email de tu amigo</string>
+    <string name="addGroupAcept">Aceptar</string>
+    <string name="addGroupCancel">Cancelar</string>
+    <string name="addGroupErrorBuddy">No encontramos a tu amigo</string>
+    <string name="addGroupErrorAddingGroup">Error añadiendo el grupo</string>
+    <string name="addMeetingWhen">¿Cuando?</string>
+    <string name="addMeetingWho">¿Quién?</string>
+    <string name="addMeetingWhere">¿Dónde?</string>
+    <string name="addMeetingWhat">¿Qué?</string>
+    <string name="addMeetingTitle">Título</string>
+    <string name="addMeetingTitleHint">Escribe el nombre aquí</string>
+    <string name="addMeetingDescription">Descripción</string>
+    <string name="addMeetingDescriptionHint">Escribe de que va aquí</string>
+    <string name="addMeetingIamPlaying">Yo juego</string>
+    <string name="addMeetingOpen">Abierta</string>
+    <string name="addMeetingMyPlace">Mi casa</string>
+    <string name="addGroupToolbarTitle">Añadir Grupo</string>
+    <string name="addMeetingToolbarTitle">Añadir Partida</string>
+    <string name="addMeetingErrorPlaces">Error accediendo a los lugares</string>
+    <string name="addMeetingErrorGroups">Error acediendo a tus grupos</string>
+    <string name="addMeetingErrorGames">Error accediendo a los juegos</string>
+    <string name="addMeetingErrorAddingGroup">Error añadiendo la partida</string>
+    <string name="addPlaceName">Nombre</string>
+    <string name="addPlaceNameHint">Escribe el nombre aquí</string>
+    <string name="addPlaceAddress">Dirección</string>
+    <string name="addPlaceAddressHint">Escribe la dirección aquí</string>
+    <string name="addPlaceErrorAddingPlace">Error añadiendo el lugar</string>
+    <string name="addPlaceErrorUnknown">Error, dirección desconocida</string>
+    <string name="addPlaceErrorCity">Error, la dirección no se encuentra en tu región actual</string>
+    <string name="addPlaceToolbarTitle">Añadir Lugar</string>
+    <string name="chatTypeHint">Escribe aquí</string>
+    <string name="chatErrorAddingMessage">Error mandando el mensaje</string>
+    <string name="chatErrorLoadingChat">Error cargando los mensajes</string>
+    <string name="chatToolbarTitle">Chat</string>
+    <string name="gameDetailMeetings">Partidas</string>
+    <string name="gameDetailPlayers">Jugadores</string>
+    <string name="gameDetailDuration">Duración</string>
+    <string name="gameDetailErrorLoading">Error cargando la información del juego</string>
+    <string name="gameDetailToolbarTitle">Info del Juego</string>
+    <string name="gamesToolbarTitleAll">Todos los Juegos</string>
+    <string name="gamesToolbarTitleUser">Mis Juegos</string>
+    <string name="gamesToolbarTitleGroup">Juegos del Grupo</string>
+    <string name="gamesToolbarTitlePlace">Juegos del lugar</string>
+    <string name="gamesErrorLoading">Error cargando los juegos</string>
+    <string name="gamesNoResult">No se ha encontrado ningún juego</string>
+    <string name="groupDetailGames">Juegos</string>
+    <string name="goupDetailMeetings">Partidas</string>
+    <string name="groupDetailChat">Chat</string>
+    <string name="groupDetailErrorRegion">Error accediendo a los datos de la región</string>
+    <string name="groupDetailErrorGroup">Error cargando la información del grupo</string>
+    <string name="groupDetailErrorMembers">Error accediendo a los miembros del grupo</string>
+    <string name="groupDetailToolbarTitle">Info del Grupo</string>
+    <string name="groupsToolbarTitle">Grupos</string>
+    <string name="groupsErrorLoading">Error cargando los datos del grupo</string>
+    <string name="loginOr">O</string>
+    <string name="loginMailHint">Introduce tu email aquí</string>
+    <string name="loginPasswordHint">Introduce tu contraseña aquí</string>
+    <string name="loginToolbarTitle">Iniciar Sesión</string>
+    <string name="loginButtonLogIn">Iniciar Sesión</string>
+    <string name="loginSignIn">Registrarse</string>
+    <string name="loginErrorFacebook">Error, no se puede iniciar sesión con facebook</string>
+    <string name="loginErrorGmail">Error, no se puede iniciar sesión con gmail</string>
+    <string name="loginErrorEmail">Error comprobando tu información</string>
+    <string name="loginErrorCheckingEmail">Error conectándose al servidor</string>
+    <string name="meetingDetailJoin">Jugar</string>
+    <string name="meetingDetailLeave">Salir</string>
+    <string name="meetingDetailToolbarCancel">Cancelar Partida</string>
+    <string name="meetingDetailPlayers">Jugadores</string>
+    <string name="meetingDetailDuration">Duración</string>
+    <string name="meetingDetailRating">Valoración</string>
+    <string name="meetingDetailAddress">Dirección</string>
+    <string name="meetingDetailTimetable">Horario</string>
+    <string name="meetingDetailToolbarTitle">Info de la Partida</string>
+    <string name="toolbarSettings">Ajustes</string>
+    <string name="toolbarLogout">Cerrar sesión</string>
+    <string name="gamesToolbarSync">Importar juegos de BGG</string>
+    <string name="gamesToolbarSyncDialog">Añade tu cuenta de la BGG</string>
+    <string name="gamesErrorBGG">Error, incapaz de sincronizar cuenta de la BGG</string>
+    <string name="gamesToolbarDialogAcept">Aceptar</string>
+    <string name="gamesToolbarDialogCancel">Cancelar</string>
+    <string name="meetingDetailErrorMeeting">Error al cargar la información de la partida</string>
+    <string name="meetingDetailErrorPlace">Error al cargar la información del lugar</string>
+    <string name="meetingDetailErrorMembers">Error al cargar la información de los jugadores</string>
+    <string name="meetingDetailErrorJoiningMeeting">Error, imposible unirse a la partida</string>
+    <string name="meetingDetailErrorLevingMeeting">Error, imposible salir de la partida</string>
+    <string name="meetingDetailErrorCancelMeeting">Error, imposible cancelar la partida</string>
+    <string name="meetingsToolbarTitle">Partidas</string>
+    <string name="meetingsToolbarTitleUser">Mis Partidas</string>
+    <string name="meetingsToolbarTitleGroup">Partidas con el Grupo</string>
+    <string name="meetingsToolbarTitlePlace">Partidas del Lugar</string>
+    <string name="meetingsErrorLoading">Error cargando la información de las partidas</string>
+    <string name="placeDetailWhen">¿Cuándo?</string>
+    <string name="placeDetailToolbarTitle">Info del Lugar</string>
+    <string name="placeDetailErrorPlaces">Error cargando la información del lugar</string>
+    <string name="placeDetailErrorRules">Error cargando las reglas</string>
+    <string name="tabGroups">Grupo</string>
+    <string name="tabMeetings">Partidas</string>
+    <string name="tabPlaces">Lugares</string>
+    <string name="tabProfile">Perfil</string>
+    <string name="profileMyMeetings">Mis Partidas</string>
+    <string name="profileMyGames">Mis Juegos</string>
+    <string name="profileMyPlace">My Casa</string>
+    <string name="profileToolbarTitle">Perfil</string>
+    <string name="profileErrorLogout">Error, imposible cerrar sesión</string>
+    <string name="signUpHintUser">Usuario</string>
+    <string name="signUpHintEmail">Email</string>
+    <string name="signUpHintPassword">Contraseña</string>
+    <string name="signUpHintPasswordConfirm">Confirma la contraseña</string>
+    <string name="signUpButton">Registrar</string>
+    <string name="signUpToolbarTitle">Crear Usuario</string>
+    <string name="signUpErrorRegion">Error, imposible cargar información de regiones</string>
+    <string name="signUpErrorRegister">Error, imposible registrar el usuario</string>
+    <string name="signUpErrorEmail">Error, el email ya fue utilizado anteriormente</string>
+    <string name="signUpErrorPassword">Error, la contraseña y la confirmación no coinciden</string>
+    <string name="signUpErrorUser">Error, nombre de usuario no disponible</string>
+    <string name="placesToolbarTitle">Lugares</string>
+    <string name="placesErrorPlaces">Error, imposible cargar los lu</string>
+    <string name="addPlaceWhen">¿Cuándo?</string>
+    <string name="meetingDetailVacants">PLAZAS</string>
+    <string name="itemMarkerOpen">Abierto</string>
+    <string name="itemMarkerClose">Cerrado</string>
+    <string name="itemMeetingsAssisting">Juego</string>
+    <string name="itemMeetingsHosting">Anfitrión</string>
+    <string name="itemMeetingsVacants">Plazas</string>
+    <string name="addingPlaceErrorRules">Error cargando las reglas</string>
+    <string name="meetingDetailErrorGame">Error cargando los datos del juego</string>
+    <string name="placeDetailErrorRegion">Error cargando la información del lugar</string>
+    <string name="placesErrorRegion">Error obteniendo los datos de la región</string>
+    <string name="profileErrorRegion">Error obteniendo los datos de la región</string>
+    <string name="signUpErrorAllUsers">Error, imposible cargar los usuarios de la base de datos</string>
+    <string name="gamesErrorRemoveDatabase">Error, no puedes borrar juegos de la base de datos</string>
+    <string name="gamesDelete">¿Estás seguro de borrar el juego?</string>
+    <string name="gamesAlert">Alerta</string>
+    <string name="gamesYes">Si</string>
+    <string name="gamesNo">No</string>
+    <string name="groupsDialog">¿Estás seguro de abandonar este grupo?</string>
+    <string name="groupsAlert">Alerta</string>
+    <string name="groupsYes">Si</string>
+    <string name="groupsNo">No</string>
+    <string name="meetingsDialogRemove">¿Estás seguro de borrar esta partida?</string>
+    <string name="meetingsDialogError">No puedes borrar una partida que no has creado</string>
+    <string name="meetingsDialogAccept">Aceptar</string>
+    <string name="meetingsDialogCancel">Cancelar</string>
+    <string name="meetingsDialogAlert">Alerta</string>
+    <string name="itemMeetingsTVhostingAssisting">Anfitrión - Juego</string>
+    <string name="groupDetailDialog">Email del nuevo miembro</string>
+    <string name="groupDetailDialogAccept">Aceptar</string>
+    <string name="groupDetailDialogCancel">Cancelar</string>
+    <string name="profileDialogNo">No</string>
+    <string name="profileDialogYes">Si</string>
+    <string name="profileDialogMessagge">¿Quieres añadir un lugar como tu lugar personal?</string>
+    <string name="profileDialogTitle">No tienes un lugar asociado a tu región actual</string>
+    <string name="profileErrorPlaces">Error, imposible acceder a la información de lugares</string>
+    <string name="loginErrorUsers">Error, imposible cargar la información de usuarios</string>
+    <string name="loginErrorSavingUser">Error, imposible salvar la información de usuario</string>
+    <string name="loginSuccessAdding">Consegido, nuevo usuario añadido</string>
+    <string name="meetingsSuccessRemoving">Conseguido, usuario borrado</string>
+    <string name="meetingsErrorRemoving">Error, imposible borrar la partida</string>
+    <string name="meetingDetailSuccessLeaving">Conseguido, partida abandonada</string>
+    <string name="meetingDetailSuccessJoining">Conseguido, te has unido a la partida</string>
+    <string name="itemGroupsAdmin">Admin</string>
+    <string name="groupsErrorDeRemoveGroup">Error, imposible borrar el grupo</string>
+    <string name="groupsSuccessRemovingGroup">Conseguido, grupo borrado</string>
+    <string name="groupsDialogDelete">¿Estás seguro de que quieres borrar el grupo?</string>
+    <string name="profileSuccessAdding">Conseguido, Mi Lugar añadido</string>
+    <string name="placesSuccessAdding">Conseguido, lugar añadido</string>
+    <string name="meetingsSuccessAdding">Conseguido, partida creada</string>
+    <string name="groupsSuccessAdding">Conseguido, grupo creado</string>
+    <string name="groupsSuccessRemovingUser">Conseguido, usuario eliminado</string>
+    <string name="groupsErrorRemovingUser">Error, no se ha podido abandonar el grupo</string>
+    <string name="gamesSuccessRemoveFromPlace">Conseguido, juego eliminado del lugar</string>
+    <string name="gamesSuccessRemoveToGroup">Conseguido, juego eliminado del grupo</string>
+    <string name="gamesSuccessRemoveToUser">Conseguido, juego eliminado del usuario</string>
+    <string name="gamesSuccessAddingToPlace">Conseguido, juego añadido al lugar</string>
+    <string name="gamesSuccessAddingToGroup">Conseguido, juego añadido al grupo</string>
+    <string name="gamesSuccessAddingToUser">Conseguido, juego añadido al usuario</string>
+    <string name="gamesErrorRemoveToPlace">Error, no se ha podido borrar el juego del lugar</string>
+    <string name="gamesErrorRemoveToGroup">Error, no se ha podido borrar el juego del grupo</string>
+    <string name="gamesErrorRemoveToUser">Error, no se ha podido borrar el juego del usuario</string>
+    <string name="gamesErrorAddingToPlace">Error, no se ha podido añadir el juego al lugar</string>
+    <string name="gamesErrorAddingToGroup">Error, no se ha podido añadir el juego al grupo</string>
+    <string name="gamesErrorAddingToUser">Error, no se ha podido añadir el juego al usuario</string>
+    <string name="addPlaceErrorAddingPlaceToUser">Error, no se ha podido añadir el lugar al usuario</string>
+    <string name="addMeetingErrorAddingPlace">Error, no se ha podido añadir la partida al lugar</string>
+    <string name="addMeetingErrorJoining">Error, no se ha podido añadir el usuario a la partida</string>
+    <string name="addMeetingErrorAdding">Error, no se ha podido crear la partida</string>
+    <string name="addGroupErrorAlready">Error, el usuario ya existía</string>
+    <string name="addGroupErrorMembers">Error, no se puede acceder a la información de usuarios</string>
+    <string name="groupDetailSuccess">Conseguido, miembro añadido al grupo</string>
+    <string name="groupDetailErrorExist">Error, el email no coincide con ningún usuario</string>
+    <string name="groupDetailErrorAlready">Error, el usuario ya existía</string>
+    <string name="groupDetailErrorNewMember">Error, no se ha podido añadir al nuevo miembro</string>
+    <string name="openingHoursMon">Lun</string>
+    <string name="openingHoursTue">Mar</string>
+    <string name="openingHoursWed">Mie</string>
+    <string name="openingHoursThu">Jue</string>
+    <string name="openingHoursFri">Vie</string>
+    <string name="openingHoursSat">Sab</string>
+    <string name="openingHoursSun">Dom</string>
+    <string name="openingHoursHintOpen">Abre a las</string>
+    <string name="openingHoursHintClose">Cierra a las</string>
+    <string name="openingHoursTimetable">Horario de Apertura</string>
+    <string name="openingHoursAfternoon">Diferente horario por las tardes</string>
+    <string name="openingHoursAccept">Aceptar</string>
+    <string name="openingHoursCancel">Cancelar</string>
+    <string name="addGroupErrorModify">Error, no se pudo modificar el grupo</string>
+    <string name="groupDetailSuccessModify">Conseguido, grupo modificado</string>
+    <string name="placeDetailSuccessModify">Conseguido, lugar modificado</string>
+    <string name="addPlaceErrorModifying">Error, no se pudo modificar el lugar</string>
+    <string name="addPlaceErrorEmpty">Error, uno o más campos vacios</string>
+    <string name="addGroupErrorEmpty">Error, uno o más campos vacios</string>
+    <string name="addMeetingErrorEmpty">Error, uno o más campos vacios</string>
+    <string name="signUpErrorEmpty">Error, uno o más campos están vacios</string>
+    <string name="meetingDetailNotOpen">No estará abierto el día de la partida</string>
+    <string name="addPlaceErrorRegion">Error, no se he podido acceder a la región actual</string>
+
+    <string-array name="rulesTitle">
+        <item>Fumar permitido</item>
+        <item>Fumar prohibido</item>
+        <item>Mascotas permitidas</item>
+        <item>Mascotas prohibidas</item>
+        <item>Comer permitido</item>
+        <item>Comer prohibido</item>
+        <item>Teléfonos en modo silencio</item>
+        <item>Trae bebidas y comida si puedes</item>
+        <item>No traigas nada</item>
+    </string-array>
+
+    <string-array name="rulesDescription">
+        <item>Aun así trata de ser respetuoso</item>
+        <item>Fumar no esta permitido. Por favor fuma fuera</item>
+        <item>Trae tu mascota si es amistosa y tranquila</item>
+        <item>Pide a alguién que cuide de tu mascota</item>
+        <item>Comer en una partida es parte de la diversión</item>
+        <item>Comer y beber cerca de un juego es peligroso</item>
+        <item>Disfrutemos la partida sin teléfonos moviles</item>
+        <item>Si pudieras traer algo lo agradeceriamos</item>
+        <item>Puedes comprar bebida y comida aquí</item>
+    </string-array>
+    <string name="loginErrorLoadingRegion">Error, no se ha podido cargar la información de regiones</string>
+    <string name="loginRegionDialogTitle">Asocia una ciudad a tu cuenta</string>
+    <string name="loginDialogPositive">Aceptar</string>
+    <string name="loginDialogNegative">Cancel</string>
+    <string name="tabErrorUser">Error, no se ha podido salvar los datos del usuario</string>
+    <string name="tabErrorRegion">Error, no se ha podido cargar los datos de las regiones</string>
+    <string name="tabSuccessRegion">Conseguido, region añadida</string>
+    <string name="tabSuccessLoadRegion">Conseguido, los datos de las regiones han sido cargados</string>
+    <string name="tabDialogTitle">Cambia de ciudad</string>
+    <string name="tabDialogAccept">Aceptar</string>
+    <string name="tabDialogCancel">Cancelar</string>
+    <string name="addMeetingErrorMyPlace">Error, no tienes ningún lugar privado en esta región</string>
+    <string name="meetingDetailErrorVacant">Error, no se ha podido modificar las plazas vacantes en la partida</string>
+    <string name="itemMeetingsAdminHost">Admin - Anfitrión</string>
+    <string name="itemMeetingAdminPlaying">Admin - Juego</string>
+    <string name="itemMeetingAdminHostPlaying">Admin-Anfi-Juego</string>
+    <string name="itemMeetingAdmin">Admin</string>
+    <string name="addPlaceErrorAddress">Error, no se ha podido encontrar la dirección</string>
+    <string name="itemMeetingOpen">Abierta</string>
+    <string name="itemMeetingGroup">Grupo</string>
+
+</resources>

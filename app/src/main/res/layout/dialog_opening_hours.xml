@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@color/lightGrey">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:textSize="22dp"
+        android:text="@string/openingHoursTimetable"
+        android:textStyle="bold"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/darkGrey"/>
+
+    <ScrollView
+        android:background="@color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="16dp">
+
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center">
+
+    <CheckBox
+        android:id="@+id/openingHoursCmon1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursMon" />
+
+    <CheckBox
+        android:id="@+id/openingHoursCtue1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursTue" />
+
+    <CheckBox
+        android:id="@+id/openingHoursCwed1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursWed" />
+
+    <CheckBox
+        android:id="@+id/openingHoursCthu1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursThu" />
+
+    <CheckBox
+        android:id="@+id/openingHoursCfri1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursFri" />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+    <CheckBox
+        android:id="@+id/openingHoursCsat1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursSat" />
+
+    <CheckBox
+        android:id="@+id/openingHoursCsun1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursSun" />
+
+</LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/openingHoursETopenMor1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseMor1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/openingHoursCdifAft1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursAfternoon" />
+
+    <LinearLayout
+        android:id="@+id/openingHoursLLaft1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/openingHoursETopenAft1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseAft1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/darkGrey"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/openingHoursCmon2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursMon" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCtue2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursTue" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCwed2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursWed" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCthu2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursThu" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCfri2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursFri" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/openingHoursCsat2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursSat" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCsun2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursSun" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/openingHoursETopenMor2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseMor2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/openingHoursCdifAft2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursAfternoon" />
+
+    <LinearLayout
+        android:id="@+id/openingHoursLLaft2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/openingHoursETopenAft2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseAft2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/darkGrey"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="16dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/openingHoursCmon3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursMon" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCtue3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursTue" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCwed3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursWed" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCthu3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursThu" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCfri3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursFri" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <CheckBox
+            android:id="@+id/openingHoursCsat3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursSat" />
+
+        <CheckBox
+            android:id="@+id/openingHoursCsun3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/openingHoursSun" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/openingHoursETopenMor3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseMor3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+    <CheckBox
+        android:id="@+id/openingHoursCdifAft3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/openingHoursAfternoon" />
+
+    <LinearLayout
+        android:id="@+id/openingHoursLLaft3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <EditText
+            android:id="@+id/openingHoursETopenAft3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintOpen"/>
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="0dp"/>
+
+        <EditText
+            android:id="@+id/openingHoursETcloseAft3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="@string/openingHoursHintClose"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
