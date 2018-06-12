@@ -1,17 +1,16 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.tab
 
+import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
 class TabContract {
-    interface View {
+    interface View: BaseView {
 
         fun setData()
-
-        fun showErrorLoadingRegions()
-        fun showErrorSavingUser()
 
         fun successLoadingRegions()
         fun successChangingRegion()
@@ -20,17 +19,11 @@ class TabContract {
 
     interface Presenter {
 
-        fun getUserProfile(): User?
-
-        fun loadRegions()
-        fun getCountryList(): ArrayList<String>
-        fun getCityList(countryName: String): ArrayList<String>
+        fun getRegionList(): ArrayList<Region>
         fun getRegionId(cityName: String): String
-
         fun modifyUserInFirebaseDB(userId: String,user: User)
         fun saveUserInPaper(user: User)
-
-        fun firebaseEvent(id: String, activityName: String)
+        fun clearPaper()
 
     }
 }

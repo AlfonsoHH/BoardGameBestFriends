@@ -1,9 +1,17 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.tab
 
+import android.Manifest
+import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.TabLayout
+import android.support.v4.app.ActivityCompat
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
@@ -22,9 +30,18 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import de.mateware.snacky.Snacky
+import timber.log.Timber
 
-
-class TabActivity : AppCompatActivity(), TabContract.View{
+class TabActivity : AppCompatActivity(),
+        TabContract.View,
+        DialogFactory.CitySelectedCallback{
 
     @Inject
     lateinit var presenter: TabPresenter
@@ -43,19 +60,87 @@ class TabActivity : AppCompatActivity(), TabContract.View{
         setSupportActionBar(tabToolbar)
 
         setSupportActionBar(tabToolbar)
-        supportActionBar!!.setTitle(getString(R.string.app_name))
-        supportActionBar!!.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setTitle(getString(R.string.app_name))
+        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         injectDependencies()
         presenter.setView(this)
 
-        if(savedInstanceState!=null)
-            kind = savedInstanceState.getString("kind","")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            var locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            var locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+
+            if (locationFine || locationCoarse) {
+                Dexter.withActivity(this@TabActivity)
+                        .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION)
+                        .withListener(object : MultiplePermissionsListener {
+                            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                                Snacky.builder()
+                                        .setActivity(this@TabActivity)
+                                        .setActionText(getString(R.string.tabSnackySettings))
+                                        .setActionClickListener(object : View.OnClickListener {
+                                            override fun onClick(v: View?) {
+                                                openPermissionsSettings(this@TabActivity)
+                                            }
+                                        })
+                                        .setText(getString(R.string.tabSnackyText))
+                                        .setDuration(Snacky.LENGTH_LONG)
+                                        .build()
+                                        .show()
+                            }
+
+                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                                locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                if (locationFine || locationCoarse) {
+                                    Toast.makeText(this@TabActivity, getString(R.string.tabPermissions), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }).check()
+            }
+
+        }
+
+        val intent = intent.extras
+        kind = intent.getString("kind","")
+
+        if(kind.contains("buddy-"))
+            supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitleUser))
+        else if(kind.contains("group-"))
+            supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitleGroup))
+        else if(kind.contains("place-"))
+            supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitlePlace))
+        else
+            supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitle))
 
         setTabLayout()
 
         if(savedInstanceState!=null)
-            adapter.getItem(savedInstanceState!!.getInt("tab",0))
+            adapter.getItem(savedInstanceState.getInt("tab",0))
+
+        pager.addOnPageChangeListener(object: ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {}
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+            override fun onPageSelected(position: Int) {
+                when(position){
+                    0 -> supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitle))
+                    1 -> supportActionBar?.setTitle(getString(R.string.groupsToolbarTitle))
+                    2 -> supportActionBar?.setTitle(getString(R.string.placesToolbarTitle))
+                    3 -> supportActionBar?.setTitle(getString(R.string.profileToolbarTitle))
+                }
+            }
+        })
+    }
+
+    fun openPermissionsSettings(activity: Activity){
+        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()))
+        intent.addCategory(Intent.CATEGORY_DEFAULT)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        activity.startActivity(intent)
     }
 
     override fun onDestroy() {
@@ -92,80 +177,59 @@ class TabActivity : AppCompatActivity(), TabContract.View{
         })
     }
 
-    override fun onBackPressed() {
-        super.onBackPressed()
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.toolbar, menu)
-
+        if(!kind.equals(""))
+            menu.getItem(4).setVisible(true)
         menu.getItem(2).setVisible(true)
         return true
+    }
+
+    override fun onCitySelectedChoosed(city: String) {
+        presenter.getUserProfile()?.let{
+            it.regionId = presenter.getRegionId(city)
+            presenter.modifyUserInFirebaseDB(it.id, it)
+        }
+
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.toolbar_region -> {
-                chooseRegion()
+                DialogFactory.callbackCity = this
+                DialogFactory.buildChooseRegionDialog(this,presenter.getRegionList()).show()
+            }
+            R.id.toolbar_clear -> {
+                val intent = Intent(this, TabActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
             }
         }
         return true
     }
 
-    fun chooseRegion(){
-        var builder = AlertDialog.Builder(this)
-        var inflater: LayoutInflater = layoutInflater
-        var view: View = inflater.inflate(R.layout.dialog_region,null)
-        builder.setView(view)
-
-        var spinnerCountry: Spinner = view.findViewById(R.id.dialogRegionScountry)
-        var spinnerCity: Spinner = view.findViewById(R.id.dialogRegionScity)
-
-        spinnerArrayAdapterCountry = ArrayAdapter(this, android.R.layout.simple_spinner_item, presenter.getCountryList())
-        spinnerArrayAdapterCountry.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCountry.setAdapter(spinnerArrayAdapterCountry)
-
-        spinnerCountry.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>, selectedItemView: View, position: Int, id: Long) {
-                spinnerArrayAdapterCity.clear()
-                spinnerArrayAdapterCity.addAll(presenter.getCityList(spinnerCountry.selectedItem.toString()))
-            }
-            override fun onNothingSelected(parentView: AdapterView<*>) {}
-        }
-
-        spinnerArrayAdapterCity = ArrayAdapter(this, android.R.layout.simple_spinner_item, presenter.getCityList(spinnerCountry.selectedItem.toString()))
-        spinnerArrayAdapterCity.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerCity.setAdapter(spinnerArrayAdapterCity)
-
-        builder.setTitle(getString(R.string.tabDialogTitle))
-        builder.setPositiveButton(getString(R.string.tabDialogAccept),object: DialogInterface.OnClickListener{
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                var user = presenter.getUserProfile()
-                presenter.modifyUserInFirebaseDB(user!!.id, User(user.id,user.email,user.userName,user.photo,user.service,presenter.getRegionId(spinnerCity.selectedItem.toString())))
-            }
-        })
-        builder.setNegativeButton(getString(R.string.tabDialogCancel),object: DialogInterface.OnClickListener{
-            override fun onClick(dialog: DialogInterface?, which: Int) {
-                dialog!!.dismiss()
-            }
-        })
-        var dialog: Dialog = builder.create()
-        dialog.show()
+    override fun showError(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorLoadingRegions() {
-        Toast.makeText(this, getString(R.string.tabErrorRegion), Toast.LENGTH_SHORT).show()
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorSavingUser() {
-        Toast.makeText(this, getString(R.string.tabErrorUser), Toast.LENGTH_SHORT).show()
+    override fun showProgress(isLoading: Boolean) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun successLoadingRegions() {
-        Log.d(TAG,getString(R.string.tabSuccessLoadRegion))
+        Timber.d(TAG + " " + getString(R.string.tabSuccessLoadRegion))
     }
 
     override fun successChangingRegion() {
-        Toast.makeText(this, getString(R.string.tabSuccessRegion), Toast.LENGTH_SHORT).show()
+        presenter.clearPaper()
+        val intent = Intent(this,TabActivity::class.java)
+        intent.putExtra("kind",kind)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
     }
+
 }

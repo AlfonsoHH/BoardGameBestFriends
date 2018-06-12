@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.util.Log
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.groups.GroupsFragment
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetings.MeetingsFragment
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.places.PlacesFragment
@@ -30,26 +29,26 @@ class AdapterTabPager(fm: FragmentManager, private var tabCount: Int, presenter:
         bundle.putString("kind",kindNow)
         when (position) {
             0 -> {
-                presenter!!.firebaseEvent("Meetings pageview",TAG)
-                var fragment = MeetingsFragment()
+                presenter?.firebaseEvent("Meetings pageview",TAG)
+                val fragment = MeetingsFragment()
                 fragment.arguments = bundle
                 return fragment
             }
             1 -> {
-                presenter!!.firebaseEvent("Group pageview",TAG)
-                var fragment = GroupsFragment()
+                presenter?.firebaseEvent("Group pageview",TAG)
+                val fragment = GroupsFragment()
                 fragment.arguments = bundle
                 return fragment
             }
             2 -> {
-                presenter!!.firebaseEvent("Places pageview",TAG)
-                var fragment = PlacesFragment()
+                presenter?.firebaseEvent("Places pageview",TAG)
+                val fragment = PlacesFragment()
                 fragment.arguments = bundle
                 return fragment
             }
             3 -> {
-                presenter!!.firebaseEvent("Profile pageview",TAG)
-                var fragment = ProfileFragment()
+                presenter?.firebaseEvent("Profile pageview",TAG)
+                val fragment = ProfileFragment()
                 fragment.arguments = bundle
                 return fragment
             }

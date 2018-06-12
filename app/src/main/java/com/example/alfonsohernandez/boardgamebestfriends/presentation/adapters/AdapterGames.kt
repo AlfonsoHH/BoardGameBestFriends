@@ -17,7 +17,7 @@ class AdapterGames : RecyclerView.Adapter<AdapterGames.ViewHolder>() {
     var onLongClickListener: ((Game) -> Unit)? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindItems(gameList!!.get(position))
+        holder.bindItems(gameList?.get(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,7 +48,7 @@ class AdapterGames : RecyclerView.Adapter<AdapterGames.ViewHolder>() {
             })
 
             itemView.setOnLongClickListener {
-                onLongClickListener!!.invoke(game)
+                onLongClickListener?.invoke(game)
                 true
             }
 

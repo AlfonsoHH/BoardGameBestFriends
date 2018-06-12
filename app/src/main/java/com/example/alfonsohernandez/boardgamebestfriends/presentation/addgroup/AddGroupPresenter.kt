@@ -1,183 +1,174 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup
 
-import android.content.Context
-import android.content.Intent
-import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
 import android.util.Log
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegroups.AddGroupInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegroups.GetSingleGroupInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegroups.ModifyGroupInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetAllUsersInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetGroupUsersInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserFromMailInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.profile.ProfileContract
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
 class AddGroupPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+                                            private val paperGroupsInteractor: PaperGroupsInteractor,
                                             private val getAllUsersInteractor: GetAllUsersInteractor,
                                             private val getSingleUserFromMailInteractor: GetSingleUserFromMailInteractor,
-                                            private val getSingleGroupInteractor: GetSingleGroupInteractor,
                                             private val addGroupInteractor: AddGroupInteractor,
                                             private val modifyGroupInteractor: ModifyGroupInteractor,
-                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddGroupContract.Presenter {
+                                            private val saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                            private val getPathFromUriInteractor: GetPathFromUriInteractor,
+                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : AddGroupContract.Presenter, BasePresenter<AddGroupContract.View>() {
 
     private val TAG = "AddGroupPresenter"
 
     var userList = arrayListOf<User>()
     var groupUserList = arrayListOf<User>()
 
-    private var view: AddGroupContract.View? = null
-
     fun setView(view: AddGroupContract.View?) {
         this.view = view
-        view?.addFriend(getProfileData()!!)
-        groupUserList.add(getProfileData()!!)
+        getUserProfile()?.let {
+            view?.setFriend(it)
+            groupUserList.add(it)
+        }
         getAllUser()
     }
 
-    override fun getProfileData(): User? {
+    override fun getUserProfile(): User? {
         return getUserProfileInteractor.getProfile()
     }
 
-    override fun getAllUser() {
+    override fun firebaseEvent(id: String, activityName: String) {
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id, activityName)
+    }
+
+    fun getAllUser() {
+        view?.showProgress(true)
         getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     for (h in it.children) {
                         userList.add(h.getValue(User::class.java)!!)
                     }
-                },{
-                    view?.showProgressBar(false)
-                    view?.showErrorMembers()
+                }, {
+                    view?.showProgress(false)
+                    view?.showError(R.string.addGroupErrorMembers)
                 })
     }
 
     override fun getGroupData(groupId: String) {
-        view?.showProgressBar(true)
-        getSingleGroupInteractor
-                .getFirebaseDataSingleGroup(groupId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.showProgressBar(false)
-                    view?.setData(it.getValue(Group::class.java)!!)
-                },{
-                    view?.showProgressBar(false)
-                    view?.showErrorBuddy()
-                })
+        paperGroupsInteractor.get(groupId)?.let{
+            view?.setData(it)
+        }
     }
 
     override fun getFriendData(email: String) {
-        view?.showProgressBar(true)
+        view?.showProgress(true)
         getSingleUserFromMailInteractor
                 .getFirebaseDataSingleUserFromMail(email)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     var alreadyExist = false
-                    for(member in userList){
-                        if(member.email.equals(email))
+                    for (member in userList) {
+                        if (member.email.equals(email))
                             alreadyExist = true
                     }
                     if (alreadyExist) {
-                        var actualUser = it.getValue(User::class.java)
+                        var actualUser = User()
+                        for (h in it.children) {
+                            actualUser = h.getValue(User::class.java)!!
+                        }
                         var alreadyAdded = false
-                        for(user in groupUserList){
-                            if(email.equals(user.email))
+                        for (user in groupUserList) {
+                            if (email.equals(user.email))
                                 alreadyAdded = true
                         }
-                        if(!alreadyAdded){
-                            Log.d(TAG,actualUser!!.email)
-                            view?.addFriend(actualUser!!)
-                            groupUserList.add(actualUser!!)
-                        }else{
-                            view?.showErrorAlready()
+                        if (!alreadyAdded) {
+                            view?.setFriend(actualUser)
+                            groupUserList.add(actualUser)
+                        } else {
+                            view?.showError(R.string.addGroupErrorAlready)
                         }
-                    }else{
-                        view?.showErrorBuddy()
+                    } else {
+                        view?.showError(R.string.addGroupErrorBuddy)
                     }
-                },{
-                    view?.showProgressBar(false)
-                    view?.showErrorBuddy()
+                }, {
+                    view?.showProgress(false)
+                    view?.showError(R.string.addGroupErrorBuddy)
                 })
     }
 
-    override fun saveGroupData(group: Group, userList: ArrayList<String>) {
+    override fun saveImage(group: Group, data: Bitmap, modify: Boolean, userList: ArrayList<String>?) {
+        view?.showProgress(true)
+        if (userList != null || modify) {
+            val baos = ByteArrayOutputStream()
+            data.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+            val dataArray = baos.toByteArray()
+            val key = addGroupInteractor.getKey()
+            saveImageFirebaseStorageInteractor
+                    .addFirebaseDataImage(key + ".jpg", dataArray)
+                    .subscribe({
+                        group.photo = it.downloadUrl.toString()
+                        if (userList != null) {
+                            saveGroupData(key, group, userList)
+                        } else {
+                            modifyGroupData(group)
+                        }
+                    }, {
+                        view?.showError(R.string.addGroupErrorImage)
+                    })
+        } else {
+            modifyGroupData(group)
+        }
+    }
+
+    fun saveGroupData(key: String, group: Group, userList: ArrayList<String>) {
         addGroupInteractor
-                .addFirebaseDataGroup(group, userList)
+                .addFirebaseDataGroup(key, group, userList)
                 .subscribe({
-                    firebaseEvent("Adding group",TAG)
+                    firebaseEvent("Adding group", TAG)
+                    paperGroupsInteractor.add(group)
                     view?.finishAddGroup()
-                },{
-                    view?.showErrorAdding()
+                }, {
+                    view?.showError(R.string.addGroupErrorAddingGroup)
                 })
     }
 
-    override fun modifyGroupData(group: Group) {
+    fun modifyGroupData(group: Group) {
         modifyGroupInteractor
-                .modifyFirebaseDataGroup(group.id,group)
+                .modifyFirebaseDataGroup(group.id, group)
                 .subscribe({
                     firebaseEvent("Modifying place", TAG)
+                    paperGroupsInteractor.update(group)
                     view?.finishAddGroup()
-                },{
-                    view?.showErrorModify()
+                }, {
+                    view?.showError(R.string.addGroupErrorModify)
                 })
     }
 
-    override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
-    }
-
-    override fun getUrlFromPhoto(cursor: Cursor?): String {
-
-        cursor!!.moveToFirst()
-
-        var imagePath = cursor.getString(cursor.getColumnIndex(arrayOf(MediaStore.Images.Media.DATA)[0]))
-        var options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888
-
-        var stream = ByteArrayOutputStream()
-
-        var bitmapRedux = BitmapFactory.decodeFile(imagePath, options)
-        bitmapRedux.compress(Bitmap.CompressFormat.PNG, 100, stream)
-
-        var url = Base64.encodeToString(stream.toByteArray(), 0)
-
-        cursor.close()
-
-        return url
-    }
-
-    override fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        var cursor: Cursor? = null
-        try {
-            val proj = arrayOf(MediaStore.Images.Media.DATA)
-            cursor = context.contentResolver.query(contentUri, proj, null, null, null)
-            val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            return cursor.getString(column_index)
-        } finally {
-            if (cursor != null)
-                cursor.close()
-        }
+    override fun getRealPathFromURI(contentUri: Uri): String {
+        return getPathFromUriInteractor.getPathFromUri(contentUri)
     }
 }

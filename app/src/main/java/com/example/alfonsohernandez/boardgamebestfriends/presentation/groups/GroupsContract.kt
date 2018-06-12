@@ -2,39 +2,22 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.groups
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
 interface GroupsContract {
 
-    interface View {
+    interface View: BaseView {
 
-        fun clearData()
-        fun setData(group: Group)
-        fun setupRecycler()
-        fun removeGroup(group: Group)
-        fun itemDetail(id: String)
-
-        fun showErrorLoading()
-        fun showErrorRemovingUser()
-        fun showErrorRemovingGroup()
-
-
-        fun successRemovingUser()
-        fun successRemovingGroup()
-        fun successAdding()
-
-        fun showProgressBar(isLoading: Boolean)
+        fun setData(groups: ArrayList<Group>)
 
     }
 
     interface Presenter {
 
-        fun getUserProfile(): User?
-        fun getGroupsData()
-        fun getSingleGroupData(groupId: String)
-
+        fun updateGroupsFromCache()
         fun removeGroup(group: Group)
         fun removeUserFromGroup(group: Group)
 

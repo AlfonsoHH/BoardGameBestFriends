@@ -8,4 +8,8 @@ import java.util.*
 
 data class Message (val userId: String = "",
                     val text: String = "",
-                    val date: String = "") {}
+                    val date: String = "",
+                    var user: Boolean? = null,
+                    var userName: String? = null,
+                    var userPhoto: String? = null,
+                    var userProvider: String? = null) {}

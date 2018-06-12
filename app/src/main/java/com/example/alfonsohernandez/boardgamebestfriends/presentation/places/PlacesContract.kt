@@ -2,6 +2,8 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.places
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
+import com.google.android.gms.maps.model.LatLng
 import java.util.ArrayList
 
 /**
@@ -9,23 +11,19 @@ import java.util.ArrayList
  */
 interface PlacesContract {
 
-    interface View {
+    interface View: BaseView {
 
         fun setData(places: ArrayList<Place>)
-
-        fun showErrorPlaces()
-        fun showErrorRegion()
-
-        fun successAdding()
-
-        fun showProgress(isLoading:Boolean)
 
     }
 
     interface Presenter {
 
-        fun getUserProfile(): User?
-        fun getPlacesData()
+        fun getRegion(): LatLng?
+        fun loadPlacesData()
+        fun setPlacesData()
+        fun getPlacesData(): ArrayList<Place>
+        fun removePlace(place: Place)
 
     }
 

@@ -1,66 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.games.GamesActivity">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        tools:context=".presentation.games.GamesActivity">
+        android:orientation="vertical"
+        tools:context="com.example.alfonsohernandez.yoyocinema.MainActivity">
 
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/container"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/gamesToolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:context="com.example.alfonsohernandez.yoyocinema.MainActivity">
+            android:layout_height="wrap_content"
+            android:background="@color/lightGrey"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:titleTextColor="@color/darkGrey" />
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/gamesToolbar"
+        <SearchView
+            android:id="@+id/searchGames"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:queryHint="Search here">
+
+        </SearchView>
+
+        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipeContainerGames"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvGamesActivity"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/lightGrey"
-                app:titleTextColor="@color/darkGrey"
-                app:popupTheme="@style/AppTheme.PopupOverlay" />
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:background="@color/white"/>
 
-            <SearchView
-                android:id="@+id/searchGames"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:queryHint="Search here">
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            </SearchView>
-
-            <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/swipeContainerGames"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rvGamesActivity"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-            </android.support.v4.widget.SwipeRefreshLayout>
-
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-
-
-        </LinearLayout>
-
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/fab"
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="?android:attr/progressBarStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            android:layout_gravity="center" />
 
-    </FrameLayout>
+
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+</FrameLayout>

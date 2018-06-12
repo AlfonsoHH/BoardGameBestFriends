@@ -7,23 +7,25 @@ import com.google.firebase.database.FirebaseDatabase
 import durdinapps.rxfirebase2.RxFirebaseDatabase
 import io.reactivex.Flowable
 import io.reactivex.Maybe
+import java.util.concurrent.TimeUnit
 
 class GroupsRepository {
     val firebaseInstance = FirebaseDatabase.getInstance().getReference()
 
-    fun addGroup(group: Group, users: ArrayList<String>){
-        val key = firebaseInstance.child("groups").push().key
+    fun getKey(): String{
+        return firebaseInstance.child("groups").push().key
+    }
+
+    fun addGroup(key: String, group: Group, users: ArrayList<String>){
         group.id = key
-        firebaseInstance.child("groups").child(key).setValue(group)
-        for (user in users) {
-            firebaseInstance.child("group-users").child(key).child(user).setValue(true)
-            firebaseInstance.child("user-groups").child(user).child(key).setValue(true)
+        firebaseInstance.child("groups").child(key).setValue(group).addOnCompleteListener {
+            for (user in users) {
+                firebaseInstance.child("group-users").child(key).child(user).setValue(true)
+            }
         }
     }
 
     fun addGroupToUser(userId: String, groupId: String){
-        //firebaseInstance.child("users").child(userId).child("groups").setValue(group)
-        firebaseInstance.child("user-groups").child(userId).child(groupId).setValue(true)
         firebaseInstance.child("group-users").child(groupId).child(userId).setValue(true)
     }
 
@@ -31,27 +33,15 @@ class GroupsRepository {
         firebaseInstance.child("groups").child(groupId).setValue(group)
     }
 
-//    fun modifyGroupToUser(userId: String, groupId: String, group: Group){
-//        firebaseInstance.child("users").child(userId).child("groups").child(groupId).setValue(group)
-//    }
-
     fun removeGroup(groupId: String){
         firebaseInstance.child("groups").child(groupId).removeValue()
     }
 
     fun removeGroupToUser(userId: String, groupId: String){
-        firebaseInstance.child("user-groups").child(userId).child(groupId).removeValue()
         firebaseInstance.child("group-users").child(groupId).child(userId).removeValue()
     }
 
-//    fun removeGroupToUser(userId: String, groupId: String){
-//        //firebaseInstance.child("users").child(userId).child("groups").child(groupId).removeValue()
-//        firebaseInstance.child("user-groups").child(userId).child(groupId).removeValue()
-//        firebaseInstance.child("group-users").child(groupId).child(userId).removeValue()
-//    }
-
     fun getUserGroupsRx(userId: String): Maybe<DataSnapshot> {
-        //return RxFirebaseDatabase.observeSingleValueEvent(firebaseInstance.child("users").child(userId).child("groups"))
         return RxFirebaseDatabase.observeSingleValueEvent(firebaseInstance.child("user-groups").child(userId))
     }
 

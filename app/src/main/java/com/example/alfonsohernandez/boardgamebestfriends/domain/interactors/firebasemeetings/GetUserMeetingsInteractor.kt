@@ -4,5 +4,5 @@ import com.google.firebase.database.DataSnapshot
 import io.reactivex.Maybe
 
 interface GetUserMeetingsInteractor {
-    fun getFirebaseDataUserMeetings(userId: String): Maybe<DataSnapshot>
+    fun getFirebaseDataUserMeetings(regionId: String, userId: String): Maybe<DataSnapshot>
 }

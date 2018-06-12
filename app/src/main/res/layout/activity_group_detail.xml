@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context=".presentation.groupdetail.GroupDetailActivity">
 
     <android.support.v7.widget.Toolbar
@@ -223,7 +224,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/groupDetailRV"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="120dp"
             android:orientation="horizontal"/>
 
         <View
@@ -266,5 +267,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone"/>
+
 
 </FrameLayout>

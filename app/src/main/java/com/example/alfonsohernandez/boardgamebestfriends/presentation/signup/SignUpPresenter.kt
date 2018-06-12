@@ -1,36 +1,38 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.signup
 
-import android.content.Context
-import android.database.Cursor
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
-import android.util.Base64
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.CreateMailUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.AddUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetAllUsersInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
+
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class SignUpPresenter @Inject constructor(private val getAllUsersInteractor: GetAllUsersInteractor,
+class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+                                          private val getAllUsersInteractor: GetAllUsersInteractor,
+                                          private val paperRegionsInteractor: PaperRegionsInteractor,
+                                          private val createMailUserInteractor: CreateMailUserInteractor,
                                           private val addUserInteractor: AddUserInteractor,
-                                          private val getAllRegionInteractor: GetAllRegionInteractor,
-                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): SignUpContract.Presenter {
+                                          private val saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                          private val getPathFromUriInteractor: GetPathFromUriInteractor,
+                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): SignUpContract.Presenter, BasePresenter<SignUpContract.View>() {
 
     private val TAG = "SignUpPresenter"
-
-    private var view: SignUpContract.View? = null
-    var regionList: ArrayList<Region> = arrayListOf()
-
 
     fun setView(view: SignUpContract.View?) {
         this.view = view
@@ -38,38 +40,79 @@ class SignUpPresenter @Inject constructor(private val getAllUsersInteractor: Get
         firebaseEvent("Showing profile",TAG)
     }
 
+    override fun getUserProfile(): User? {
+        return getUserProfileInteractor.getProfile()
+    }
+
+    override fun firebaseEvent(id: String, activityName: String) {
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+    }
+
+    fun createUser(email: String, password: String){
+        view?.showProgress(true)
+        createMailUserInteractor
+                .createAuthMailUser(email,password)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    view?.showProgress(false)
+                    if (it.additionalUserInfo.isNewUser) {
+                        view?.saveUser(it.user)
+                    } else {
+                        view?.showError(R.string.signUpErrorAlreadyExist)
+                    }
+                },{
+                    view?.showProgress(false)
+                    view?.showError(R.string.signUpErrorAuthentification)
+                })
+    }
+
+    override fun saveImage(name: String, user: User, data: Bitmap) {
+        val baos = ByteArrayOutputStream()
+        data.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        val dataArray = baos.toByteArray()
+        saveImageFirebaseStorageInteractor
+                .addFirebaseDataImage(name + ".jpg", dataArray)
+                .subscribe({
+                    user.photo = it.downloadUrl.toString()
+                    saveUserData(name,user)
+                },{
+                    view?.showError(R.string.signUpErrorImage)
+                })
+    }
+
     override fun spinnerItemChange(countrySelected: String) {
-        var tempRegionList = regionList
+        val tempRegionList = paperRegionsInteractor.all()
         tempRegionList.filter { it -> it.country.equals(countrySelected) }
-        var cityListName = arrayListOf<String>()
+        val cityListName = arrayListOf<String>()
         for(region in tempRegionList){
             cityListName.add(region.city)
         }
         view?.setupSpinnerCity(cityListName)
     }
 
-    override fun getUsersData(userMail: String) {
-        view?.showProgressBar(true)
+    override fun getUsersData(userMail: String, password: String) {
+        view?.showProgress(true)
         getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     var alreadyExist = false
                     for (h in it.children) {
-                        if(h.getValue(User::class.java)!!.email.equals(userMail))
+                        if(h.getValue(User::class.java)?.email.equals(userMail))
                             alreadyExist = true
                     }
                     if(!alreadyExist) {
-                        view?.registerUser()
+                        createUser(userMail,password)
                         firebaseEvent("Signing up", TAG)
                     }else {
-                        view?.showErrorUser()
+                        view?.showError(R.string.signUpErrorUser)
                     }
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorAllUsers()
+                    view?.showProgress(false)
+                    view?.showError(R.string.signUpErrorAllUsers)
                 })
     }
 
@@ -79,78 +122,33 @@ class SignUpPresenter @Inject constructor(private val getAllUsersInteractor: Get
                 .subscribe({
                     view?.finishSignUp()
                 },{
-                    view?.showErrorUser()
+                    view?.showError(R.string.signUpErrorUser)
                 })
     }
 
     override fun getRegionIdFromCity(city: String): String {
-        var tempRegionList = regionList
+        val tempRegionList = paperRegionsInteractor.all()
         return tempRegionList.filter { it -> it.city.equals(city) }.get(0).id
     }
 
     override fun getRegionData() {
-        view?.showProgressBar(true)
-        getAllRegionInteractor
-                .getFirebaseDataAllRegions()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.showProgressBar(false)
-                    var countryListName = arrayListOf<String>()
-                    var actualRegion: Region
-                    for (h in it.children) {
-                        actualRegion = h.getValue(Region::class.java)!!
-                        regionList.add(actualRegion)
-                        for(region in regionList) {
-                            if (!actualRegion.country.equals(region.country) || countryListName.size == 0) {
-                                countryListName.add(actualRegion!!.country)
-                            }
-                        }
-                    }
-                    regionList = ArrayList(regionList.sortedBy { it.city })
-                    view?.setupSpinnerCountry(countryListName)
-                    spinnerItemChange(countryListName.get(0))
-                },{
-                    view?.showProgressBar(false)
-                    view?.showErrorRegion()
-                })
-    }
-
-    override fun getUrlFromPhoto(cursor: Cursor?): String {
-
-        cursor!!.moveToFirst()
-
-        var imagePath = cursor.getString(cursor.getColumnIndex(arrayOf(MediaStore.Images.Media.DATA)[0]))
-        var options = BitmapFactory.Options()
-        options.inPreferredConfig = Bitmap.Config.ARGB_8888
-
-        var stream = ByteArrayOutputStream()
-
-        var bitmapRedux = BitmapFactory.decodeFile(imagePath, options)
-        bitmapRedux.compress(Bitmap.CompressFormat.PNG, 100, stream)
-
-        var url = Base64.encodeToString(stream.toByteArray(), 0)
-
-        cursor.close()
-
-        return url
-    }
-
-    override fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        var cursor: Cursor? = null
-        try {
-            val proj = arrayOf(MediaStore.Images.Media.DATA)
-            cursor = context.contentResolver.query(contentUri, proj, null, null, null)
-            val column_index = cursor!!.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            return cursor.getString(column_index)
-        } finally {
-            if (cursor != null)
-                cursor.close()
+        val regionList = arrayListOf<Region>()
+        val countryListName = arrayListOf<String>()
+        for (actualRegion in paperRegionsInteractor.all()) {
+            regionList.add(actualRegion)
+            for (region in regionList) {
+                if (!actualRegion.country.equals(region.country) || countryListName.size == 0) {
+                    countryListName.add(actualRegion.country)
+                }
+            }
         }
+        view?.setupSpinnerCountry(countryListName)
+        spinnerItemChange(countryListName.get(0))
     }
 
-    override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+    override fun getRealPathFromURI(contentUri: Uri): String {
+        return getPathFromUriInteractor.getPathFromUri(contentUri)
     }
+
+
 }

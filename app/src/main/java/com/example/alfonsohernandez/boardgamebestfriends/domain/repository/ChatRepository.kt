@@ -10,10 +10,11 @@ class ChatRepository {
     val firebaseInstance = FirebaseDatabase.getInstance().getReference()
 
     fun sendMessage(groupId: String, message: Message){
-        firebaseInstance.child("groups").child(groupId).child("chat").setValue(message)
+        val key = firebaseInstance.push().key
+        firebaseInstance.child("groups").child(groupId).child("chat").child(key).setValue(message)
     }
 
     fun getMessagesRx(groupId: String): Flowable<DataSnapshot> {
-        return RxFirebaseDatabase.observeValueEvent(firebaseInstance.child("groups").child(groupId).child("chat").orderByKey().limitToFirst(50))
+        return RxFirebaseDatabase.observeValueEvent(firebaseInstance.child("groups").child(groupId).child("chat"))
     }
 }

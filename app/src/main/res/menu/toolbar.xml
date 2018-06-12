@@ -30,4 +30,11 @@
         app:showAsAction="always"
         android:visible="false"/>
 
+    <item
+        android:id="@+id/toolbar_clear"
+        android:icon="@android:drawable/ic_delete"
+        android:title="Modify"
+        app:showAsAction="always"
+        android:visible="false"/>
+
 </menu>

@@ -13,7 +13,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import kotlinx.android.synthetic.main.activity_game_detail.*
 import javax.inject.Inject
 
-class GameDetailActivity : AppCompatActivity(),GameDetailContract.View {
+class GameDetailActivity : AppCompatActivity(), GameDetailContract.View {
 
     private val TAG = "GameDetailActivity"
 
@@ -28,20 +28,15 @@ class GameDetailActivity : AppCompatActivity(),GameDetailContract.View {
         setContentView(R.layout.activity_game_detail)
 
         setSupportActionBar(gameDetailToolbar)
-        supportActionBar!!.setTitle(getString(R.string.gameDetailToolbarTitle))
-        supportActionBar!!.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setTitle(getString(R.string.gameDetailToolbarTitle))
+        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
-        if(savedInstanceState != null) {
-            gameId = savedInstanceState.getString("id", "")
-            kind = savedInstanceState.getString("kind", "")
-        } else {
-            val extras = intent.extras
-            gameId = extras.getString("id", "")
-            kind = extras.getString("kind", "")
-        }
+        val extras = intent.extras
+        gameId = extras.getString("id", "")
+        kind = extras.getString("kind", "")
 
         injectDependencies()
-        presenter.setView(this,gameId)
+        presenter.setView(this, gameId)
     }
 
     fun injectDependencies() {
@@ -49,7 +44,7 @@ class GameDetailActivity : AppCompatActivity(),GameDetailContract.View {
     }
 
     override fun onDestroy() {
-        presenter.setView(null,"")
+        presenter.setView(null, "")
         super.onDestroy()
     }
 
@@ -60,32 +55,35 @@ class GameDetailActivity : AppCompatActivity(),GameDetailContract.View {
         gameDetailTVduration.text = game.playingTime.toString()
         gameDetailTVnumPlayers.text = game.minPlayers.toString() + " - " + game.maxPlayers.toString()
 
-        if(kind.equals("")){
+        if (kind.equals("")) {
             gameDetailIVuser.alpha = 0.4f
             gameDetailIVgroup.alpha = 0.4f
             gameDetailIVplace.alpha = 0.4f
-        }else if (kind.contains("buddy")){
+        } else if (kind.contains("buddy")) {
             gameDetailIVgroup.alpha = 0.4f
             gameDetailIVplace.alpha = 0.4f
-        }else if (kind.contains("group")){
+        } else if (kind.contains("group")) {
             gameDetailIVuser.alpha = 0.4f
             gameDetailIVplace.alpha = 0.4f
-        }else if (kind.contains("place")){
+        } else if (kind.contains("place")) {
             gameDetailIVuser.alpha = 0.4f
             gameDetailIVgroup.alpha = 0.4f
         }
 
-        Log.d(TAG,game.rating.toString())
         gameDetailRatingBar.rating = game.rating.toFloat()
     }
 
-    override fun showErrorLoading() {
-        Toast.makeText(this, getString(R.string.gameDetailErrorLoading),Toast.LENGTH_SHORT).show()
+    override fun showError(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showProgressBar(boolean: Boolean) {
-        progressBarGameDetail.setVisibility(boolean)
-        gameDetailFLall.setVisibility(!boolean)
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showProgress(isLoading: Boolean) {
+        progressBarGameDetail?.setVisibility(isLoading)
+        gameDetailFLall?.setVisibility(!isLoading)
     }
 
 }

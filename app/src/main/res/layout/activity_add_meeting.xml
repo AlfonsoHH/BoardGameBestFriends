@@ -6,7 +6,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity">
+    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity"
+    android:background="@color/white">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/addMeetingToolbar"
@@ -212,17 +213,20 @@
                 android:layout_height="20dp"/>
 
             <LinearLayout
-                android:layout_width="310dp"
+                android:id="@+id/addMeetingLLwho"
+                android:layout_width="match_parent"
                 android:layout_gravity="right"
                 android:layout_height="wrap_content"
                 android:background="@color/lightGrey"
                 android:orientation="vertical"
-                android:padding="6dp">
+                android:padding="6dp"
+                android:layout_marginLeft="10dp">
 
                 <Spinner
                     android:id="@+id/addMeetingSwho"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="80dp"/>
 
             </LinearLayout>
 
@@ -231,17 +235,19 @@
                 android:layout_height="36dp"/>
 
             <LinearLayout
-                android:layout_width="310dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/lightGrey"
                 android:orientation="vertical"
                 android:paddingVertical="6dp"
-                android:paddingHorizontal="12dp">
+                android:paddingHorizontal="12dp"
+                android:layout_marginRight="10dp">
 
                 <Spinner
                     android:id="@+id/addMeetingSwhere"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="80dp"/>
 
             </LinearLayout>
 
@@ -250,17 +256,19 @@
                 android:layout_height="36dp"/>
 
             <LinearLayout
-                android:layout_width="310dp"
+                android:layout_width="match_parent"
                 android:layout_gravity="right"
                 android:layout_height="wrap_content"
                 android:background="@color/lightGrey"
                 android:orientation="vertical"
-                android:padding="6dp">
+                android:padding="6dp"
+                android:layout_marginLeft="10dp">
 
                 <Spinner
                     android:id="@+id/addMeetingSwhat"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="80dp"/>
 
             </LinearLayout>
 

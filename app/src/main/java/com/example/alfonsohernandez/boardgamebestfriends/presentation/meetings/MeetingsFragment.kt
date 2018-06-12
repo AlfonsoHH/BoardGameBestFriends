@@ -1,6 +1,5 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.meetings
 
-
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -13,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SearchView
 import android.widget.Toast
-
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.PresentationModule
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
@@ -21,17 +19,14 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMeetings
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
 import kotlinx.android.synthetic.main.fragment_meetings.*
 import javax.inject.Inject
 
-
-/**
- * A simple [Fragment] subclass.
- */
-
 class MeetingsFragment : Fragment(),
         MeetingsContract.View,
+        View.OnClickListener,
         SearchView.OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener {
 
@@ -39,9 +34,6 @@ class MeetingsFragment : Fragment(),
     lateinit var presenter: MeetingsPresenter
 
     var adapter = AdapterMeetings()
-
-//    var host = false
-//    var playing = false
 
     var kind: String = ""
 
@@ -55,11 +47,9 @@ class MeetingsFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        if(savedInstanceState!=null)
-            kind = savedInstanceState.getString("kind","")
-        else{
-            var intent = activity!!.intent.extras
-            kind = intent.getString("kind","")
+        val intent = activity?.intent?.extras
+        intent?.let {
+            kind = it.getString("kind", "")
         }
 
         injectDependencies()
@@ -68,22 +58,12 @@ class MeetingsFragment : Fragment(),
 
         searchMeeting.setOnQueryTextListener(this)
         swipeContainerMeetings.setOnRefreshListener(this)
-
-        fab.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View?) {
-                startAddMeeting()
-            }
-        })
+        fab.setOnClickListener(this)
     }
 
     fun startAddMeeting(){
         val intent = Intent(context, AddMeetingActivity::class.java)
         startActivityForResult(intent,1)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        clearData()
     }
 
     override fun onDestroyView() {
@@ -95,7 +75,7 @@ class MeetingsFragment : Fragment(),
         App.instance.component.plus(PresentationModule()).inject(this)
     }
 
-    override fun setupRecycler() {
+    fun setupRecycler() {
         rvMeetingsFragment.layoutManager = LinearLayoutManager(context)
         rvMeetingsFragment.adapter = adapter
 
@@ -104,101 +84,78 @@ class MeetingsFragment : Fragment(),
         }
 
         adapter.onLongClickListener = { meeting ->
-            if(meeting.creatorId.equals(presenter.getUserProfile()!!.id)) {
-                val alertDilog = AlertDialog.Builder(context!!.applicationContext).create()
-                alertDilog.setTitle(getString(R.string.meetingsDialogAlert))
-                alertDilog.setMessage(getString(R.string.meetingsDialogRemove))
-
-                alertDilog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.meetingsDialogAccept), { dialogInterface, i ->
-                    presenter.removeMeeting(meeting.id)
-                    adapter.meetingsList.remove(meeting)
-                    adapter.notifyDataSetChanged()
-                })
-
-                alertDilog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.meetingsDialogCancel), { dialogInterface, i ->
-                    alertDilog.dismiss()
-                })
-                alertDilog.show()
+            if(meeting.creatorId.equals(presenter.getUserProfile()?.id)) {
+                context?.let {
+                    DialogFactory.buildConfirmDialog(it, getString(R.string.meetingsDialogRemove), Runnable {
+                        presenter.removeMeeting(meeting.id)
+                        adapter.meetingsList.remove(meeting)
+                        adapter.notifyDataSetChanged()
+                    }).show()
+                }
             }else{
                 Toast.makeText(context, getString(R.string.meetingsDialogError), Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    override fun itemDetail(id: String) {
+    fun itemDetail(id: String) {
         val intent = Intent(context, MeetingDetailActivity::class.java)
         intent.putExtra("id", id)
         startActivity(intent)
     }
 
     override fun setData(meetings: Collection<Meeting>?) {
-        //clearData()
-        adapter.meetingsList.addAll(meetings!!)
-        adapter.notifyDataSetChanged()
+        meetings?.let {
+            adapter.meetingsList.clear()
+            adapter.meetingsList.addAll(it)
+            adapter.notifyDataSetChanged()
+        }
     }
 
-    override fun clearData() {
-        adapter.meetingsList.clear()
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.fab -> { startAddMeeting() }
+        }
     }
 
-    override fun setSingleData(meeting: Meeting) {
-        adapter.meetingsList.add(meeting)
-        var meetingList = ArrayList(adapter.meetingsList.sortedWith(compareBy({ it.date.substring(it.date.length-2,it.date.length) }, { it.date.substring(it.date.length-5,it.date.length-3) }, { it.date.substring(it.date.length-8,it.date.length-6) }, { it.date.substring(0,it.date.lastIndexOf("_")) })))
-        adapter.meetingsList.clear()
-        adapter.meetingsList.addAll(meetingList)
-        adapter.notifyDataSetChanged()
+    override fun showError(stringId: Int) {
+        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorLoading() {
-        Toast.makeText(context, getString(R.string.meetingsErrorLoading), Toast.LENGTH_SHORT).show()
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorRemoving() {
-        Toast.makeText(context, getString(R.string.meetingsErrorRemoving), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun successRemoving() {
-        Toast.makeText(context, getString(R.string.meetingsSuccessRemoving), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun successAdding() {
-        Toast.makeText(context, getString(R.string.meetingsSuccessAdding), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showProgressBar(isLoading:Boolean) {
-        progressBar.setVisibility(isLoading)
-        rvMeetingsFragment.setVisibility(!isLoading)
+    override fun showProgress(isLoading:Boolean) {
+        progressBar?.setVisibility(isLoading)
+        rvMeetingsFragment?.setVisibility(!isLoading)
         if (!isLoading)
-            swipeContainerMeetings.isRefreshing = false
+            swipeContainerMeetings?.isRefreshing = false
     }
 
     override fun onRefresh() {
-        presenter.dataChooser()
-        swipeContainerMeetings.isRefreshing = false
+        presenter.initialDataChooser()
+        swipeContainerMeetings?.isRefreshing = false
     }
 
     override fun onQueryTextSubmit(query: String?): Boolean {
-        presenter.dataChooser()
+        presenter.cacheDataChooser()
         return true
     }
 
     override fun onQueryTextChange(newText: String?): Boolean {
-        presenter.dataChooser()
+        presenter.cacheDataChooser()
         return true
     }
 
-    override fun noResult() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun getSearchData(): String {
-        return searchMeeting.query.toString()
+    override fun getSearchData(): String? {
+        return searchMeeting?.query.toString()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(resultCode == Activity.RESULT_OK) {
-            successAdding()
-            presenter.dataChooser()
+            showSuccess(R.string.meetingsSuccessAdding)
+            presenter.cacheDataChooser()
         }
     }
 }

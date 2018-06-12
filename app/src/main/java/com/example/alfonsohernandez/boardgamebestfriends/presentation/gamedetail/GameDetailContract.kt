@@ -1,6 +1,7 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
@@ -8,11 +9,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 
 interface GameDetailContract {
 
-    interface View {
+    interface View: BaseView {
 
         fun setData(game: Game)
-        fun showErrorLoading()
-        fun showProgressBar(boolean: Boolean)
 
     }
 

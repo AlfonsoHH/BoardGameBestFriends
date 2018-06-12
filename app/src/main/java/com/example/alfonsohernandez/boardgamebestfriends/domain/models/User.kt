@@ -9,4 +9,5 @@ data class User (var id: String = "",
                  var userName: String = "",
                  var photo: String = "",
                  var service: String = "",
-                 var regionId: String = "") {}
+                 var regionId: String = "",
+                 var myPlace: Place? = null) {}

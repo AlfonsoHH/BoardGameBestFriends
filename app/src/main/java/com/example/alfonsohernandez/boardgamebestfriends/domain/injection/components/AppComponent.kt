@@ -13,10 +13,13 @@ import dagger.Component
 @Component(modules = arrayOf(
         ApiModule::class,
         AppModule::class,
+        ContentResolverModule::class,
         DatabaseModule::class,
+        GeocoderModule::class,
         InteractorModule::class,
         PreferenceModule::class,
-        RepositoryModule::class
+        RepositoryModule::class,
+        PushModule::class
 ))
 interface AppComponent {
     fun inject(app: Application)

@@ -1,60 +1,40 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.*
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
 interface AddMeetingContract {
 
-    interface View{
+    interface View: BaseView{
 
-        fun addGroupToSpinner(groupsTitle: String)
         fun addGameToSpinner(gamesTitle: String)
+        fun addGamesToSpinner(games: ArrayList<Game>)
         fun itsGame(game: String): Boolean
-        fun setPlaceSpinner(placesList: ArrayList<String>)
+
         fun finishAddMeeting()
-
-        fun showErrorAdding()
-        fun showErrorGames()
-        fun showErrorGroups()
-        fun showErrorPlaces()
-        fun showErrorAddingMeeting()
-        fun showErrorAddingUserToMeeting()
-        fun showErrorAddingMeetingToGroup()
-        fun showErrorAddingMeetingToPlace()
-        fun showErrorEmpty()
-        fun showErrorMyPlace()
-
-        fun showProgressBar(boolean: Boolean)
 
     }
 
     interface Presenter{
 
-        fun getUserProfile(): User?
-        fun getMyPlacee(): Place?
-
         fun saveMeeting(meeting: Meeting, playing: Boolean)
 
-        fun getUserGroups()
-        fun getSingleGroup(groupId: String)
+        fun getMyPlacee(): Place?
+        fun getMeetingData(meetingId: String)
 
-        fun getOpenPlaces()
-        fun getUserPlaces()
+        fun getUserGroups(): ArrayList<String>
+        fun getPlaces(): ArrayList<String>
 
         fun getUserGames(userId: String)
-        fun getGroupGames(groupId: String)
-        fun getPlaceGames(placeId: String)
+        fun getGroupGames(groupId: String?)
+        fun getPlaceGames(placeId: String?)
 
-        fun getSinglePlace(placeId: String)
-        fun getSingleGame(gameId: String)
-
-        fun getGroupFromTitle(groupTitle: String): Group
-        fun getPlaceFromTitle(placeName: String): Place
+        fun getGroupFromTitle(groupTitle: String): Group?
+        fun getPlaceFromTitle(placeName: String): Place?
         fun getGameFromTitle(gameTitle: String): Game
-
-        fun firebaseEvent(id: String, activityName: String)
 
     }
 }

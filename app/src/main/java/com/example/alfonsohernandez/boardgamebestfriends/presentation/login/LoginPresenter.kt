@@ -1,16 +1,21 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.login
 
-import android.util.Log
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithCredentialsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithEmailInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.AddUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetAllUsersInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.ModifyUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.google.firebase.auth.AuthCredential
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -20,102 +25,125 @@ import javax.inject.Inject
  */
 
 class LoginPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+                                         private val loginWithEmailInteractor: LoginWithEmailInteractor,
+                                         private val loginWithCredentialsInteractor: LoginWithCredentialsInteractor,
+                                         private val paperRegionsInteractor: PaperRegionsInteractor,
                                          private val saveUserProfileInteractor: SaveUserProfileInteractor,
                                          private val getSingleUserInteractor: GetSingleUserInteractor,
                                          private val getAllUsersInteractor: GetAllUsersInteractor,
                                          private val addUserInteractor: AddUserInteractor,
                                          private val modifyUserInteractor: ModifyUserInteractor,
                                          private val getAllRegionInteractor: GetAllRegionInteractor,
-                                         private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): LoginContract.Presenter {
+                                         private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): LoginContract.Presenter, BasePresenter<LoginContract.View>() {
 
     private val TAG = "LoginPresenter"
-
-    private var view: LoginContract.View? = null
-
-    var regionList = arrayListOf<Region>()
 
     fun setView(view: LoginContract.View?) {
         this.view = view
         loadRegions()
     }
 
+    override fun getUserProfile(): User? {
+        return getUserProfileInteractor.getProfile()
+    }
+
+    override fun firebaseEvent(id: String, activityName: String) {
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+    }
+
+    override fun loginWithEmail(email: String, password: String){
+        view?.showProgress(true)
+        loginWithEmailInteractor
+                .loginAuthWithMail(email,password)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    view?.showProgress(false)
+                    getSingleUser(it.user.uid)
+                },{
+                    view?.showProgress(false)
+                    view?.showError(R.string.loginErrorEmail)
+                })
+    }
+
+    override fun loginWithCredentials(credential: AuthCredential, fromFacebook: Boolean){
+        view?.showProgress(true)
+        loginWithCredentialsInteractor
+                .loginAuthWithCredentials(credential)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    view?.showProgress(false)
+                    if(it.additionalUserInfo.isNewUser)
+                        view?.chooseRegion(fromFacebook)
+                    else
+                        getSingleUser(it.user.uid)
+                },{
+                    view?.showProgress(false)
+                    if(fromFacebook)
+                        view?.showError(R.string.loginErrorFacebook)
+                    else
+                        view?.showError(R.string.loginErrorGmail)
+                })
+    }
+
     override fun loadRegions() {
-        view?.showProgressBar(true)
+        view?.showProgress(true)
         getAllRegionInteractor
                 .getFirebaseDataAllRegions()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
+                    var regionList = arrayListOf<Region>()
                     for (h in it.children) {
                         regionList.add(h.getValue(Region::class.java)!!)
                     }
                     regionList = ArrayList(regionList.sortedBy { it.city })
+                    paperRegionsInteractor.clear()
+                    paperRegionsInteractor.addAll(regionList)
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorLoadingRegions()
+                    view?.showProgress(false)
+                    view?.showError(R.string.loginErrorLoadingRegion)
                 })
     }
 
-    override fun getCountryList(): ArrayList<String> {
-        var countryList = arrayListOf<String>()
-        for(region in regionList){
-            var exist = false
-            for(country in countryList) {
-                if (country.equals(region.country))
-                    exist = true
-            }
-            if(!exist)
-                countryList.add(region.country)
-        }
-        return countryList
-    }
-
-    override fun getCityList(countryName: String): ArrayList<String> {
-        var cityList = arrayListOf<String>()
-        for(region in regionList){
-            if(region.country.equals(countryName))
-                cityList.add(region.city)
-        }
-        return cityList
+    override fun getRegions(): ArrayList<Region>{
+        return paperRegionsInteractor.all()
     }
 
     override fun getRegionId(cityName: String): String {
         var regionId = ""
-        for(region in regionList){
+        for(region in paperRegionsInteractor.all()){
             if(region.city.equals(cityName))
                 regionId = region.id
         }
         return regionId
     }
 
-    override fun getUserProfile(): User? {
-        return getUserProfileInteractor.getProfile()
-    }
-
     override fun getSingleUser(userId: String) {
-        view?.showProgressBar(true)
+        view?.showProgress(true)
         getSingleUserInteractor
                 .getFirebaseDataSingleUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     saveUserInPaper(it.getValue(User::class.java)!!)
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorLoadingUsers()
+                    view?.showProgress(false)
+                    view?.showError(R.string.loginErrorLoadingUsers)
                 })
     }
 
     override fun getUsersData(userId: String,user: User) {
-        view?.showProgressBar(true)
+        view?.showProgress(true)
         getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     var alreadyExist = false
                     for (h in it.children) {
                         if(h.getValue(User::class.java)!!.email.equals(user.email)) {
@@ -128,8 +156,8 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                         modifyUserInFirebaseDB(userId,user)
                     }
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorLoadingUsers()
+                    view?.showProgress(false)
+                    view?.showError(R.string.loginErrorLoadingUsers)
                 })
     }
 
@@ -139,7 +167,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 .subscribe({
                     saveUserInPaper(user)
                 },{
-                    view?.showErrorSavingUser()
+                    view?.showError(R.string.loginErrorSavingUser)
                 })
     }
 
@@ -149,7 +177,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 .subscribe({
                     saveUserInPaper(user)
                 },{
-                    view?.showErrorSavingUser()
+                    view?.showError(R.string.loginErrorSavingUser)
                 })
     }
 
@@ -160,11 +188,8 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                     firebaseEvent("Login in", TAG)
                     view?.nextActivity()
                 },{
-                    view?.showErrorSavingUser()
+                    view?.showError(R.string.loginErrorSavingUser)
                 })
     }
 
-    override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
-    }
 }

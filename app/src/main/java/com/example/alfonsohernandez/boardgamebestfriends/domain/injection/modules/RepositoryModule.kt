@@ -1,9 +1,12 @@
 package com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.scopes.AppScope
+import com.example.alfonsohernandez.boardgamebestfriends.domain.models.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.*
+import com.example.alfonsohernandez.boardgamebestfriends.storage.database.StringDatabase
 import dagger.Module
 import dagger.Provides
+import javax.inject.Named
 
 /**
  * Created by alfonsohernandez on 27/03/2018.
@@ -51,5 +54,47 @@ class RepositoryModule {
     @AppScope
     fun providesUsersRepository(): UsersRepository {
         return UsersRepository()
+    }
+
+    @Provides
+    @AppScope
+    fun providesImagesRepository(): ImageRepository {
+        return ImageRepository()
+    }
+
+    @Provides
+    @AppScope
+    fun providesAuthRepository(): AuthRepository {
+        return AuthRepository()
+    }
+
+    @Provides
+    @AppScope
+    fun providesPaperGroupRepository(@Named("groups") database: StringDatabase<Group>): PaperGroupsRepository {
+        return PaperGroupsRepository(database)
+    }
+
+    @Provides
+    @AppScope
+    fun providesPaperMeetingRepository(@Named("meetings") database: StringDatabase<Meeting>): PaperMeetingsRepository {
+        return PaperMeetingsRepository(database)
+    }
+
+    @Provides
+    @AppScope
+    fun providesPaperPlaceRepository(@Named("places") database: StringDatabase<Place>): PaperPlacesRepository {
+        return PaperPlacesRepository(database)
+    }
+
+    @Provides
+    @AppScope
+    fun providesPaperRegionRepository(@Named("regions") database: StringDatabase<Region>): PaperRegionsRepository {
+        return PaperRegionsRepository(database)
+    }
+
+    @Provides
+    @AppScope
+    fun providesPaperGameRepository(@Named("games") database: StringDatabase<Game>): PaperGamesRepository {
+        return PaperGamesRepository(database)
     }
 }

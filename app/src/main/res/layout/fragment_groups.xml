@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.groups.GroupsFragment">
+    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.groups.GroupsFragment"
+    android:background="@color/white">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -14,16 +15,28 @@
         android:orientation="vertical"
         tools:context="com.example.alfonsohernandez.yoyocinema.MainActivity">
 
-        <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        <android.support.v4.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swipeContainerGroups"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/white">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"/>
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvGroupFragment"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+                android:layout_height="match_parent"/>
+
+            </LinearLayout>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 

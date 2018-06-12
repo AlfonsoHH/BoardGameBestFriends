@@ -3,26 +3,21 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.chat
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 interface ChatContract {
 
-    interface View{
+    interface View: BaseView{
 
         fun setData(group: Group, messages: ArrayList<Message>)
-        fun showErrorAdding()
-        fun showErrorLoading()
-        fun showProgressBar(boolean: Boolean)
+        fun setupRecycler()
 
     }
 
     interface Presenter{
 
-        fun loadFirebaseChat()
+        fun loadFirebaseChat(group: Group)
         fun sendMessage(message: Message)
-
-        fun getUserProfile(): User?
-
-        fun firebaseEvent(id: String, activityName: String)
 
     }
 

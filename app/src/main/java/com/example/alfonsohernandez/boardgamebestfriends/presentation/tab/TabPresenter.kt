@@ -1,12 +1,21 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.tab
 
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetAllGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.ModifyUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.PaperGamesRepository
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -16,24 +25,52 @@ import javax.inject.Inject
  */
 
 class TabPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
-                                       private val getAllRegionInteractor: GetAllRegionInteractor,
+                                       private val paperRegionsInteractor: PaperRegionsInteractor,
+                                       private val paperGamesInteractor: PaperGamesInteractor,
+                                       private val paperMeetingsInteractor: PaperMeetingsInteractor,
+                                       private val paperPlacesInteractor: PaperPlacesInteractor,
+                                       private val getAllGamesInteractor: GetAllGamesInteractor,
                                        private val modifyUserInteractor: ModifyUserInteractor,
                                        private val saveUserProfileInteractor: SaveUserProfileInteractor,
-                                       private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter {
+                                       private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter, BasePresenter<TabContract.View>() {
 
-    private var view: TabContract.View? = null
     private val TAG: String = "TabPresenter"
-
-    var regionList = arrayListOf<Region>()
 
     fun setView(view: TabContract.View?) {
         this.view = view
         view?.setData()
-        loadRegions()
+        loadAllGames()
     }
 
     override fun getUserProfile(): User? {
         return getUserProfileInteractor.getProfile()
+    }
+
+    override fun firebaseEvent(id: String, activityName: String) {
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+    }
+
+    override fun clearPaper() {
+        paperMeetingsInteractor.clear()
+        paperPlacesInteractor.clear()
+    }
+
+    fun loadAllGames() {
+        paperGamesInteractor.clear()
+        getAllGamesInteractor
+                .getFirebaseDataAllGames()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    var gameList = arrayListOf<Game>()
+                    for (h in it.children) {
+                        gameList.add(h.getValue(Game::class.java)!!)
+                    }
+                    gameList = ArrayList(gameList.sortedBy {game -> game.title })
+                    paperGamesInteractor.addAll(gameList)
+                },{
+                    view?.showError(R.string.gamesErrorLoading)
+                })
     }
 
     override fun modifyUserInFirebaseDB(userId: String, user: User) {
@@ -42,7 +79,7 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                 .subscribe({
                     saveUserInPaper(user)
                 },{
-                    view?.showErrorSavingUser()
+                    view?.showError(R.string.tabErrorUser)
                 })
     }
 
@@ -53,60 +90,20 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                     firebaseEvent("Login in", TAG)
                     view?.successChangingRegion()
                 },{
-                    view?.showErrorSavingUser()
+                    view?.showError(R.string.tabErrorUser)
                 })
     }
 
-    override fun loadRegions() {
-        getAllRegionInteractor
-                .getFirebaseDataAllRegions()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.successLoadingRegions()
-                    for (h in it.children) {
-                        regionList.add(h.getValue(Region::class.java)!!)
-                    }
-                    regionList = ArrayList(regionList.sortedBy { it.city })
-                },{
-                    view?.showErrorLoadingRegions()
-                })
-    }
-
-    override fun getCountryList(): ArrayList<String> {
-        var countryList = arrayListOf<String>()
-        for(region in regionList){
-            var exist = false
-            for(country in countryList) {
-                if (country.equals(region.country))
-                    exist = true
-            }
-            if(!exist)
-                countryList.add(region.country)
-        }
-        return countryList
-    }
-
-    override fun getCityList(countryName: String): ArrayList<String> {
-        var cityList = arrayListOf<String>()
-        for(region in regionList){
-            if(region.country.equals(countryName))
-                cityList.add(region.city)
-        }
-        return cityList
+    override fun getRegionList(): ArrayList<Region>{
+        return paperRegionsInteractor.all()
     }
 
     override fun getRegionId(cityName: String): String {
         var regionId = ""
-        for(region in regionList){
+        for(region in paperRegionsInteractor.all()){
             if(region.city.equals(cityName))
                 regionId = region.id
         }
         return regionId
     }
-
-    override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
-    }
-
 }

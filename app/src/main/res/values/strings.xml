@@ -52,7 +52,7 @@
     <string name="groupDetailGames">Games</string>
     <string name="goupDetailMeetings">Meetings</string>
     <string name="groupDetailChat">Chat</string>
-    <string name="groupDetailErrorRegion">Error accesing the the region data</string>
+    <string name="groupDetailErrorRegion">Error accesing the region data</string>
     <string name="groupDetailErrorGroup">Error loading group data</string>
     <string name="groupDetailErrorMembers">Error accesing the group´s members</string>
     <string name="groupDetailToolbarTitle">Group Detail</string>
@@ -158,7 +158,7 @@
     <string name="groupDetailErrorNewMember">Error, unable to add the new member</string>
     <string name="groupDetailErrorAlready">Error, member already exist</string>
     <string name="groupDetailErrorExist">Error, the email does not match with any user</string>
-    <string name="groupDetailSuccess">Success, member added to group</string>
+    <string name="groupDetailSuccessNewMember">Success, member added to group</string>
     <string name="addGroupErrorMembers">Error, unable to access users data</string>
     <string name="addGroupErrorAlready">Error, member already exist</string>
     <string name="addMeetingErrorAdding">Error, unable to add meeting</string>
@@ -178,7 +178,7 @@
     <string name="gamesSuccessRemoveToGroup">Success, game removed form group</string>
     <string name="gamesSuccessRemoveFromPlace">Success, game removed from place</string>
     <string name="groupsErrorRemovingUser">Error, unable to leave group</string>
-    <string name="groupsSuccessRemovingUser">Sucess, user removed from group</string>
+    <string name="groupsSuccessRemovingUser">Success, user removed from group</string>
     <string name="groupsSuccessAdding">Success, group added</string>
     <string name="meetingsSuccessAdding">Success, meeting added</string>
     <string name="placesSuccessAdding">Success, place added</string>
@@ -193,9 +193,9 @@
     <string name="meetingsSuccessRemoving">Success, meeting deleted</string>
     <string name="loginSuccessAdding">Success, new user created</string>
     <string name="loginErrorSavingUser">Error, unable to save user information</string>
-    <string name="loginErrorUsers">Error, unable to load users data</string>
+    <string name="loginErrorLoadingUsers">Error, unable to load users data</string>
     <string name="profileErrorPlaces">Error, unable to access places data</string>
-    <string name="profileDialogTitle">You have not a place asociated to your region</string>
+    <string name="profileDialogTitle">You have not a place associated to your region</string>
     <string name="profileDialogMessagge">Do you want to add a place like your personal place?</string>
     <string name="profileDialogYes">Yes</string>
     <string name="profileDialogNo">No</string>
@@ -266,6 +266,43 @@
     <string name="addPlaceErrorAddress">Error, unable to find address</string>
     <string name="itemMeetingOpen">Open</string>
     <string name="itemMeetingGroup">Group</string>
-
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="placesErrorRemovingPlace">Error, unable to remove place</string>
+    <string name="placesSuccessRemovingPlace">Success, place removed</string>
+    <string name="placesErrorUnableRemoveNoCreator">Error, you did not create the place so you can not erase it</string>
+    <string name="placesDialogText">Are you sure to delete this place?</string>
+    <string name="placesDialogAccept">Accept</string>
+    <string name="placesDialogCancel">Cancel</string>
+    <string name="placesDialogTitle">Alert!</string>
+    <string name="addMeetingErrorMeetingUser">Error, unable to add you to the meeting you just created</string>
+    <string name="chatErrorLoadingGroupData">Error, unable to load group data</string>
+    <string name="signUpDialogText">Do you want to pick a photo from your device?</string>
+    <string name="signUpDialogCamera">Camera</string>
+    <string name="signUpDialogGallery">Gallery</string>
+    <string name="signUpDialogCancel">Cancel</string>
+    <string name="signUpErrorSaveImage">Error, unable to save image</string>
+    <string name="signUpErrorUrl">Error, unable to retrieve image url</string>
+    <string name="signUpDialogUpdate">Update</string>
+    <string name="signUpDialogPermissions">You need permission to access the camera and the gallery</string>
+    <string name="signUpSnackySettings">Settings</string>
+    <string name="signUpSnackyText">You need this permissions to be able to pick pictures</string>
+    <string name="tabSnackySettings">Settings</string>
+    <string name="tabSnackyText">You need location permissions to see your position on the map</string>
+    <string name="tabPermissions">You will not be able to see your position on the map</string>
+    <string name="addGroupErrorImage">Error, unable to store group image</string>
+    <string name="addPlaceErrorImage">Error, unable to store place image</string>
+    <string name="signUpErrorImage">Error, unable to store user photo</string>
+    <string name="profileSuccessModify">Success, user modified</string>
+    <string name="profileErrorImage">Error, unable to save user image</string>
+    <string name="profileErrorSaveUser">Error, unable to save user information</string>
+    <string name="gamesToolbarTitleMember">Member Games</string>
+    <string name="meetingDetailSuccessModify">Success, meeting modified</string>
+    <string name="gamesBggPDtitle">Loading BGG data...</string>
+    <string name="gamesBggPDtext">This operation could take several minutes</string>
+    <string name="profileDialogModify">Are you sure to replace your profile photo with this one?</string>
+    <string name="signUpErrorAuthentification">Error, authentication failed</string>
+    <string name="signUpErrorAlreadyExist">Error, an user with this email already exist</string>
+    <string name="signUpErrorPasswordLenght">Error, password should have at least 6 characters length</string>
+    <string name="loginErrorEmpty">Error, one or more fields are empty</string>
 
 </resources>

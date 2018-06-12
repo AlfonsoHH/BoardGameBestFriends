@@ -19,16 +19,12 @@ class MeetingsRepository {
     }
 
     fun addMeetingToUser(regionId: String, userId: String, playing: Boolean, meetingId: String){
-        firebaseInstance.child("user-meetings").child(userId).child(meetingId).setValue(playing)
-        if(playing) {
-            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).setValue(true)
-        }else{
-            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).removeValue()
-        }
-    }
-
-    fun addMeetingToGroup(groupId: String, meetingId: String){
-        firebaseInstance.child("group-meetings").child(groupId).child(meetingId).setValue(true)
+        firebaseInstance.child("user-meetings").child(userId).child(regionId).child(meetingId).setValue(playing)
+//        if(playing) {
+//            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).setValue(true)
+//        }else{
+//            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).removeValue()
+//        }
     }
 
     fun addMeetingToPlace(placeId: String, meetingId: String){
@@ -40,12 +36,11 @@ class MeetingsRepository {
     }
 
     fun removeMeeting(regionId: String, meetingId: String){
-        val userInstance = firebaseInstance.child(regionId)
-        userInstance.child("meetings").child(meetingId).removeValue()
+        firebaseInstance.child("meetings").child(regionId).child(meetingId).removeValue()
     }
 
     fun removeMeetingToUser(regionId: String, userId: String, meetingId: String){
-        firebaseInstance.child("user-meetings").child(userId).child(meetingId).removeValue()
+        firebaseInstance.child("user-meetings").child(userId).child(regionId).child(meetingId).removeValue()
         firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).removeValue()
     }
 
@@ -53,8 +48,8 @@ class MeetingsRepository {
         return RxFirebaseDatabase.observeSingleValueEvent(firebaseInstance.child("meetings").child(regionId))
     }
 
-    fun getUserMeetingsRx(userId: String): Maybe<DataSnapshot> {
-        return RxFirebaseDatabase.observeSingleValueEvent(firebaseInstance.child("user-meetings").child(userId))
+    fun getUserMeetingsRx(regionId: String, userId: String): Maybe<DataSnapshot> {
+        return RxFirebaseDatabase.observeSingleValueEvent(firebaseInstance.child("user-meetings").child(userId).child(regionId))
     }
 
     fun getGroupMeetingsRx(groupId: String): Maybe<DataSnapshot> {

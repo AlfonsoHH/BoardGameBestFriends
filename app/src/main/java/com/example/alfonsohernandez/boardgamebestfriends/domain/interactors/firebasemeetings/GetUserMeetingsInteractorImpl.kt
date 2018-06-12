@@ -5,7 +5,7 @@ import com.google.firebase.database.DataSnapshot
 import io.reactivex.Maybe
 
 class GetUserMeetingsInteractorImpl (private val meetingsRepository: MeetingsRepository): GetUserMeetingsInteractor{
-    override fun getFirebaseDataUserMeetings(userId: String): Maybe<DataSnapshot> {
-        return meetingsRepository.getUserMeetingsRx(userId)
+    override fun getFirebaseDataUserMeetings(regionId: String, userId: String): Maybe<DataSnapshot> {
+        return meetingsRepository.getUserMeetingsRx(regionId,userId)
     }
 }

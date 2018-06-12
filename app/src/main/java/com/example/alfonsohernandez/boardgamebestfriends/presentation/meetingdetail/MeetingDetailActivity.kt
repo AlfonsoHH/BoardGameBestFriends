@@ -1,15 +1,22 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
-import android.util.Base64
+import android.text.InputType
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
+import android.view.WindowManager
+import android.widget.EditText
 import android.widget.Toast
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.PresentationModule
@@ -20,19 +27,19 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
+import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_meeting_detail.*
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
-import java.util.Calendar.NARROW_STANDALONE
 
 
-
-class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
+class MeetingDetailActivity : AppCompatActivity(),
+        MeetingDetailContract.View,
+        View.OnClickListener{
 
     private val TAG = "MeetingDetailActivity"
     var meetingId: String = ""
-    var owner: Boolean = false
+    var iAmTheCreator = false
 
     var adapter = AdapterMembers()
 
@@ -44,35 +51,17 @@ class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
         setContentView(R.layout.activity_meeting_detail)
 
         setSupportActionBar(meetingDetailToolbar)
-        supportActionBar!!.setTitle(getString(R.string.meetingDetailToolbarTitle))
-        supportActionBar!!.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setTitle(getString(R.string.meetingDetailToolbarTitle))
+        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
-        if(savedInstanceState!=null)
-            meetingId = savedInstanceState.getString("id","")
-        else{
-            var intent = intent.extras
-            meetingId = intent.getString("id","")
-        }
+        val intent = intent.extras
+        meetingId = intent.getString("id","")
 
         injectDependencies()
         setupRecycler()
         presenter.setView(this,meetingId)
 
-        meetingDetailTVjoin.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View?) {
-                if(meetingDetailTVjoin.text.toString().equals(getString(R.string.meetingDetailJoin))) {
-                    presenter.joinGame(true)
-                    var vacant = meetingDetailTVvacants.text.substring(0,1).toInt() - 1
-                    meetingDetailTVvacants.text = vacant.toString() + meetingDetailTVvacants.text.substring(1,meetingDetailTVvacants.text.length)
-                    meetingDetailTVjoin.text = getString(R.string.meetingDetailLeave)
-                }else {
-                    presenter.joinGame(false)
-                    var vacant = meetingDetailTVvacants.text.substring(0,1).toInt() + 1
-                    meetingDetailTVvacants.text = vacant.toString() + meetingDetailTVvacants.text.substring(1,meetingDetailTVvacants.text.length)
-                    meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)
-                }
-            }
-        })
+        meetingDetailTVjoin.setOnClickListener(this)
     }
 
     fun injectDependencies() {
@@ -92,47 +81,48 @@ class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
         meetingDetailTVvacants.text = meeting.vacants.toString() + getString(R.string.meetingDetailVacants)
 
         meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)
+
+        if (meeting.creatorId.equals(presenter.getUserProfile()?.id)) {
+            iAmTheCreator = true
+        }
     }
 
-    override fun showErrorJoining() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorJoiningMeeting), Toast.LENGTH_SHORT).show()
+    fun modifyMeeting() {
+        val intent = Intent(this, AddMeetingActivity::class.java)
+        intent.putExtra("id", meetingId)
+        intent.putExtra("action", "modify")
+        startActivityForResult(intent, 1)
     }
 
-    override fun showErrorLeaving() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorLevingMeeting), Toast.LENGTH_SHORT).show()
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.meetingDetailTVjoin ->{
+                if(meetingDetailTVjoin.text.toString().equals(getString(R.string.meetingDetailJoin))) {
+                    presenter.joinGame(true)
+                    val vacant = meetingDetailTVvacants.text.substring(0,1).toInt() - 1
+                    meetingDetailTVvacants.text = vacant.toString() + meetingDetailTVvacants.text.substring(1,meetingDetailTVvacants.text.length)
+                    meetingDetailTVjoin.text = getString(R.string.meetingDetailLeave)
+                }else {
+                    presenter.joinGame(false)
+                    val vacant = meetingDetailTVvacants.text.substring(0,1).toInt() + 1
+                    meetingDetailTVvacants.text = vacant.toString() + meetingDetailTVvacants.text.substring(1,meetingDetailTVvacants.text.length)
+                    meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)
+                }
+            }
+        }
     }
 
-    override fun showErrorMeeting() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorMeeting), Toast.LENGTH_SHORT).show()
+    override fun showError(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorPlace() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorPlace), Toast.LENGTH_SHORT).show()
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorGame() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorGame), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showErrorMembers() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorMembers), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showErrorVacant() {
-        Toast.makeText(this, getString(R.string.meetingDetailErrorVacant), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun successJoining() {
-        Toast.makeText(this, getString(R.string.meetingDetailSuccessJoining), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun successLeaving() {
-        Toast.makeText(this, getString(R.string.meetingDetailSuccessLeaving), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showProgressBar(boolean: Boolean) {
-        progressBarMeetingDetail.setVisibility(boolean)
-        meetingDetailFLall.setVisibility(!boolean)
+    override fun showProgress(isLoading: Boolean) {
+        progressBarMeetingDetail?.setVisibility(isLoading)
+        meetingDetailFLall?.setVisibility(!isLoading)
     }
 
     override fun setupRecycler() {
@@ -141,13 +131,11 @@ class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
     }
 
     override fun setGameData(game: Game) {
-        Glide.with(this).asBitmap().load(game.photo).into(object : SimpleTarget<Bitmap>(120,120) {
-            override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
-                val roundedDrawable = RoundedBitmapDrawableFactory.create(resources, resource)
-                roundedDrawable.isCircular = true
-                meetingDetailIVgame.setImageDrawable(roundedDrawable)
-            }
-        })
+        Glide.with(this)
+                .load(game.photo)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(meetingDetailIVgame)
+
         meetingDetailTVgameTitle.text = game.title
         meetingDetailRatingBar.rating = game.rating.toFloat()
         meetingDetailTVplayers.text = game.minPlayers.toString() + " - " + game.maxPlayers.toString()
@@ -156,19 +144,16 @@ class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
 
     override fun setPlaceData(place: Place) {
         if(!place.photo.equals("url")) {
-            val decodedString2 = Base64.decode(place.photo, Base64.DEFAULT)
-            val imagenJug2 = BitmapFactory.decodeByteArray(decodedString2, 0, decodedString2.size)
-            Bitmap.createScaledBitmap(imagenJug2, 90, 90, false)
-            val roundedBitmapDrawable2 = RoundedBitmapDrawableFactory.create(resources, imagenJug2)
-            roundedBitmapDrawable2.isCircular = true
-
-            meetingDetailIVplace?.setImageDrawable(roundedBitmapDrawable2)
+            Glide.with(this)
+                    .load(place.photo)
+                    .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                    .into(meetingDetailIVplace)
         }
         meetingDetailTVplaceTitle.text = place.name
         meetingDetailTVaddress.text = place.address
 
         if(place.openPlace) {
-            var openingHours = presenter.getMeetingOpenHours(place)
+            val openingHours = presenter.getMeetingOpenHours(place)
             if(!openingHours.equals("default")){
                 meetingDetailTVopenHours.text = openingHours
             }else{
@@ -188,4 +173,33 @@ class MeetingDetailActivity : AppCompatActivity(), MeetingDetailContract.View {
         adapter.notifyDataSetChanged()
     }
 
+    override fun removeFriendData(friend: User, itsTheUser: Boolean) {
+        if(itsTheUser)
+            meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)
+        adapter.memberList.remove(friend)
+        adapter.notifyDataSetChanged()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.toolbar, menu)
+
+        if (iAmTheCreator)
+            menu.getItem(1).setVisible(true)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.toolbar_modify -> { modifyMeeting() }
+        }
+        return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (resultCode == Activity.RESULT_OK && requestCode == 1) {
+            presenter.getMeetingData(meetingId)
+            showSuccess(R.string.meetingDetailSuccessModify)
+        }
+        super.onActivityResult(requestCode, resultCode, data)
+    }
 }

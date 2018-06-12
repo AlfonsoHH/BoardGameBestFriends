@@ -3,7 +3,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.profile.ProfileFragment">
+    tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.profile.ProfileFragment"
+    android:background="@color/white">
 
     <LinearLayout
         android:id="@+id/fragmentProfileLLall"
@@ -235,11 +236,11 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
         android:padding="28dp">
 
         <ImageView
@@ -247,9 +248,18 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_gravity="center_horizontal"
-            android:src="@drawable/class_profile" />
+            android:src="@drawable/profile" />
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/fragmentProfileIVmodify"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="80dp"
+            android:src="@android:drawable/ic_menu_edit"
+            android:visibility="gone"/>
+
+    </FrameLayout>
 
     <ProgressBar
         android:id="@+id/progressBarProfile"

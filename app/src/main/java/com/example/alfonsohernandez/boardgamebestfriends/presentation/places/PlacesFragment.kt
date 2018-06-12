@@ -1,31 +1,31 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.places
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
-import android.util.Base64
+import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.PresentationModule
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addplace.AddPlaceActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.placedetail.PlaceDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.fragment_places.*
 import java.util.*
 import javax.inject.Inject
@@ -53,7 +54,8 @@ class PlacesFragment : Fragment(),
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleMap.OnMarkerClickListener,
-        PlacesContract.View{
+        PlacesContract.View,
+        SwipeRefreshLayout.OnRefreshListener{
 
     private val TAG = "PlacesFragment"
 
@@ -63,8 +65,6 @@ class PlacesFragment : Fragment(),
     lateinit var mPlaceDetectionClient: PlaceDetectionClient
     lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var client: GoogleApiClient
-
-    var markers = arrayListOf<Place>()
 
     @Inject
     lateinit var presenter: PlacesPresenter
@@ -89,11 +89,15 @@ class PlacesFragment : Fragment(),
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(context!!)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context!!)
+        context?.let {
+            mPlaceDetectionClient = Places.getPlaceDetectionClient(it)
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(it)
+        }
 
         injectDependencies()
         presenter.setView(this)
+
+        swipeContainerPlaces.setOnRefreshListener(this)
 
         fab.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
@@ -107,9 +111,8 @@ class PlacesFragment : Fragment(),
     }
 
     override fun setData(places: ArrayList<Place>) {
-        mMap!!.clear()
+        mMap?.clear()
 
-        markers = places
         for (place in places) {
             val markerOptions = MarkerOptions()
             markerOptions.position(LatLng(place.lat, place.long))
@@ -117,7 +120,7 @@ class PlacesFragment : Fragment(),
 
             markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED))
 
-            mMap!!.addMarker(markerOptions)
+            mMap?.addMarker(markerOptions)
         }
     }
 
@@ -126,31 +129,33 @@ class PlacesFragment : Fragment(),
 
         mMap = p0
 
-        mMap!!.setBuildingsEnabled(true)
-        mMap!!.setIndoorEnabled(true)
-        mMap!!.setTrafficEnabled(true)
+        mMap?.setBuildingsEnabled(true)
+        mMap?.setIndoorEnabled(true)
+        mMap?.setTrafficEnabled(true)
 
-        val mUiSettings = mMap!!.getUiSettings()
-        mUiSettings.setZoomControlsEnabled(true)
-        mUiSettings.setCompassEnabled(true)
-        mUiSettings.setMyLocationButtonEnabled(true)
-        mUiSettings.setScrollGesturesEnabled(true)
-        mUiSettings.setZoomGesturesEnabled(true)
-        mUiSettings.setTiltGesturesEnabled(true)
-        mUiSettings.setRotateGesturesEnabled(true)
+        val mUiSettings = mMap?.getUiSettings()
+        mUiSettings?.setZoomControlsEnabled(true)
+        mUiSettings?.setCompassEnabled(true)
+        mUiSettings?.setMyLocationButtonEnabled(true)
+        mUiSettings?.setScrollGesturesEnabled(true)
+        mUiSettings?.setZoomGesturesEnabled(true)
+        mUiSettings?.setTiltGesturesEnabled(true)
+        mUiSettings?.setRotateGesturesEnabled(true)
 
-        mMap!!.setMyLocationEnabled(true)
-        mMap!!.setOnMarkerClickListener(this)
+        mMap?.setMyLocationEnabled(true)
+        mMap?.setOnMarkerClickListener(this)
 
         bulidGoogleApiClient()
     }
 
     @Synchronized protected fun bulidGoogleApiClient() {
-        client = GoogleApiClient.Builder(context!!)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API).build()
-        client.connect()
+        context?.let {
+            client = GoogleApiClient.Builder(it)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API).build()
+            client.connect()
+        }
     }
 
 
@@ -159,23 +164,20 @@ class PlacesFragment : Fragment(),
 
     @SuppressLint("RestrictedApi")
     override fun onConnected(p0: Bundle?) {
-        var mLocationRequest = LocationRequest()
+        val mLocationRequest = LocationRequest()
         mLocationRequest.setInterval(1000)
         mLocationRequest.setFastestInterval(1000)
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY)
-        if (ContextCompat.checkSelfPermission(activity!!,
-                        android.Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            fusedLocationClient.lastLocation
-                    .addOnSuccessListener { location: Location? ->
-
-                        val latLong = LatLng(location!!.latitude, location.longitude)
-
-                        latLong?.let{
-                            mMap!!.moveCamera(CameraUpdateFactory.newLatLngZoom(it, 12f))
-                            presenter.getPlacesData()
+        activity?.let {
+            if (ContextCompat.checkSelfPermission(it,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                fusedLocationClient.lastLocation
+                        .addOnSuccessListener { location: Location? ->
+                            mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(presenter.getRegion(), 12f))
+                            presenter.loadPlacesData()
                         }
-                    }
+            }
         }
     }
 
@@ -192,8 +194,8 @@ class PlacesFragment : Fragment(),
 
         var actualMarker = Place()
 
-        for (markerNow in markers) {
-            if (marker!!.title.equals(markerNow.name)) {
+        for (markerNow in presenter.getPlacesData()) {
+            if (marker?.title.equals(markerNow.name)) {
 
                 actualMarker = markerNow
 
@@ -201,28 +203,44 @@ class PlacesFragment : Fragment(),
                 address.text = markerNow.address
 
                 if(!markerNow.photo.equals("url")) {
-                    val decodedString = Base64.decode(markerNow.photo, Base64.DEFAULT)
-                    val imagenJug = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-                    Bitmap.createScaledBitmap(imagenJug, 90, 90, false)
-                    val roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(this.getResources(), imagenJug)
-                    roundedBitmapDrawable.isCircular = true
-
-                    place.setImageDrawable(roundedBitmapDrawable)
+                    Glide.with(this)
+                            .load(markerNow.photo)
+                            .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                            .into(place)
                 }
             }
         }
 
         place.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
-                var int = Intent(context,PlaceDetailActivity::class.java)
+                val int = Intent(context,PlaceDetailActivity::class.java)
                 int.putExtra("id",actualMarker.id)
                 startActivityForResult(int,1)
             }
         })
 
+        place.setOnLongClickListener(object : View.OnLongClickListener {
+            override fun onLongClick(v: View?): Boolean {
+                presenter.getUserProfile()?.let {
+                    if (actualMarker.ownerId.equals(it.id)) {
+                        context?.let { ctx ->
+                            DialogFactory.buildConfirmDialog(ctx, getString(R.string.placesDialogText), Runnable {
+                                presenter.removePlace(actualMarker)
+                                marker?.remove()
+                                dialog.dismiss()
+                            }).show()
+                        }
+                    } else {
+                        showError(R.string.placesErrorUnableRemoveNoCreator)
+                    }
+                }
+                return true
+            }
+        })
+
         games.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                var int = Intent(context,GamesActivity::class.java)
+                val int = Intent(context,GamesActivity::class.java)
                 int.putExtra("kind","place-"+actualMarker.id)
                 startActivity(int)
             }
@@ -230,7 +248,7 @@ class PlacesFragment : Fragment(),
 
         meetings.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
-                var int = Intent(context,TabActivity::class.java)
+                val int = Intent(context,TabActivity::class.java)
                 int.putExtra("tab",0)
                 int.putExtra("kind","place-"+actualMarker.id)
                 startActivity(int)
@@ -245,21 +263,17 @@ class PlacesFragment : Fragment(),
 
     override fun onConnectionSuspended(p0: Int) {}
 
+    override fun showError(stringId: Int) {
+        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
+    }
+
     override fun showProgress(isLoading: Boolean) {
-        progressBarMaps.setVisibility(isLoading)
-        mapView.setVisibility(!isLoading)
-    }
-
-    override fun showErrorPlaces() {
-        Toast.makeText(context, getString(R.string.placesErrorPlaces), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showErrorRegion() {
-        Toast.makeText(context, getString(R.string.placesErrorRegion), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun successAdding() {
-        Toast.makeText(context, getString(R.string.placesSuccessAdding), Toast.LENGTH_SHORT).show()
+        progressBarMaps?.setVisibility(isLoading)
+        mapView?.setVisibility(!isLoading)
     }
 
     fun startAddPlace(){
@@ -268,10 +282,15 @@ class PlacesFragment : Fragment(),
         startActivityForResult(intent,1)
     }
 
+    override fun onRefresh() {
+        presenter.loadPlacesData()
+        swipeContainerPlaces.isRefreshing = false
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(resultCode == Activity.RESULT_OK) {
-            successAdding()
-            presenter.getPlacesData()
+            showSuccess(R.string.placesSuccessAdding)
+            presenter.setPlacesData()
         }
     }
 }

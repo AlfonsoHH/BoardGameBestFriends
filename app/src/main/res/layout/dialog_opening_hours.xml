@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     android:orientation="vertical"
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:background="@color/lightGrey">
@@ -33,7 +34,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center"
-    android:padding="16dp">
+    android:layout_marginTop="16dp">
 
 
 <LinearLayout
@@ -97,14 +98,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenMor1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -112,10 +115,11 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseMor1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -130,14 +134,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenAft1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -145,10 +151,11 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseAft1"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -226,14 +233,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenMor2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -241,10 +250,11 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseMor2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -259,14 +269,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenAft2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -274,10 +286,11 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseAft2"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -355,14 +368,16 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenMor3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -370,10 +385,11 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseMor3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
 
@@ -388,14 +404,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:gravity="center">
 
         <EditText
             android:id="@+id/openingHoursETopenAft3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintOpen"/>
+            android:hint="@string/openingHoursHintOpen"
+            android:focusable="false"
+            android:gravity="center"/>
 
         <View
             android:layout_width="16dp"
@@ -403,12 +421,17 @@
 
         <EditText
             android:id="@+id/openingHoursETcloseAft3"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:hint="@string/openingHoursHintClose"/>
+            android:hint="@string/openingHoursHintClose"
+            android:focusable="false"
+            android:gravity="center"/>
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="30dp"/>
 
 
 </LinearLayout>

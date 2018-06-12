@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail.GameDetailActivity">
 
     <android.support.v7.widget.Toolbar
@@ -30,7 +31,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="165dp"
             android:background="@color/lightGrey"
             android:paddingHorizontal="20dp"
             android:paddingVertical="20dp"
@@ -49,7 +50,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 tools:text="In Blood Rage, each player controls their own Viking clan’s warriors, leader, and ship."
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:ellipsize="end"
+                android:maxLines="6"/>
 
         </LinearLayout>
 
@@ -165,9 +168,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
+                    android:gravity="center|right"
                     tools:text="2-4"
-                    android:textAlignment="textEnd"
                     android:textSize="14sp" />
 
                 <TextView
@@ -175,9 +177,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center_vertical"
+                    android:gravity="center|right"
                     tools:text="120-180"
-                    android:textAlignment="textEnd"
                     android:textSize="14sp" />
 
             </LinearLayout>
@@ -236,7 +237,8 @@
 
         <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:visibility="gone">
 
             <ImageView
                 android:id="@+id/gameDetailIVmeetings"

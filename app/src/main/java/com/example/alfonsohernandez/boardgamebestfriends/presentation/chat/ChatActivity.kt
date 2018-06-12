@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.chat
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.Toast
 import com.example.alfonsohernandez.boardgamebestfriends.R
@@ -10,15 +11,21 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterChat
 import kotlinx.android.synthetic.main.activity_chat.*
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class ChatActivity : AppCompatActivity(), ChatContract.View {
+class ChatActivity : AppCompatActivity(),
+        ChatContract.View,
+        View.OnClickListener{
 
     private val TAG = "ChatActivity"
     private var groupId = ""
+    private val sdf = SimpleDateFormat("HH:mm-dd/MM/yy")
+
+    var adapter = AdapterChat()
 
     @Inject
     lateinit var presenter: ChatPresenter
@@ -28,24 +35,17 @@ class ChatActivity : AppCompatActivity(), ChatContract.View {
         setContentView(R.layout.activity_chat)
 
         setSupportActionBar(chatToolbar)
-        supportActionBar!!.setTitle(getString(R.string.chatToolbarTitle))
-        supportActionBar!!.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setTitle(getString(R.string.chatToolbarTitle))
+        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
-        if (savedInstanceState != null){
-            groupId = savedInstanceState.getString("id", "")
-        }else{
-            var intent = getIntent().extras
-            groupId = intent.getString("id", "")
-        }
+        val intent = getIntent().extras
+        groupId = intent.getString("id", "")
 
         injectDependencies()
-        presenter.setView(this,groupId)
+        presenter.setView(this, groupId)
+        setupRecycler()
 
-        chatIBmandar.setOnClickListener(object : View.OnClickListener{
-            override fun onClick(v: View?) {
-                sendMessage()
-            }
-        })
+        chatIBmandar.setOnClickListener(this)
     }
 
     fun injectDependencies() {
@@ -53,28 +53,46 @@ class ChatActivity : AppCompatActivity(), ChatContract.View {
     }
 
     override fun onDestroy() {
-        presenter.setView(null,"")
+        presenter.setView(null, "")
         super.onDestroy()
     }
 
+    override fun setupRecycler() {
+        val linearLayout = LinearLayoutManager(this)
+        linearLayout.reverseLayout = true
+        chatRV.layoutManager = linearLayout
+        chatRV.adapter = adapter
+    }
+
     override fun setData(group: Group, messages: ArrayList<Message>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        adapter.messageList.clear()
+        adapter.messageList.addAll(messages)
+        adapter.notifyDataSetChanged()
     }
 
-    fun sendMessage(){
-        presenter.sendMessage(Message(presenter.getUserProfile()!!.id,chatETmessage.text.toString(),SimpleDateFormat("HH:mm-dd/MM/yy").format(Date())))
+    fun sendMessage() {
+        presenter.getUserProfile()?.let {user ->
+            presenter.sendMessage(Message(user.id, chatETmessage.text.toString(), sdf.format(Date()), null, user.userName))
+            chatETmessage.setText("")
+        }
     }
 
-    override fun showErrorAdding() {
-        Toast.makeText(this, getString(R.string.chatErrorAddingMessage), Toast.LENGTH_SHORT).show()
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.chatIBmandar -> { sendMessage() }
+        }
     }
 
-    override fun showErrorLoading() {
-        Toast.makeText(this, getString(R.string.chatErrorLoadingChat), Toast.LENGTH_SHORT).show()
+    override fun showError(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showProgressBar(boolean: Boolean) {
-        progressBarChat.setVisibility(boolean)
-        chatLLall.setVisibility(!boolean)
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
+    }
+
+    override fun showProgress(isLoading: Boolean) {
+        progressBarChat?.setVisibility(isLoading)
+        chatLLall?.setVisibility(!isLoading)
     }
 }

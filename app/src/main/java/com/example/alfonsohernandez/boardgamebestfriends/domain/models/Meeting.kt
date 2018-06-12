@@ -7,7 +7,7 @@ import kotlin.collections.ArrayList
  * Created by alfonsohernandez on 06/04/2018.
  */
 
-data class Meeting (var id: String = "",
+data class Meeting (override var id: String = "",
                     val title: String = "",
                     val description: String = "",
                     val date: String = "",
@@ -15,7 +15,7 @@ data class Meeting (var id: String = "",
                     val placeId: String = "",
                     val placePhoto: String = "",
                     val gameId: String = "",
-                    val gamePhoto: String = "",
+                    var gamePhoto: String = "",
                     val creatorId: String = "",
                     var vacants: Int = 0,
-                    var label: String? = null) {}
+                    var label: String? = null) : DatabaseStringItem {}

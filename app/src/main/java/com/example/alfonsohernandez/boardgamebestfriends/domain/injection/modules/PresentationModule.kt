@@ -2,6 +2,9 @@ package com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modul
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.scopes.ActivityScope
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.CreateMailUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithCredentialsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithEmailInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasechat.GetMessagesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasechat.SendMessageInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.*
@@ -10,8 +13,20 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetRegionInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggGameCollectionInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggXmlGameCollectionInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamedetail.GetBggGameDetailInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getlatlong.GetLatLongInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.ClearTopicInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.SetTopicInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup.AddGroupContract
@@ -54,12 +69,20 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesTabPresenter(getUserProfileInteractor: GetUserProfileInteractor,
-                             getAllRegionInteractor: GetAllRegionInteractor,
+                             paperRegionsInteractor: PaperRegionsInteractor,
+                             paperGamesInteractor: PaperGamesInteractor,
+                             paperMeetingsInteractor: PaperMeetingsInteractor,
+                             paperPlacesInteractor: PaperPlacesInteractor,
+                             getAllGamesInteractor: GetAllGamesInteractor,
                              modifyUserInteractor: ModifyUserInteractor,
                              saveUserProfileInteractor: SaveUserProfileInteractor,
                              newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter {
         return TabPresenter(getUserProfileInteractor,
-                getAllRegionInteractor,
+                paperRegionsInteractor,
+                paperGamesInteractor,
+                paperMeetingsInteractor,
+                paperPlacesInteractor,
+                getAllGamesInteractor,
                 modifyUserInteractor,
                 saveUserProfileInteractor,
                 newUseFirebaseAnalyticsInteractor)
@@ -68,54 +91,80 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesMeetingsPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                  paperMeetingsInteractor: PaperMeetingsInteractor,
                                   getOpenMeetingsInteractor: GetOpenMeetingsInteractor,
                                   getUserMeetingsInteractor: GetUserMeetingsInteractor,
                                   getUserGroupsInteractor: GetUserGroupsInteractor,
                                   getUserPlacesInteractor: GetUserPlacesInteractor,
                                   getGroupMeetingsInteractor: GetGroupMeetingsInteractor,
                                   getPlaceMeetingsInteractor: GetPlaceMeetingsInteractor,
-                                  removeMeetingInteractor: RemoveMeetingInteractor): MeetingsContract.Presenter {
+                                  setTopicInteractor: SetTopicInteractor,
+                                  clearTopicInteractor: ClearTopicInteractor,
+                                  removeMeetingInteractor: RemoveMeetingInteractor,
+                                  newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): MeetingsContract.Presenter {
         return MeetingsPresenter(getUserProfileInteractor,
+                paperMeetingsInteractor,
                 getOpenMeetingsInteractor,
                 getUserMeetingsInteractor,
                 getUserGroupsInteractor,
                 getUserPlacesInteractor,
                 getGroupMeetingsInteractor,
                 getPlaceMeetingsInteractor,
-                removeMeetingInteractor)
+                setTopicInteractor,
+                clearTopicInteractor,
+                removeMeetingInteractor,
+                newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesGroupsPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                paperGroupsInteractor: PaperGroupsInteractor,
+                                paperMeetingsInteractor: PaperMeetingsInteractor,
                                 getUserGroupsInteractor: GetUserGroupsInteractor,
                                 getSingleGroupInteractor: GetSingleGroupInteractor,
                                 removeGroupInteractor: RemoveGroupInteractor,
-                                removeGroupToUserInteractor: RemoveGroupToUserInteractor): GroupsContract.Presenter {
+                                removeGroupToUserInteractor: RemoveGroupToUserInteractor,
+                                SetTopicInteractor: SetTopicInteractor,
+                                ClearTopicInteractor: ClearTopicInteractor,
+                                newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupsContract.Presenter {
         return GroupsPresenter(getUserProfileInteractor,
+                paperGroupsInteractor,
+                paperMeetingsInteractor,
                 getUserGroupsInteractor,
                 getSingleGroupInteractor,
                 removeGroupInteractor,
-                removeGroupToUserInteractor)
+                removeGroupToUserInteractor,
+                SetTopicInteractor,
+                ClearTopicInteractor,
+                newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesPlacesPresenter(getUserProfileInteractor: GetUserProfileInteractor,
-                                getOpenPlacesInteractor: GetOpenPlacesInteractor): PlacesContract.Presenter {
+                                paperRegionsInteractor: PaperRegionsInteractor,
+                                paperPlacesInteractor: PaperPlacesInteractor,
+                                getPlacesInteractor: GetPlacesInteractor,
+                                removePlaceInteractor: RemovePlaceInteractor,
+                                newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): PlacesContract.Presenter {
         return PlacesPresenter(getUserProfileInteractor,
-                getOpenPlacesInteractor)
+                paperRegionsInteractor,
+                paperPlacesInteractor,
+                getPlacesInteractor,
+                removePlaceInteractor,
+                newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesGamesPresenter(getUserProfileInteractor: GetUserProfileInteractor,
-                               getAllGamesInteractor: GetAllGamesInteractor,
+                               paperGamesInteractor: PaperGamesInteractor,
                                getUserGamesInteractor: GetUserGamesInteractor,
                                getGroupGamesInteractor: GetGroupGamesInteractor,
                                getPlaceGamesInteractor: GetPlaceGamesInteractor,
-                               getSingleGameInteractor: GetSingleGameInteractor,
-                               getBggGameCollectionInteractor: GetBggGameCollectionInteractor,
+                               getBggXmlGameCollectionInteractor: GetBggXmlGameCollectionInteractor,
+                               getBggXmlGameDetailInteractor: GetBggGameDetailInteractor,
                                addGameInteractor: AddGameInteractor,
                                addGameToUserInteractor: AddGameToUserInteractor,
                                addGameToGroupInteractor: AddGameToGroupInteractor,
@@ -125,12 +174,12 @@ class PresentationModule {
                                removeGameToPlaceInteractor: RemoveGameToPlaceInteractor,
                                newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GamesContract.Presenter {
         return GamesPresenter(getUserProfileInteractor,
-                getAllGamesInteractor,
+                paperGamesInteractor,
                 getUserGamesInteractor,
                 getGroupGamesInteractor,
                 getPlaceGamesInteractor,
-                getSingleGameInteractor,
-                getBggGameCollectionInteractor,
+                getBggXmlGameCollectionInteractor,
+                getBggXmlGameDetailInteractor,
                 addGameInteractor,
                 addGameToUserInteractor,
                 addGameToGroupInteractor,
@@ -144,7 +193,7 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesMeetingDetailPresenter(getUserProfileInteractor: GetUserProfileInteractor,
-                                       getSingleMeetingInteractor: GetSingleMeetingInteractor,
+                                       paperMeetingsInteractor: PaperMeetingsInteractor,
                                        getSingleGameInteractor: GetSingleGameInteractor,
                                        getSinglePlaceInteractor: GetSinglePlaceInteractor,
                                        getMeetingUsersInteractor: GetMeetingUsersInteractor,
@@ -152,9 +201,11 @@ class PresentationModule {
                                        addMeetingToUserInteractor: AddMeetingToUserInteractor,
                                        modifyMeetingInteractor: ModifyMeetingInteractor,
                                        removeMeetingToUserInteractor: RemoveMeetingToUserInteractor,
+                                       setTopicInteractor: SetTopicInteractor,
+                                       clearTopicInteractor: ClearTopicInteractor,
                                        firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): MeetingDetailContract.Presenter {
         return MeetingDetailPresenter(getUserProfileInteractor,
-                getSingleMeetingInteractor,
+                paperMeetingsInteractor,
                 getSingleGameInteractor,
                 getSinglePlaceInteractor,
                 getMeetingUsersInteractor,
@@ -162,21 +213,25 @@ class PresentationModule {
                 addMeetingToUserInteractor,
                 modifyMeetingInteractor,
                 removeMeetingToUserInteractor,
+                setTopicInteractor,
+                clearTopicInteractor,
                 firebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesGroupDetailPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                     paperGroupsInteractor: PaperGroupsInteractor,
                                      addGroupToUserInteractor: AddGroupToUserInteractor,
-                                     getSingleGroupInteractor: GetSingleGroupInteractor,
+                                     getSingleUserFromMailInteractor: GetSingleUserFromMailInteractor,
                                      getRegionInteractor: GetRegionInteractor,
                                      getGroupUsersInteractor: GetGroupUsersInteractor,
                                      getSingleUserInteractor: GetSingleUserInteractor,
                                      newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupDetailContract.Presenter {
         return GroupDetailPresenter(getUserProfileInteractor,
+                paperGroupsInteractor,
                 addGroupToUserInteractor,
-                getSingleGroupInteractor,
+                getSingleUserFromMailInteractor,
                 getRegionInteractor,
                 getGroupUsersInteractor,
                 getSingleUserInteractor,
@@ -186,10 +241,16 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesChatPresenter(profileInteractor: GetUserProfileInteractor,
+                              paperGroupsInteractor: PaperGroupsInteractor,
+                              getSingleUserInteractor: GetSingleUserInteractor,
+                              getGroupUsersInteractor: GetGroupUsersInteractor,
                               getMessagesInteractor: GetMessagesInteractor,
                               sendMessageInteractor: SendMessageInteractor,
                               newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): ChatContract.Presenter {
         return ChatPresenter(profileInteractor,
+                paperGroupsInteractor,
+                getSingleUserInteractor,
+                getGroupUsersInteractor,
                 getMessagesInteractor,
                 sendMessageInteractor,
                 newUseFirebaseAnalyticsInteractor)
@@ -198,96 +259,101 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesPlaceDetailPresenter(userProfileInteractor: GetUserProfileInteractor,
-                                     getRegionInteractor: GetRegionInteractor,
-                                     getSinglePlaceInteractor: GetSinglePlaceInteractor,
+                                     paperPlacesInteractor: PaperPlacesInteractor,
+                                     paperRegionsInteractor: PaperRegionsInteractor,
                                      firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): PlaceDetailContract.Presenter {
         return PlaceDetailPresenter(userProfileInteractor,
-                getRegionInteractor,
-                getSinglePlaceInteractor,
+                paperPlacesInteractor,
+                paperRegionsInteractor,
                 firebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
-    fun providesGameDetailPresenter(getSingleGameInteractor: GetSingleGameInteractor,
+    fun providesGameDetailPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                    paperGamesInteractor: PaperGamesInteractor,
                                     newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GameDetailContract.Presenter {
-        return GameDetailPresenter(getSingleGameInteractor,
+        return GameDetailPresenter(getUserProfileInteractor,
+                paperGamesInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesAddGroupPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                  paperGroupsInteractor: PaperGroupsInteractor,
                                   getAllUsersInteractor: GetAllUsersInteractor,
                                   getSingleUserFromMailInteractor: GetSingleUserFromMailInteractor,
-                                  getSingleGroupInteractor: GetSingleGroupInteractor,
                                   addGroupInteractor: AddGroupInteractor,
                                   modifyGroupInteractor: ModifyGroupInteractor,
+                                  saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                  getPathFromUriInteractor: GetPathFromUriInteractor,
                                   newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddGroupContract.Presenter {
         return AddGroupPresenter(getUserProfileInteractor,
+                paperGroupsInteractor,
                 getAllUsersInteractor,
                 getSingleUserFromMailInteractor,
-                getSingleGroupInteractor,
                 addGroupInteractor,
                 modifyGroupInteractor,
+                saveImageFirebaseStorageInteractor,
+                getPathFromUriInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesAddMeetingPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                    paperMeetingsInteractor: PaperMeetingsInteractor,
+                                    paperGroupsInteractor: PaperGroupsInteractor,
+                                    paperPlacesInteractor: PaperPlacesInteractor,
+                                    paperGamesInteractor: PaperGamesInteractor,
                                     addMeetingInteractor: AddMeetingInteractor,
                                     addMeetingToUserInteractor: AddMeetingToUserInteractor,
-                                    addMeetingToGroupInteractor: AddMeetingToGroupInteractor,
-                                    addMeetingToPlaceInteractor: AddMeetingToPlaceInteractor,
-                                    getUserGroupsInteractor: GetUserGroupsInteractor,
-                                    getSingleGroupInteractor: GetSingleGroupInteractor,
-                                    getOpenPlacesInteractor: GetOpenPlacesInteractor,
-                                    getUserPlacesInteractor: GetUserPlacesInteractor,
-                                    getSinglePlaceInteractor: GetSinglePlaceInteractor,
                                     getUserGamesInteractor: GetUserGamesInteractor,
                                     getGroupGamesInteractor: GetGroupGamesInteractor,
                                     getPlaceGamesInteractor: GetPlaceGamesInteractor,
-                                    getSingleGameInteractor: GetSingleGameInteractor,
                                     newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddMeetingContract.Presenter {
         return AddMeetingPresenter(getUserProfileInteractor,
+                paperMeetingsInteractor,
+                paperGroupsInteractor,
+                paperPlacesInteractor,
+                paperGamesInteractor,
                 addMeetingInteractor,
                 addMeetingToUserInteractor,
-                addMeetingToGroupInteractor,
-                addMeetingToPlaceInteractor,
-                getUserGroupsInteractor,
-                getSingleGroupInteractor,
-                getOpenPlacesInteractor,
-                getUserPlacesInteractor,
-                getSinglePlaceInteractor,
                 getUserGamesInteractor,
                 getGroupGamesInteractor,
                 getPlaceGamesInteractor,
-                getSingleGameInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesAddPlacePresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                  paperPlacesInteractor: PaperPlacesInteractor,
+                                  paperRegionsInteractor: PaperRegionsInteractor,
+                                  getLatLongInteractor: GetLatLongInteractor,
                                   addPlaceInteractor: AddPlaceInteractor,
-                                  addPlaceToUserInteractor: AddPlaceToUserInteractor,
                                   modifyPlaceInteractor: ModifyPlaceInteractor,
-                                  getSinglePlaceInteractor: GetSinglePlaceInteractor,
-                                  getRegionInteractor: GetRegionInteractor,
+                                  saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                  getPathFromUriInteractor: GetPathFromUriInteractor,
                                   newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddPlaceContract.Presenter {
         return AddPlacePresenter(getUserProfileInteractor,
+                paperPlacesInteractor,
+                paperRegionsInteractor,
+                getLatLongInteractor,
                 addPlaceInteractor,
-                addPlaceToUserInteractor,
                 modifyPlaceInteractor,
-                getSinglePlaceInteractor,
-                getRegionInteractor,
+                saveImageFirebaseStorageInteractor,
+                getPathFromUriInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
     fun providesLoginPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                               loginWithEmailInteractor: LoginWithEmailInteractor,
+                               loginWithCredentialsInteractor: LoginWithCredentialsInteractor,
+                               paperRegionsInteractor: PaperRegionsInteractor,
                                saveUserProfileInteractor: SaveUserProfileInteractor,
                                getSingleUserInteractor: GetSingleUserInteractor,
                                getAllUsersInteractor: GetAllUsersInteractor,
@@ -296,6 +362,9 @@ class PresentationModule {
                                getAllRegionInteractor: GetAllRegionInteractor,
                                newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): LoginContract.Presenter {
         return LoginPresenter(getUserProfileInteractor,
+                loginWithEmailInteractor,
+                loginWithCredentialsInteractor,
+                paperRegionsInteractor,
                 saveUserProfileInteractor,
                 getSingleUserInteractor,
                 getAllUsersInteractor,
@@ -307,27 +376,45 @@ class PresentationModule {
 
     @Provides
     @ActivityScope
-    fun providesSignUpPresenter(getAllUsersInteractor: GetAllUsersInteractor,
+    fun providesSignUpPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                                getAllUsersInteractor: GetAllUsersInteractor,
+                                paperRegionsInteractor: PaperRegionsInteractor,
+                                createMailUserInteractor: CreateMailUserInteractor,
                                 addUserInteractor: AddUserInteractor,
-                                getAllRegionInteractor: GetAllRegionInteractor,
+                                saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                getPathFromUriInteractor: GetPathFromUriInteractor,
                                 newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): SignUpContract.Presenter {
-        return SignUpPresenter(getAllUsersInteractor,
+        return SignUpPresenter(getUserProfileInteractor,
+                getAllUsersInteractor,
+                paperRegionsInteractor,
+                createMailUserInteractor,
                 addUserInteractor,
-                getAllRegionInteractor,
+                saveImageFirebaseStorageInteractor,
+                getPathFromUriInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 
     @Provides
     @ActivityScope
-    fun providesProfilePresenter(getUserProfileInteractor: GetUserProfileInteractor,
-                                 getUserPlacesInteractor: GetUserPlacesInteractor,
-                                 getSinglePlaceInteractor: GetSinglePlaceInteractor,
-                                 getRegionInteractor: GetRegionInteractor,
+    fun providesProfilePresenter(saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                 getPathFromUriInteractor: GetPathFromUriInteractor,
+                                 saveUserProfileInteractor: SaveUserProfileInteractor,
+                                 addUserInteractor: AddUserInteractor,
+                                 getUserProfileInteractor: GetUserProfileInteractor,
+                                 paperGroupsInteractor: PaperGroupsInteractor,
+                                 paperMeetingsInteractor: PaperMeetingsInteractor,
+                                 paperPlacesInteractor: PaperPlacesInteractor,
+                                 paperRegionsInteractor: PaperRegionsInteractor,
                                  newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): ProfileContract.Presenter {
-        return ProfilePresenter(getUserProfileInteractor,
-                getUserPlacesInteractor,
-                getSinglePlaceInteractor,
-                getRegionInteractor,
+        return ProfilePresenter(saveImageFirebaseStorageInteractor,
+                getPathFromUriInteractor,
+                saveUserProfileInteractor,
+                addUserInteractor,
+                getUserProfileInteractor,
+                paperGroupsInteractor,
+                paperMeetingsInteractor,
+                paperPlacesInteractor,
+                paperRegionsInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 

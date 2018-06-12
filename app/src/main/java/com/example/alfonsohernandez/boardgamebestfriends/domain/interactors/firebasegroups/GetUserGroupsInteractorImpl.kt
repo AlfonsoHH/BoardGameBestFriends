@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fir
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.GroupsRepository
 import com.google.firebase.database.DataSnapshot
+import io.reactivex.Flowable
 import io.reactivex.Maybe
 
 class GetUserGroupsInteractorImpl (private val groupsRepository: GroupsRepository): GetUserGroupsInteractor{

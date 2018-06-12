@@ -1,14 +1,10 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.support.v7.app.AppCompatActivity
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.provider.MediaStore
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
@@ -20,7 +16,6 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.A
 import kotlinx.android.synthetic.main.activity_add_group.*
 import javax.inject.Inject
 import android.text.InputType
-import android.util.Base64
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
@@ -28,9 +23,19 @@ import android.widget.Toast
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import android.view.WindowManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import jp.wasabeef.glide.transformations.CropCircleTransformation
+import java.io.File
 
 
-class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
+class AddGroupActivity : BasePermissionActivity(),
+        AddGroupContract.View,
+        View.OnClickListener,
+        BasePermissionActivity.PermissionCallback,
+        DialogFactory.DialogInputCallback{
 
     private val TAG = "AddGroupActivity"
 
@@ -41,6 +46,8 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
     var id = ""
     var action = ""
 
+    var photoModified = false
+
     @Inject
     lateinit var presenter: AddGroupPresenter
 
@@ -49,21 +56,18 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
         setContentView(R.layout.activity_add_group)
 
         setSupportActionBar(AddGroupToolbar)
-        supportActionBar!!.setTitle(getString(R.string.addGroupToolbarTitle))
-        supportActionBar!!.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setTitle(getString(R.string.addGroupToolbarTitle))
+        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
-        if(savedInstanceState != null) {
-            id = savedInstanceState.getString("id", "")
-            action = savedInstanceState.getString("action", "")
-        }else{
-            var intent = intent.extras
-            id = intent.getString("id", "")
-            action = intent.getString("action", "")
-        }
+        val intent = intent.extras
+        id = intent.getString("id", "")
+        action = intent.getString("action", "")
 
         injectDependencies()
         setupRecycler()
         presenter.setView(this)
+
+        super.callbackPermissions = this
 
         if(action.equals("modify")) {
             addGroupRV.setVisibility(false)
@@ -71,60 +75,62 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
             presenter.getGroupData(id)
         }
 
-        fab.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View?) {
-                val builder = AlertDialog.Builder(this@AddGroupActivity)
-                builder.setTitle(getString(R.string.addGroupAddDialog))
-
-                val input = EditText(this@AddGroupActivity)
-                input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-                builder.setView(input)
-
-                builder.setPositiveButton(getString(R.string.addGroupAcept)) { dialog, which -> presenter.getFriendData(input.text.toString()) }
-                builder.setNegativeButton(getString(R.string.addGroupCancel)) { dialog, which -> dialog.cancel() }
-
-                val dialog = builder.create()
-                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                dialog.show()
-            }
-        })
-
-        addGroupIVphoto.setOnClickListener(object: View.OnClickListener{
-            override fun onClick(v: View?) {
-                val i = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-                startActivityForResult(i, 1)
-            }
-        })
+        fab.setOnClickListener(this)
+        addGroupIVphoto.setOnClickListener(this)
     }
 
     fun addGroup(){
-        if(!addGroupETtitle.text.toString().equals("") && !addGroupETdescription.text.toString().equals("") && !url.equals("url")) {
-            var memberList = arrayListOf<String>()
+        if(!addGroupETtitle.text.toString().equals("") && !addGroupETdescription.text.toString().equals("") && (!url.equals("url") || photoModified)) {
+
+            val memberList = arrayListOf<String>()
             for (member in adapter.memberList) {
                 memberList.add(member.id)
             }
+
+            addGroupIVphoto.setDrawingCacheEnabled(true)
+            addGroupIVphoto.buildDrawingCache()
+            val bitmap = (addGroupIVphoto.getDrawable() as BitmapDrawable).getBitmap()
+
+            val group = Group(id,
+                    url,
+                    addGroupETtitle.text.toString(),
+                    addGroupETdescription.text.toString(),
+                    presenter.getUserProfile()?.id ?: return)
+
             if (action.equals("modify"))
-                presenter.modifyGroupData(Group(id,
-                        url,
-                        addGroupETtitle.text.toString(),
-                        addGroupETdescription.text.toString(),
-                        presenter.getProfileData()!!.id))
+                presenter.saveImage(group,
+                        bitmap,
+                        photoModified,
+                        null)
             else
-                presenter.saveGroupData(Group(id, url, addGroupETtitle.text.toString(), addGroupETdescription.text.toString(), presenter.getProfileData()!!.id), memberList)
+                presenter.saveImage(group,
+                        bitmap,
+                        photoModified,
+                        memberList)
         }else{
-            showErrorEmpty()
+            showError(R.string.addGroupErrorEmpty)
         }
     }
 
+    override fun onImageReceived(intent: Intent, fromGallery: Boolean) {
+        if(fromGallery)
+            setPhotoImage(File(presenter.getRealPathFromURI(intent.data)))
+        else
+            setPhotoImage(intent.extras.get("data") as Bitmap)
+    }
+
+    override fun setPhotoImage(image: Any) {
+        Glide.with(this)
+                .load(image)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(addGroupIVphoto)
+    }
+
     override fun setData(group: Group) {
-        val decodedString = Base64.decode(group.photo, Base64.DEFAULT)
-        val imagenJug = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.size)
-        Bitmap.createScaledBitmap(imagenJug, 90, 90, false)
-        val roundedBitmapDrawable = RoundedBitmapDrawableFactory.create(this.getResources(), imagenJug)
-        roundedBitmapDrawable.isCircular = true
-
-        addGroupIVphoto.setImageDrawable(roundedBitmapDrawable)
-
+        Glide.with(this)
+                .load(group.photo)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(addGroupIVphoto)
         url = group.photo
 
         addGroupETtitle.setText(group.title)
@@ -137,21 +143,6 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
         finish()
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
-
-            val pickedImage = data.data
-            val roundedDrawable = RoundedBitmapDrawableFactory.create(applicationContext.resources, BitmapFactory.decodeFile(presenter.getRealPathFromURI(applicationContext, pickedImage)))
-            roundedDrawable.isCircular = true
-            addGroupIVphoto.setImageDrawable(roundedDrawable)
-            addGroupIVphoto.adjustViewBounds = true
-
-            url = presenter.getUrlFromPhoto(contentResolver.query(pickedImage!!, arrayOf(MediaStore.Images.Media.DATA), null, null, null))
-        }
-    }
-
     fun injectDependencies() {
         App.instance.component.plus(PresentationModule()).inject(this)
     }
@@ -161,43 +152,43 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
         super.onDestroy()
     }
 
-    override fun addFriend(user: User) {
+    override fun setFriend(user: User) {
         adapter.memberList.add(user)
         adapter.notifyDataSetChanged()
     }
 
-    override fun setupRecycler() {
+    fun setupRecycler() {
         addGroupRV.layoutManager = LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL, false)
         addGroupRV.adapter = adapter
     }
 
-    override fun showErrorBuddy() {
-        Toast.makeText(this, getString(R.string.addGroupErrorBuddy), Toast.LENGTH_SHORT).show()
+    override fun getDialogInput(input: String) {
+        presenter.getFriendData(input)
     }
 
-    override fun showErrorAdding() {
-        Toast.makeText(this, getString(R.string.addGroupErrorAddingGroup), Toast.LENGTH_SHORT).show()
+    override fun onClick(v: View?) {
+        when(v?.id){
+            R.id.addGroupIVphoto -> {
+                askForPermissionsPhoto(this@AddGroupActivity)
+            }
+            R.id.fab -> {
+                DialogFactory.callbackInput = this
+                DialogFactory.buildInputDialog(this@AddGroupActivity,getString(R.string.addGroupAddDialog)).show()
+            }
+        }
     }
 
-    override fun showErrorMembers() {
-        Toast.makeText(this, getString(R.string.addGroupErrorMembers), Toast.LENGTH_SHORT).show()
+    override fun showError(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorAlready() {
-        Toast.makeText(this, getString(R.string.addGroupErrorAlready), Toast.LENGTH_SHORT).show()
+    override fun showSuccess(stringId: Int) {
+        Toast.makeText(this, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
-    override fun showErrorModify() {
-        Toast.makeText(this, getString(R.string.addGroupErrorModify), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showErrorEmpty() {
-        Toast.makeText(this, getString(R.string.addGroupErrorEmpty), Toast.LENGTH_SHORT).show()
-    }
-
-    override fun showProgressBar(boolean: Boolean) {
-        progressBarAddGroup.setVisibility(boolean)
-        addGroupFLall.setVisibility(!boolean)
+    override fun showProgress(isLoading: Boolean) {
+        progressBarAddGroup?.setVisibility(isLoading)
+        addGroupFLall?.setVisibility(!isLoading)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -209,9 +200,7 @@ class AddGroupActivity : AppCompatActivity(), AddGroupContract.View {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.toolbar_add -> {
-                addGroup()
-            }
+            R.id.toolbar_add -> { addGroup() }
         }
         return true
     }

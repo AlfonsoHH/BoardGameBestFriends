@@ -5,14 +5,17 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.Place
 import io.reactivex.Completable
 
 class AddPlaceInteractorImpl(private val placesRepository: PlacesRepository): AddPlaceInteractor {
-    override fun addFirebaseDataPlace(regionId: String, place: Place): Completable {
+    override fun addFirebaseDataPlace(key: String, regionId: String, place: Place): Completable {
         return Completable.create {
             try {
-                placesRepository.addPlace(regionId,place)
+                placesRepository.addPlace(key,regionId,place)
                 it.onComplete()
             } catch (error: Exception) {
                 it.onError(error)
             }
         }
+    }
+    override fun getKey(): String {
+        return placesRepository.getKey()
     }
 }

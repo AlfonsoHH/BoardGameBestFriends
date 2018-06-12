@@ -8,7 +8,7 @@ import kotlin.collections.ArrayList
  * Created by alfonsohernandez on 06/04/2018.
  */
 
-data class Place (var id: String = "",
+data class Place (override var id: String = "",
                   var photo: String = "",
                   var name: String = "",
                   var address: String = "",
@@ -21,4 +21,4 @@ data class Place (var id: String = "",
                   var openPlace: Boolean = true,
                   var firstOpeningHours: String? = "",
                   var secondOpeningHours: String? = "",
-                  var thirdOpeningHours: String? = ""){}
+                  var thirdOpeningHours: String? = ""): DatabaseStringItem {}

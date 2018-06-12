@@ -1,11 +1,6 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
 import android.support.v7.widget.RecyclerView
-import android.transition.Transition
-import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,11 +8,11 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.RequestOptions
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
-import java.text.SimpleDateFormat
+import jp.wasabeef.glide.transformations.CropCircleTransformation
 
 /**
  * Created by alfonsohernandez on 15/03/2018.
@@ -33,7 +28,7 @@ class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
     var onLongClickListener: ((Meeting) -> Unit)? = null
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindItems(meetingsList!!.get(position))
+        holder.bindItems(meetingsList.get(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -99,22 +94,16 @@ class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
                     adminHostPlayingTV.setVisibility(true)
             }
 
-            Glide.with(itemView).asBitmap().load(meeting.gamePhoto).into(object : SimpleTarget<Bitmap>(120,120) {
-                override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
-                    val roundedDrawable = RoundedBitmapDrawableFactory.create(itemView!!.resources, resource)
-                    roundedDrawable.isCircular = true
-                    photoGame.setImageDrawable(roundedDrawable)
-                }
-            })
+            Glide.with(itemView)
+                    .load(meeting.gamePhoto)
+                    .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                    .into(photoGame)
 
             if(!meeting.placePhoto.equals("url")) {
-                val decodedString2 = Base64.decode(meeting.placePhoto, Base64.DEFAULT)
-                val imagenJug2 = BitmapFactory.decodeByteArray(decodedString2, 0, decodedString2.size)
-                Bitmap.createScaledBitmap(imagenJug2, 90, 90, false)
-                val roundedBitmapDrawable2 = RoundedBitmapDrawableFactory.create(itemView.getResources(), imagenJug2)
-                roundedBitmapDrawable2.isCircular = true
-
-                photoPlace?.setImageDrawable(roundedBitmapDrawable2)
+                Glide.with(itemView)
+                        .load(meeting.placePhoto)
+                        .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                        .into(photoPlace)
             }
 
             itemView.setOnClickListener({

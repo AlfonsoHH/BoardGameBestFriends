@@ -5,14 +5,17 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.Group
 import io.reactivex.Completable
 
 class AddGroupInteractorImpl (private val groupsRepository: GroupsRepository): AddGroupInteractor {
-    override fun addFirebaseDataGroup(group: Group, userList: ArrayList<String>): Completable {
+    override fun addFirebaseDataGroup(key: String, group: Group, userList: ArrayList<String>): Completable {
         return Completable.create {
             try {
-                groupsRepository.addGroup(group, userList)
+                groupsRepository.addGroup(key, group, userList)
                 it.onComplete()
             } catch (error: Exception) {
                 it.onError(error)
             }
         }
+    }
+    override fun getKey(): String {
+        return groupsRepository.getKey()
     }
 }

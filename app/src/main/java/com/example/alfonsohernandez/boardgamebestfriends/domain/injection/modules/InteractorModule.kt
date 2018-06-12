@@ -1,8 +1,11 @@
 package com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules
 
 import android.content.Context
+import com.example.alfonsohernandez.boardgamebestfriends.domain.contentresolver.GetPathFromUri
+import com.example.alfonsohernandez.boardgamebestfriends.domain.geocoder.Geocoder
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasechat.GetMessagesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasechat.GetMessagesInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasechat.SendMessageInteractor
@@ -15,15 +18,41 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetRegionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetRegionInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggGameCollectionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggGameCollectionInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggXmlGameCollectionInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggXmlGameCollectionInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamedetail.GetBggGameDetailInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamedetail.GetBggGameDetailInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getlatlong.GetLatLongInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getlatlong.GetLatLongInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.ClearTopicInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.ClearTopicInteractorImpl
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.SetTopicInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.SetTopicInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractorImpl
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.*
 import com.example.alfonsohernandez.boardgamebestfriends.network.rest.BggApi
+import com.example.alfonsohernandez.boardgamebestfriends.network.rest.BggXMLapi
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMtopic
 import com.example.alfonsohernandez.boardgamebestfriends.storage.preferences.UserProfileDatabase
 import dagger.Module
 import dagger.Provides
@@ -147,11 +176,6 @@ class InteractorModule {
     }
 
     @Provides
-    fun providesAddMeetingToGroupInteractorImpl(meetingsRepository: MeetingsRepository): AddMeetingToGroupInteractor {
-        return AddMeetingToGroupInteractorImpl(meetingsRepository)
-    }
-
-    @Provides
     fun providesAddMeetingToPlaceInteractorImpl(meetingsRepository: MeetingsRepository): AddMeetingToPlaceInteractor {
         return AddMeetingToPlaceInteractorImpl(meetingsRepository)
     }
@@ -202,13 +226,8 @@ class InteractorModule {
     }
 
     @Provides
-    fun providesAddPlaceToUserInteractorImpl(placesRepository: PlacesRepository): AddPlaceToUserInteractor {
-        return AddPlaceToUserInteractorImpl(placesRepository)
-    }
-
-    @Provides
-    fun providesGetOpenPlacesInteractorImpl(placesRepository: PlacesRepository): GetOpenPlacesInteractor {
-        return GetOpenPlacesInteractorImpl(placesRepository)
+    fun providesGetOpenPlacesInteractorImpl(placesRepository: PlacesRepository): GetPlacesInteractor {
+        return GetPlacesInteractorImpl(placesRepository)
     }
 
     @Provides
@@ -294,6 +313,81 @@ class InteractorModule {
     @Provides
     fun providesGetBggGameCollectionInteractorImpl(bggApi: BggApi): GetBggGameCollectionInteractor {
         return GetBggGameCollectionInteractorImpl(bggApi)
+    }
+
+    @Provides
+    fun providesSetTopicInteractorImpl(fcMtopic: FCMtopic): SetTopicInteractor {
+        return SetTopicInteractorImpl(fcMtopic)
+    }
+
+    @Provides
+    fun providesClearTopicInteractorImpl(fcMtopic: FCMtopic): ClearTopicInteractor {
+        return ClearTopicInteractorImpl(fcMtopic)
+    }
+
+    @Provides
+    fun providesGetLatLongInteractorImpl(geocoder: Geocoder): GetLatLongInteractor {
+        return GetLatLongInteractorImpl(geocoder)
+    }
+
+    @Provides
+    fun providesGetPathFromUriInteractorImpl(getPathFromUri: GetPathFromUri): GetPathFromUriInteractor {
+        return GetPathFromUriInteractorImpl(getPathFromUri)
+    }
+
+    @Provides
+    fun providesPaperGroupsInteractorImpl(paperGroupsRepository: PaperGroupsRepository): PaperGroupsInteractor {
+        return PaperGroupsInteractorImpl(paperGroupsRepository)
+    }
+
+    @Provides
+    fun providesPaperMeetingsInteractorImpl(paperMeetingsRepository: PaperMeetingsRepository): PaperMeetingsInteractor {
+        return PaperMeetingsInteractorImpl(paperMeetingsRepository)
+    }
+
+    @Provides
+    fun providesPaperPlacesInteractorImpl(paperPlacesRepository: PaperPlacesRepository): PaperPlacesInteractor {
+        return PaperPlacesInteractorImpl(paperPlacesRepository)
+    }
+
+    @Provides
+    fun providesPaperRegionsInteractorImpl(paperRegionsRepository: PaperRegionsRepository): PaperRegionsInteractor {
+        return PaperRegionsInteractorImpl(paperRegionsRepository)
+    }
+
+    @Provides
+    fun providesPaperGamesInteractorImpl(paperGamesRepository: PaperGamesRepository): PaperGamesInteractor {
+        return PaperGamesInteractorImpl(paperGamesRepository)
+    }
+
+    @Provides
+    fun providesGetBggGameDetailInteractorImpl(bggXMLapi: BggXMLapi): GetBggGameDetailInteractor {
+        return GetBggGameDetailInteractorImpl(bggXMLapi)
+    }
+
+    @Provides
+    fun providesGetBggXmlGameCollectionInteractorImpl(bggXMLapi: BggXMLapi): GetBggXmlGameCollectionInteractor {
+        return GetBggXmlGameCollectionInteractorImpl(bggXMLapi)
+    }
+
+    @Provides
+    fun providesSaveImageFirebaseStorageInteractorImpl(imageRepository: ImageRepository): SaveImageFirebaseStorageInteractor {
+        return SaveImageFirebaseStorageInteractorImpl(imageRepository)
+    }
+
+    @Provides
+    fun providesCreateMailUserInteractorImpl(authRepository: AuthRepository): CreateMailUserInteractor {
+        return CreateMailUserInteractorImpl(authRepository)
+    }
+
+    @Provides
+    fun providesLoginWithCredentialsInteractorImpl(authRepository: AuthRepository): LoginWithCredentialsInteractor {
+        return LoginWithCredentialsInteractorImpl(authRepository)
+    }
+
+    @Provides
+    fun providesLoginWithEmailInteractorImpl(authRepository: AuthRepository): LoginWithEmailInteractor {
+        return LoginWithEmailInteractorImpl(authRepository)
     }
 
 }

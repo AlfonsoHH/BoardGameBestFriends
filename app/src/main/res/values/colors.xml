@@ -5,6 +5,7 @@
     <color name="white">#ffffff</color>
     <color name="blue">#2583A0</color>
     <color name="lightGrey">#f4f4f4</color>
+    <color name="mediumGrey">#dadada</color>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>

@@ -1,40 +1,42 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdetail
 
 import android.util.Log
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegroups.AddGroupToUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegroups.GetSingleGroupInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetRegionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetGroupUsersInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserFromMailInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.lang.reflect.Member
 import javax.inject.Inject
 
 class GroupDetailPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+                                               private val paperGroupsInteractor: PaperGroupsInteractor,
                                                private val addGroupToUserInteractor: AddGroupToUserInteractor,
-                                               private val getSingleGroupInteractor: GetSingleGroupInteractor,
+                                               private val getSingleUserFromMailInteractor: GetSingleUserFromMailInteractor,
                                                private val getRegionInteractor: GetRegionInteractor,
                                                private val getGroupUsersInteractor: GetGroupUsersInteractor,
                                                private val getSingleUserInteractor: GetSingleUserInteractor,
-                                               private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupDetailContract.Presenter {
+                                               private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupDetailContract.Presenter, BasePresenter<GroupDetailContract.View>() {
 
     private val TAG = "GroupDetailPresenter"
     var groupId = ""
     var membersList = arrayListOf<User>()
 
-    private var view: GroupDetailContract.View? = null
-
     fun setView(view: GroupDetailContract.View?, groupId: String) {
         this.view = view
         this.groupId = groupId
         if(!groupId.equals("")) {
-            Log.d(TAG,"Inside GroupId")
             getGroupData(groupId)
             getMembersData(groupId)
             firebaseEvent("Showing a Group", TAG)
@@ -45,107 +47,104 @@ class GroupDetailPresenter @Inject constructor(private val getUserProfileInterac
         return getUserProfileInteractor.getProfile()
     }
 
-    override fun getGroupData(groupId: String) {
-        view?.showProgressBar(true)
-        getSingleGroupInteractor
-                .getFirebaseDataSingleGroup(groupId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.showProgressBar(false)
-                    var group = it.getValue(Group::class.java)
-                    view?.setGroupData(group!!)
-                    getRegionData(getUserProfile()!!.regionId)
-                },{
-                    view?.showProgressBar(false)
-                    view?.showErrorGroup()
-                })
+    override fun firebaseEvent(id: String, activityName: String) {
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
     }
 
-    override fun getRegionData(regionId: String) {
-        view?.showProgressBar(true)
+    fun getGroupData(groupId: String) {
+        paperGroupsInteractor.get(groupId)?.let {
+            view?.setGroupData(it)
+        }
+        getUserProfile()?.let{
+            getRegionData(it.regionId)
+        }
+    }
+
+    fun getRegionData(regionId: String) {
+        view?.showProgress(true)
         getRegionInteractor
                 .getFirebaseDataSingleRegion(regionId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     view?.setRegionData(it.getValue(Region::class.java)!!)
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorRegion()
+                    view?.showProgress(false)
+                    view?.showError(R.string.groupDetailErrorRegion)
                 })
     }
 
-    override fun getMembersData(groupId: String) {
-        view?.showProgressBar(true)
+    fun getMembersData(groupId: String) {
+        view?.showProgress(true)
         getGroupUsersInteractor
                 .getFirebaseDataGroupUsers(groupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
-                    //view?.clearFriendsData()
+                    view?.showProgress(false)
                     for (h in it.children) {
                         getMemberData(h.key)
                     }
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorMembers()
+                    view?.showProgress(false)
+                    view?.showError(R.string.groupDetailErrorMembers)
                 })
     }
 
-    override fun getMemberData(memberId: String) {
-        view?.showProgressBar(true)
+    fun getMemberData(memberId: String) {
+        view?.showProgress(true)
         getSingleUserInteractor
                 .getFirebaseDataSingleUser(memberId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
-                    var actualUser = it.getValue(User::class.java)
-                    membersList.add(actualUser!!)
-                    view?.setFriendData(actualUser!!)
-                    Log.d(TAG,actualUser.userName)
+                    view?.showProgress(false)
+                    val actualUser = it.getValue(User::class.java)
+                    if(actualUser != null) {
+                        membersList.add(actualUser)
+                        view?.setFriendData(actualUser)
+                    }
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorMembers()
+                    view?.showProgress(false)
+                    view?.showError(R.string.groupDetailErrorMembers)
                 })
     }
 
-    override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
-    }
-
-    override fun getFriendData(userId: String) {
-        view?.showProgressBar(true)
-        getSingleUserInteractor
-                .getFirebaseDataSingleUser(userId)
+    override fun getFriendFromMailData(email: String) {
+        view?.showProgress(true)
+        getSingleUserFromMailInteractor
+                .getFirebaseDataSingleUserFromMail(email)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgressBar(false)
+                    view?.showProgress(false)
                     var alreadyExist = false
                     for(member in membersList){
-                        if(member.id.equals(userId))
+                        if(member.email.equals(email))
                             alreadyExist = true
                     }
-                    if(!alreadyExist)
-                        saveNewMember(it.getValue(User::class.java)!!,groupId)
-                    else
-                        view?.showErrorAlreadyExist()
+                    if (!alreadyExist) {
+                        var actualUser = User()
+                        for(h in it.children) {
+                            actualUser = h.getValue(User::class.java)!!
+                        }
+                        saveNewMember(actualUser,groupId)
+                    }else{
+                        view?.showError(R.string.groupDetailErrorAlready)
+                    }
                 },{
-                    view?.showProgressBar(false)
-                    view?.showErrorDoesNotExist()
+                    view?.showProgress(false)
+                    view?.showError(R.string.addGroupErrorBuddy)
                 })
     }
 
     override fun saveNewMember(user: User, groupId: String) {
         addGroupToUserInteractor.addFirebaseDataGroupToUser(user.id,groupId).subscribe({
-            view?.successNewMember()
+            view?.showSuccess(R.string.groupDetailSuccessNewMember)
             view?.setFriendData(user)
         },{
-            view?.showErrorNewMember()
+            view?.showError(R.string.groupDetailErrorNewMember)
         })
     }
 
