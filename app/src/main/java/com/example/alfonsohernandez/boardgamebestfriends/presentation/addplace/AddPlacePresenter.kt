@@ -16,7 +16,10 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
@@ -28,7 +31,8 @@ import javax.inject.Inject
  * Created by alfonsohernandez on 06/04/2018.
  */
 
-class AddPlacePresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class AddPlacePresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                            private val getUserProfileInteractor: GetUserProfileInteractor,
                                             private val paperPlacesInteractor: PaperPlacesInteractor,
                                             private val paperRegionsInteractor: PaperRegionsInteractor,
                                             private val getLatLongInteractor: GetLatLongInteractor,
@@ -36,7 +40,9 @@ class AddPlacePresenter @Inject constructor(private val getUserProfileInteractor
                                             private val modifyPlaceInteractor: ModifyPlaceInteractor,
                                             private val saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
                                             private val getPathFromUriInteractor: GetPathFromUriInteractor,
-                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddPlaceContract.Presenter, BasePresenter<AddPlaceContract.View>() {
+                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                            ): AddPlaceContract.Presenter,
+                                                BasePushPresenter<AddPlaceContract.View>() {
     private val TAG = "AddPlacePresenter"
 
     lateinit var region: Region
@@ -44,6 +50,11 @@ class AddPlacePresenter @Inject constructor(private val getUserProfileInteractor
     fun setView(view: AddPlaceContract.View?) {
         this.view = view
         view?.setSpinnerData()
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {

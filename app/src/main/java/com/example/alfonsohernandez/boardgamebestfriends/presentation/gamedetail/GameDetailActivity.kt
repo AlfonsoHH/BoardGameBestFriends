@@ -10,6 +10,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.module
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.activity_game_detail.*
 import javax.inject.Inject
 
@@ -32,11 +34,22 @@ class GameDetailActivity : AppCompatActivity(), GameDetailContract.View {
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         val extras = intent.extras
-        gameId = extras.getString("id", "")
-        kind = extras.getString("kind", "")
+        extras?.let {
+            gameId = it.getString("id", "")
+            kind = it.getString("kind", "")
+        }
 
         injectDependencies()
         presenter.setView(this, gameId)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {

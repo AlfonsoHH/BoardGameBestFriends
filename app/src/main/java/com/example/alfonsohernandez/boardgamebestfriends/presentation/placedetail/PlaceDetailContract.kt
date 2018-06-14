@@ -2,11 +2,12 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.placedeta
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 interface PlaceDetailContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setData(place: Place, region: String)
         fun setRuleData(ruleId: Int, ruleNumber: Int)

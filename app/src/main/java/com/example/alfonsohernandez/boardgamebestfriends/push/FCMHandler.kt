@@ -1,5 +1,6 @@
 package com.example.alfonsohernandez.boardgamebestfriends.push
 
+import com.google.firebase.messaging.RemoteMessage
 import com.google.firebase.messaging.RemoteMessage.Notification
 
 class FCMHandler {
@@ -7,11 +8,11 @@ class FCMHandler {
     var push: CallbackPush? = null
 
     interface CallbackPush{
-        fun pushReceived(not: Notification)
+        fun pushReceived(rm: RemoteMessage)
     }
 
-    fun handlePush(not: Notification) {
-        push?.pushReceived(not)
+    fun handlePush(rm: RemoteMessage) {
+        push?.pushReceived(rm)
     }
 
 }

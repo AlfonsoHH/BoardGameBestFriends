@@ -390,4 +390,9 @@ class InteractorModule {
         return LoginWithEmailInteractorImpl(authRepository)
     }
 
+    @Provides
+    fun providesGetCurrentAuthUserInteractorImpl(authRepository: AuthRepository): GetCurrentAuthUserInteractor {
+        return GetCurrentAuthUserInteractorImpl(authRepository)
+    }
+
 }

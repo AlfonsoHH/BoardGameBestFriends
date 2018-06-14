@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.login
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Dialog
 import android.content.DialogInterface
 import android.support.v7.app.AppCompatActivity
@@ -45,7 +46,7 @@ import com.google.firebase.auth.*
 class LoginActivity : AppCompatActivity(),
         LoginContract.View,
         View.OnClickListener,
-        DialogFactory.CitySelectedCallback{
+        DialogFactory.CitySelectedCallback {
 
     private val TAG = "LoginActivity"
 
@@ -72,17 +73,16 @@ class LoginActivity : AppCompatActivity(),
         injectDependencies()
         presenter.setView(this)
 
-        mAuth = FirebaseAuth.getInstance()
-
         //FACEBOOK SETTINGS
         mCallbackManager = CallbackManager.Factory.create()
         loginBfacebook.setReadPermissions("email", "public_profile")
-        loginBfacebook.registerCallback(mCallbackManager, object: FacebookCallback<LoginResult> {
+        loginBfacebook.registerCallback(mCallbackManager, object : FacebookCallback<LoginResult> {
             override fun onSuccess(result: LoginResult?) {
                 result?.let {
                     handleFacebookAccessToken(it.getAccessToken())
                 }
             }
+
             override fun onCancel() {}
             override fun onError(error: FacebookException?) {
                 showError(R.string.loginErrorFacebook)
@@ -102,21 +102,20 @@ class LoginActivity : AppCompatActivity(),
     }
 
     override fun onClick(v: View?) {
-        when(v?.id){
-            R.id.loginBmail ->{
-                if(!loginETemail.text.equals("") && !loginETpassword.text.equals(""))
+        when (v?.id) {
+            R.id.loginBmail -> {
+                if (!loginETemail.text.equals("") && !loginETpassword.text.equals(""))
                     presenter.loginWithEmail(loginETemail.text.toString(), loginETpassword.text.toString())
                 else
                     showError(R.string.loginErrorEmpty)
             }
-            R.id.loginBgmail ->{
-                showProgress(true)
+            R.id.loginBgmail -> {
                 val signInIntent = mGoogleSignInClient.getSignInIntent()
                 startActivityForResult(signInIntent, RC_SIGN_IN)
             }
-            R.id.loginTVsignIn ->{
+            R.id.loginTVsignIn -> {
                 val intent = Intent(applicationContext, SignUpActivity::class.java)
-                startActivityForResult(intent,1)
+                startActivityForResult(intent, 1)
             }
         }
     }
@@ -126,37 +125,39 @@ class LoginActivity : AppCompatActivity(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
-        if (requestCode == RC_SIGN_IN) {
-            showProgress(true)
-            val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
-            if (result.isSuccess()) {
-                result.signInAccount?.let {
-                    firebaseAuthWithGoogle(it)
+        if(resultCode == Activity.RESULT_OK) {
+            if (requestCode == RC_SIGN_IN) {
+                showProgress(true)
+                val result = Auth.GoogleSignInApi.getSignInResultFromIntent(data)
+                if (result.isSuccess()) {
+                    result.signInAccount?.let {
+                        firebaseAuthWithGoogle(it)
+                    }
                 }
+            } else if (requestCode == 1) {
+                showSuccess(R.string.loginSuccessAdding)
+            } else {
+                showProgress(true)
+                mCallbackManager.onActivityResult(requestCode, resultCode, data)
             }
-        }else if(requestCode == 1){
-            showSuccess(R.string.loginSuccessAdding)
-        }else{
-            showProgress(true)
-            mCallbackManager.onActivityResult(requestCode, resultCode, data)
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun onCitySelectedChoosed(city: String) {
-        val user = mAuth.currentUser
-        if(user != null) {
+        val user = presenter.getAuthUser()
+        if (user != null) {
             if (provider.equals("facebook"))
                 presenter.getUsersData(user.uid, User(user.uid, user.email.toString(), user.displayName.toString(), user.photoUrl.toString() + "?type=large", provider, presenter.getRegionId(city)))
             else
                 presenter.getUsersData(user.uid, User(user.uid, user.email.toString(), user.displayName.toString(), user.photoUrl.toString(), provider, presenter.getRegionId(city)))
         }
-        }
+    }
 
     override fun chooseRegion(fromFacebook: Boolean) {
         DialogFactory.callbackCity = this@LoginActivity
-        DialogFactory.buildChooseRegionDialog(this@LoginActivity,presenter.getRegions()).show()
-        if(fromFacebook)
+        DialogFactory.buildChooseRegionDialog(this@LoginActivity, presenter.getRegions()).show()
+        if (fromFacebook)
             provider = "facebook"
         else
             provider = "gmail"
@@ -164,16 +165,18 @@ class LoginActivity : AppCompatActivity(),
 
     private fun handleFacebookAccessToken(token: AccessToken) {
         val credential = FacebookAuthProvider.getCredential(token.token)
-        presenter.loginWithCredentials(credential,true)
+        presenter.loginWithCredentials(credential, true)
     }
 
     fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null)
-        presenter.loginWithCredentials(credential,false)
+        presenter.loginWithCredentials(credential, false)
     }
 
     override fun nextActivity() {
+        finish()
         val main = Intent(this, TabActivity::class.java)
+        main.flags = Intent.FLAG_ACTIVITY_NO_ANIMATION
         startActivity(main)
     }
 

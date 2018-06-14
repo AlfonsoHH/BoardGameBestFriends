@@ -50,13 +50,33 @@
                 android:layout_width="match_parent"
                 android:layout_height="10dp" />
 
-            <TextView
-                android:id="@+id/fragmentProfileTVresidence"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:text="Granada, Spain"
-                android:textAlignment="center"
-                android:textSize="16sp"/>
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <View
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginRight="10dp"/>
+
+                <TextView
+                    android:id="@+id/fragmentProfileTVresidence"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="Granada, Spain"
+                    android:textAlignment="center"
+                    android:textSize="16sp"/>
+
+                <ImageView
+                    android:id="@+id/profileIVregion"
+                    android:layout_marginLeft="10dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@android:drawable/ic_menu_myplaces"/>
+
+            </LinearLayout>
 
             <Space
                 android:layout_width="match_parent"

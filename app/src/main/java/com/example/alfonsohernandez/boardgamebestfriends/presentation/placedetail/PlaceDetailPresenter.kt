@@ -11,14 +11,19 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
-class PlaceDetailPresenter @Inject constructor(private val userProfileInteractor: GetUserProfileInteractor,
+class PlaceDetailPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                               private val userProfileInteractor: GetUserProfileInteractor,
                                                private val paperPlacesInteractor: PaperPlacesInteractor,
                                                private val paperRegionsInteractor: PaperRegionsInteractor,
-                                               private val firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : PlaceDetailContract.Presenter, BasePresenter<PlaceDetailContract.View>() {
+                                               private val firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                                ): PlaceDetailContract.Presenter, BasePushPresenter<PlaceDetailContract.View>() {
 
     private val TAG = "PlaceDetailPresenter"
 
@@ -27,6 +32,11 @@ class PlaceDetailPresenter @Inject constructor(private val userProfileInteractor
         view?.showProgress(true)
         getData(placeId)
         firebaseAnalyticsInteractor.sendingDataFirebaseAnalytics("Showing place", TAG)
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {

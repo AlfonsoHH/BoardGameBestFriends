@@ -10,6 +10,8 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.PresentationModule
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
@@ -18,6 +20,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
+import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_add_meeting.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,6 +40,9 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
     lateinit var spinnerArrayAdapterPlace: ArrayAdapter<String>
     lateinit var spinnerArrayAdapterGame: ArrayAdapter<String>
 
+    var meetingId = ""
+    var action = ""
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_meeting)
@@ -48,11 +56,29 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         presenter.setView(this)
         getDate()
 
-//        if(action.equals("modify")) {
-//            addMeetingLLwho.setVisibility(false)
-//            addMeetingFLwho.setVisibility(false)
-//            presenter.getMeetingData()
-//        }
+        val intent = intent.extras
+        intent?.let {
+            meetingId = it.getString("id", "")
+            action = it.getString("action", "")
+        }
+
+        if (action.equals("modify")) {
+            addMeetingSwho.setVisibility(false)
+            addMeetingSwhere.setVisibility(false)
+            addMeetingSwhat.setVisibility(false)
+            addMeetingCheckbox.setVisibility(false)
+            presenter.getMeetingData(meetingId)
+            supportActionBar?.setTitle(getString(R.string.addMeetingToolbarTitleModify))
+        }
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -64,57 +90,94 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         super.onDestroy()
     }
 
-    fun addMeeting(){
-        if(!addMeetingTVhour.text.toString().equals("") && !addMeetingTVdate.text.toString().equals("") && !addMeetingETtitle.text.toString().equals("") && !addMeetingETdescription.text.toString().equals("")) {
+    override fun setData(meeting: Meeting, place: Place, group: Group, game: Game) {
+        addMeetingTVhour.text = meeting.date.substring(0, 5)
+        addMeetingTVdate.text = meeting.date.substring(6, meeting.date.length)
+        addMeetingETtitle.setText(meeting.title)
+        addMeetingETdescription.setText(meeting.description)
+        Glide.with(this)
+                .load(group.photo)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(addMeetingIVwho)
+        addMeetingTVwho.setVisibility(true)
+        addMeetingTVwho.text = group.title
+        Glide.with(this)
+                .load(place.photo)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(addMeetingIVwhere)
+        addMeetingTVwhere.setVisibility(true)
+        addMeetingTVwhere.text = place.name
+        Glide.with(this)
+                .load(game.photo)
+                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                .into(addMeetingIVwhat)
+        addMeetingTVwhat.setVisibility(true)
+        addMeetingTVwhat.text = game.title
+    }
 
-            if(presenter.getMyPlacee()!=null || !addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
+    fun addMeeting() {
+        if (!addMeetingTVhour.text.toString().equals("") && !addMeetingTVdate.text.toString().equals("") && !addMeetingETtitle.text.toString().equals("") && !addMeetingETdescription.text.toString().equals("")) {
 
-                val actualGame = presenter.getGameFromTitle(addMeetingSwhat.selectedItem.toString())
+            if (presenter.getMyPlacee() != null || !addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
 
-                var actualPlace = Place()
+                presenter.getUserProfile()?.let { user ->
+                    if (!action.equals("modify")) {
 
-                if (!addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))){
-                    presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())?.let{
-                        actualPlace = it
-                    }
-                }else {
-                    presenter.myPlace?.let{
-                        actualPlace = it
+                        val actualGame = presenter.getGameFromTitle(addMeetingSwhat.selectedItem.toString())
+
+                        var actualPlace = Place()
+
+                        if (!addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
+                            presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())?.let {
+                                actualPlace = it
+                            }
+                        } else {
+                            presenter.myPlace?.let {
+                                actualPlace = it
+                            }
+                        }
+                        var actualGroup = Group()
+
+                        if (!addMeetingSwho.selectedItem.toString().equals(getString(R.string.addMeetingOpen))) {
+                            presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())?.let {
+                                actualGroup = it
+                            }
+                        } else {
+                            actualGroup.id = "open"
+                        }
+
+                        var vacants = actualGame.maxPlayers
+
+                        if (addMeetingCheckbox.isChecked)
+                            vacants = vacants - 1
+
+                        presenter.saveMeeting(Meeting("",
+                                addMeetingETtitle.text.toString(),
+                                addMeetingETdescription.text.toString(),
+                                addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
+                                actualGroup.id,
+                                actualPlace.id,
+                                actualPlace.photo,
+                                actualGame.id,
+                                actualGame.photo,
+                                user.id,
+                                vacants),
+                                addMeetingCheckbox.isChecked)
+                    } else {
+                        presenter.modifyMeeting(Meeting(meetingId,
+                                addMeetingETtitle.text.toString(),
+                                addMeetingETdescription.text.toString(),
+                                addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
+                                "", "", "", "", "",
+                                user.id,
+                                0),
+                                false)
                     }
                 }
-                var actualGroup = Group()
-
-                if (!addMeetingSwho.selectedItem.toString().equals(getString(R.string.addMeetingOpen))) {
-                    presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())?.let{
-                        actualGroup = it
-                    }
-                } else {
-                    actualGroup.id = "open"
-                }
-
-                var vacants = actualGame.maxPlayers
-
-                if (addMeetingCheckbox.isChecked)
-                    vacants = vacants - 1
-
-                presenter.getUserProfile()?.let {user ->
-                    presenter.saveMeeting(Meeting("",
-                            addMeetingETtitle.text.toString(),
-                            addMeetingETdescription.text.toString(),
-                            addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
-                            actualGroup.id,
-                            actualPlace.id,
-                            actualPlace.photo,
-                            actualGame.id,
-                            actualGame.photo,
-                            user.id,
-                            vacants),
-                            addMeetingCheckbox.isChecked)
-                }
-            }else{
+            } else {
                 showError(R.string.addMeetingErrorMyPlace)
             }
-        }else{
+        } else {
             showError(R.string.addMeetingErrorEmpty)
         }
     }
@@ -125,10 +188,11 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         finish()
     }
 
-    fun getDate(){
+    fun getDate() {
 
         val cal = Calendar.getInstance()
         val sdf = SimpleDateFormat("HH:mm")
+        val sdfDays = SimpleDateFormat("dd/MM/yy")
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
             cal.set(Calendar.HOUR_OF_DAY, hour)
@@ -142,7 +206,7 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
             cal.set(Calendar.MONTH, monthOfYear)
             cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-            addMeetingTVdate.text = sdf.format(cal.time)
+            addMeetingTVdate.text = sdfDays.format(cal.time)
 
             TimePickerDialog(this, timeSetListener, cal.get(Calendar.HOUR_OF_DAY), cal.get(Calendar.MINUTE), true).show()
         }
@@ -155,10 +219,10 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         }
     }
 
-    fun setupSpinners(){
+    fun setupSpinners() {
         //GROUPS SPINNER
         val groupList = presenter.getUserGroups()
-        groupList.add(0,"Open")
+        groupList.add(0, "Open")
 
         spinnerArrayAdapterGroup = ArrayAdapter(this, android.R.layout.simple_spinner_item, groupList)
         spinnerArrayAdapterGroup.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -168,12 +232,13 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
             override fun onItemSelected(parentView: AdapterView<*>, selectedItemView: View, position: Int, id: Long) {
                 spinnerItemChange()
             }
+
             override fun onNothingSelected(parentView: AdapterView<*>) {}
         }
 
         //PLACES SPINNER
         val placeList = presenter.getPlaces()
-        placeList.add(0,"My Place")
+        placeList.add(0, "My Place")
 
         spinnerArrayAdapterPlace = ArrayAdapter(this, android.R.layout.simple_spinner_item, placeList)
         spinnerArrayAdapterPlace.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -183,6 +248,7 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
             override fun onItemSelected(parentView: AdapterView<*>, selectedItemView: View, position: Int, id: Long) {
                 spinnerItemChange()
             }
+
             override fun onNothingSelected(parentView: AdapterView<*>) {}
         }
 
@@ -194,17 +260,17 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         addMeetingSwhat.setAdapter(spinnerArrayAdapterGame)
     }
 
-    fun spinnerItemChange(){
+    fun spinnerItemChange() {
         spinnerArrayAdapterGame.clear()
         presenter.getUserProfile()?.let {
             presenter.getUserGames(it.id)
         }
-        if(!addMeetingSwho.selectedItem.toString().equals("Open")) {
+        if (!addMeetingSwho.selectedItem.toString().equals("Open")) {
             val group = presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())
             if (group != null)
                 presenter.getGroupGames(group.id)
         }
-        if(!addMeetingSwhere.selectedItem.toString().equals("My place")) {
+        if (!addMeetingSwhere.selectedItem.toString().equals("My place")) {
             val place = presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())
             if (place != null)
                 presenter.getPlaceGames(place.id)
@@ -212,20 +278,20 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
     }
 
     override fun addGameToSpinner(gamesTitle: String) {
-        if(!itsGame(gamesTitle))
+        if (!itsGame(gamesTitle))
             spinnerArrayAdapterGame.add(gamesTitle)
     }
 
     override fun addGamesToSpinner(games: ArrayList<Game>) {
-        for(game in games) {
+        for (game in games) {
             if (!itsGame(game.title))
                 spinnerArrayAdapterGame.add(game.title)
         }
     }
 
     override fun itsGame(game: String): Boolean {
-        for(i in 0..spinnerArrayAdapterGame.count-1){
-            if(game.equals(spinnerArrayAdapterGame.getItem(i)))
+        for (i in 0..spinnerArrayAdapterGame.count - 1) {
+            if (game.equals(spinnerArrayAdapterGame.getItem(i)))
                 return true
         }
         return false

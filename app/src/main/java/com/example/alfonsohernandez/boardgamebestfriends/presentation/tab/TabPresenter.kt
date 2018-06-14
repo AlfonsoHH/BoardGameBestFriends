@@ -25,13 +25,8 @@ import javax.inject.Inject
  */
 
 class TabPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
-                                       private val paperRegionsInteractor: PaperRegionsInteractor,
                                        private val paperGamesInteractor: PaperGamesInteractor,
-                                       private val paperMeetingsInteractor: PaperMeetingsInteractor,
-                                       private val paperPlacesInteractor: PaperPlacesInteractor,
                                        private val getAllGamesInteractor: GetAllGamesInteractor,
-                                       private val modifyUserInteractor: ModifyUserInteractor,
-                                       private val saveUserProfileInteractor: SaveUserProfileInteractor,
                                        private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter, BasePresenter<TabContract.View>() {
 
     private val TAG: String = "TabPresenter"
@@ -39,7 +34,8 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
     fun setView(view: TabContract.View?) {
         this.view = view
         view?.setData()
-        loadAllGames()
+        if(view != null)
+            loadAllGames()
     }
 
     override fun getUserProfile(): User? {
@@ -48,11 +44,6 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
 
     override fun firebaseEvent(id: String, activityName: String) {
         newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
-    }
-
-    override fun clearPaper() {
-        paperMeetingsInteractor.clear()
-        paperPlacesInteractor.clear()
     }
 
     fun loadAllGames() {
@@ -73,37 +64,4 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                 })
     }
 
-    override fun modifyUserInFirebaseDB(userId: String, user: User) {
-        modifyUserInteractor
-                .modifyFirebaseDataUser(userId,user)
-                .subscribe({
-                    saveUserInPaper(user)
-                },{
-                    view?.showError(R.string.tabErrorUser)
-                })
-    }
-
-    override fun saveUserInPaper(user: User) {
-        saveUserProfileInteractor
-                .save(user)
-                .subscribe({
-                    firebaseEvent("Login in", TAG)
-                    view?.successChangingRegion()
-                },{
-                    view?.showError(R.string.tabErrorUser)
-                })
-    }
-
-    override fun getRegionList(): ArrayList<Region>{
-        return paperRegionsInteractor.all()
-    }
-
-    override fun getRegionId(cityName: String): String {
-        var regionId = ""
-        for(region in paperRegionsInteractor.all()){
-            if(region.city.equals(cityName))
-                regionId = region.id
-        }
-        return regionId
-    }
 }

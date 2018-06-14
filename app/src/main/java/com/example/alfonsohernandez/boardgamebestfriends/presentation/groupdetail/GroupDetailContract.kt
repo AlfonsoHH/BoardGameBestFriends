@@ -3,14 +3,14 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdeta
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 interface GroupDetailContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setGroupData(group: Group)
-        fun setRegionData(region: Region)
         fun setFriendData(user: User)
 
     }

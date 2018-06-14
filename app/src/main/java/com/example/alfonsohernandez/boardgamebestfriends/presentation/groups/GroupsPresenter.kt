@@ -14,6 +14,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.user
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -21,7 +24,8 @@ import javax.inject.Inject
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class GroupsPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                          private val getUserProfileInteractor: GetUserProfileInteractor,
                                           private val paperGroupsInteractor: PaperGroupsInteractor,
                                           private val paperMeetingsInteractor: PaperMeetingsInteractor,
                                           private val getUserGroupsInteractor: GetUserGroupsInteractor,
@@ -30,7 +34,9 @@ class GroupsPresenter @Inject constructor(private val getUserProfileInteractor: 
                                           private val removeGroupToUserInteractor: RemoveGroupToUserInteractor,
                                           private val SetTopicInteractor: SetTopicInteractor,
                                           private val ClearTopicInteractor: ClearTopicInteractor,
-                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupsContract.Presenter, BasePresenter<GroupsContract.View>() {
+                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                        ): GroupsContract.Presenter,
+                                            BasePushPresenter<GroupsContract.View>() {
 
     private val TAG = "GroupsPresenter"
 
@@ -40,6 +46,11 @@ class GroupsPresenter @Inject constructor(private val getUserProfileInteractor: 
     fun setView(view: GroupsContract.View?) {
         this.view = view
         getGroupsData()
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -68,6 +79,8 @@ class GroupsPresenter @Inject constructor(private val getUserProfileInteractor: 
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.groupsErrorLoading)
+                    },{
+                        view?.showProgress(false)
                     })
         }
     }

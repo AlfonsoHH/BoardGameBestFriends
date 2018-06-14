@@ -11,6 +11,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasestorage.SaveImageFirebaseStorageInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.AddUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.ModifyUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getpathfromuri.GetPathFromUriInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
@@ -25,6 +26,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
@@ -33,19 +35,19 @@ import javax.inject.Inject
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class ProfilePresenter @Inject constructor(//private val fcmHandler: FCMHandler,
-        private val saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
-        private val getPathFromUriInteractor: GetPathFromUriInteractor,
-        private val saveUserProfileInteractor: SaveUserProfileInteractor,
-        private val addUserInteractor: AddUserInteractor,
-        private val getUserProfileInteractor: GetUserProfileInteractor,
-        private val paperGroupsInteractor: PaperGroupsInteractor,
-        private val paperMeetingsInteractor: PaperMeetingsInteractor,
-        private val paperPlacesInteractor: PaperPlacesInteractor,
-        private val paperRegionsInteractor: PaperRegionsInteractor,
-        private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : ProfileContract.Presenter,
-        //BasePushPresenter<ProfileContract.View>() {
-        BasePresenter<ProfileContract.View>() {
+class ProfilePresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                           private val saveImageFirebaseStorageInteractor: SaveImageFirebaseStorageInteractor,
+                                           private val getPathFromUriInteractor: GetPathFromUriInteractor,
+                                           private val saveUserProfileInteractor: SaveUserProfileInteractor,
+                                           private val modifyUserInteractor: ModifyUserInteractor,
+                                           private val getUserProfileInteractor: GetUserProfileInteractor,
+                                           private val paperGroupsInteractor: PaperGroupsInteractor,
+                                           private val paperMeetingsInteractor: PaperMeetingsInteractor,
+                                           private val paperPlacesInteractor: PaperPlacesInteractor,
+                                           private val paperRegionsInteractor: PaperRegionsInteractor,
+                                           private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                        ) : ProfileContract.Presenter,
+                                            BasePushPresenter<ProfileContract.View>() {
 
 
     private val TAG = "ProfilePresenter"
@@ -58,7 +60,11 @@ class ProfilePresenter @Inject constructor(//private val fcmHandler: FCMHandler,
             getRegionData(it.regionId)
             firebaseEvent("Showing profile", TAG)
         }
-        //fcmHandler.push = this
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -91,12 +97,16 @@ class ProfilePresenter @Inject constructor(//private val fcmHandler: FCMHandler,
 
     fun saveUser(user: User){
         view?.showProgress(true)
-        addUserInteractor
-                .addFirebaseDataUser(user.id, user)
+        modifyUserInteractor
+                .modifyFirebaseDataUser(user.id, user)
                 .subscribe({
-                    saveUserProfileInteractor.save(user)
-                    view?.showSuccess(R.string.profileSuccessModify)
-                    view?.showProgress(false)
+                    saveUserProfileInteractor.save(user).subscribe({
+                        view?.showSuccess(R.string.profileSuccessModify)
+                        view?.showProgress(false)
+                        view?.updateRegion()
+                    },{
+                        view?.showError(R.string.profileErrorSaveUser)
+                    })
                 }, {
                     view?.showError(R.string.profileErrorSaveUser)
                     view?.showProgress(false)
@@ -131,5 +141,18 @@ class ProfilePresenter @Inject constructor(//private val fcmHandler: FCMHandler,
         paperRegionsInteractor.get(regionId)?.let{
             view?.setRegionData(it)
         }
+    }
+
+    override fun getRegionList(): ArrayList<Region>{
+        return paperRegionsInteractor.all()
+    }
+
+    override fun getRegionId(cityName: String): String {
+        var regionId = ""
+        for(region in paperRegionsInteractor.all()){
+            if(region.city.equals(cityName))
+                regionId = region.id
+        }
+        return regionId
     }
 }

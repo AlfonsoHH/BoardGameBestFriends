@@ -1,6 +1,7 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
@@ -9,7 +10,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseV
 
 interface GameDetailContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setData(game: Game)
 

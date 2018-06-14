@@ -8,6 +8,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Rule
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 import com.google.android.gms.maps.model.LatLng
 
@@ -16,7 +17,7 @@ import com.google.android.gms.maps.model.LatLng
  */
 interface AddPlaceContract {
 
-    interface View: BaseView{
+    interface View: BaseNotificationView {
 
         fun setData(place: Place)
         fun setSpinnerData()

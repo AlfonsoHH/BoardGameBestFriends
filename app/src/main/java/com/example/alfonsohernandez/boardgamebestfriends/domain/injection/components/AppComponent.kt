@@ -3,6 +3,8 @@ package com.example.alfonsohernandez.boardgamebestfriends.domain.injection.compo
 import android.app.Application
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.*
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.scopes.AppScope
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMpush
 import dagger.Component
 
 /**
@@ -24,4 +26,5 @@ import dagger.Component
 interface AppComponent {
     fun inject(app: Application)
     fun plus(presentationModule: PresentationModule): PresentationComponent
+    fun inject(target: FCMpush)
 }

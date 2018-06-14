@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.groups
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
@@ -9,7 +10,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseV
  */
 interface GroupsContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setData(groups: ArrayList<Group>)
 

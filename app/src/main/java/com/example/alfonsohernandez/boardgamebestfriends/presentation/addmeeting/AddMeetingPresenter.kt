@@ -8,9 +8,12 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetUserGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.AddMeetingInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.AddMeetingToUserInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.GetSingleMeetingInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.ModifyMeetingInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetPlacesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetSinglePlaceInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetUserPlacesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetMeetingUsersInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
@@ -18,6 +21,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.pape
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.*
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -25,24 +31,35 @@ import javax.inject.Inject
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class AddMeetingPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                              private val getUserProfileInteractor: GetUserProfileInteractor,
                                               private val paperMeetingsInteractor: PaperMeetingsInteractor,
                                               private val paperGroupsInteractor: PaperGroupsInteractor,
                                               private val paperPlacesInteractor: PaperPlacesInteractor,
                                               private val paperGamesInteractor: PaperGamesInteractor,
                                               private val addMeetingInteractor: AddMeetingInteractor,
                                               private val addMeetingToUserInteractor: AddMeetingToUserInteractor,
+                                              private val modifyMeetingInteractor: ModifyMeetingInteractor,
+                                              private val getSingleMeetingInteractor: GetSingleMeetingInteractor,
                                               private val getUserGamesInteractor: GetUserGamesInteractor,
                                               private val getGroupGamesInteractor: GetGroupGamesInteractor,
                                               private val getPlaceGamesInteractor: GetPlaceGamesInteractor,
-                                              private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): AddMeetingContract.Presenter, BasePresenter<AddMeetingContract.View>() {
+                                              private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                            ) : AddMeetingContract.Presenter,
+                                                BasePushPresenter<AddMeetingContract.View>() {
 
     private val TAG = "AddMeetingPresenter"
 
     var myPlace: Place? = null
+    var listGames = arrayListOf<Game>()
 
     fun setView(view: AddMeetingContract.View?) {
         this.view = view
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -50,11 +67,13 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
     }
 
     override fun firebaseEvent(id: String, activityName: String) {
-        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+        newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id, activityName)
     }
 
     override fun getMeetingData(meetingId: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        paperMeetingsInteractor.get(meetingId)?.let { meeting ->
+            view?.setData(meeting, paperPlacesInteractor.get(meeting.placeId)!!,paperGroupsInteractor.get(meeting.groupId)!!, paperGamesInteractor.get(meeting.gameId)!!)
+        }
     }
 
     override fun saveMeeting(meeting: Meeting, playing: Boolean) {
@@ -81,9 +100,41 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
         }
     }
 
+    override fun modifyMeeting(meeting: Meeting, playing: Boolean) {
+        getUserProfile()?.let { user ->
+            view?.showProgress(true)
+            getSingleMeetingInteractor
+                    .getFirebaseDataSingleMeeting(user.regionId,meeting.id)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({
+                        view?.showProgress(false)
+                        var previousMeeting = it.getValue(Meeting::class.java)!!
+                        meeting.groupId = previousMeeting.groupId
+                        meeting.placeId = previousMeeting.placeId
+                        meeting.placePhoto = previousMeeting.placePhoto
+                        meeting.gameId = previousMeeting.gameId
+                        meeting.gamePhoto = previousMeeting.gamePhoto
+                        meeting.vacants = previousMeeting.vacants
+                        modifyMeetingInteractor
+                                .modifyFirebaseDataMeeting(user.regionId, meeting.id, meeting)
+                                .subscribe({
+                                    firebaseEvent("Modifying meeting", TAG)
+                                    paperMeetingsInteractor.update(meeting)
+                                    view?.finishAddMeeting()
+                                }, {
+                                    view?.showError(R.string.addMeetingErrorAdding)
+                                })
+                    }, {
+                        view?.showProgress(false)
+                        view?.showError(R.string.addMeetingErrorMeetingInfo)
+                    })
+        }
+    }
+
     override fun getUserGroups(): ArrayList<String> {
         val titleList = arrayListOf<String>()
-        for (group in paperGroupsInteractor.all()){
+        for (group in paperGroupsInteractor.all()) {
             titleList.add(group.title)
         }
         return titleList
@@ -99,15 +150,15 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
     }
 
     override fun getMyPlacee(): Place? {
-        for(place in paperPlacesInteractor.all()){
-            if(!place.openPlace && place.ownerId.equals(getUserProfile()?.id))
+        for (place in paperPlacesInteractor.all()) {
+            if (!place.openPlace && place.ownerId.equals(getUserProfile()?.id))
                 myPlace = place
         }
         return myPlace
     }
 
     override fun getUserGames(userId: String) {
-        getUserProfile()?.let {user ->
+        getUserProfile()?.let { user ->
             view?.showProgress(true)
             getUserGamesInteractor
                     .getFirebaseDataUserGames(user.id)
@@ -117,7 +168,7 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
                         view?.showProgress(false)
                         var listGames = arrayListOf<Game>()
                         for (h in it.children) {
-                            paperGamesInteractor.get(h.key)?.let{game ->
+                            paperGamesInteractor.get(h.key)?.let { game ->
                                 listGames.add(game)
                             }
                         }
@@ -131,7 +182,7 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
     }
 
     override fun getGroupGames(groupId: String?) {
-        if(groupId != null) {
+        if (groupId != null) {
             view?.showProgress(true)
             getGroupGamesInteractor
                     .getFirebaseDataGroupGames(groupId)
@@ -140,7 +191,7 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
                     .subscribe({
                         view?.showProgress(false)
                         for (h in it.children) {
-                            paperGamesInteractor.get(h.key)?.let {game ->
+                            paperGamesInteractor.get(h.key)?.let { game ->
                                 view?.addGameToSpinner(game.title)
                             }
                         }
@@ -152,7 +203,7 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
     }
 
     override fun getPlaceGames(placeId: String?) {
-        if(placeId != null) {
+        if (placeId != null) {
             view?.showProgress(true)
             getPlaceGamesInteractor
                     .getFirebaseDataPlaceGames(placeId)
@@ -161,7 +212,7 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
                     .subscribe({
                         view?.showProgress(false)
                         for (h in it.children) {
-                            paperGamesInteractor.get(h.key)?.let {game ->
+                            paperGamesInteractor.get(h.key)?.let { game ->
                                 view?.addGameToSpinner(game.title)
                             }
                         }
@@ -182,14 +233,14 @@ class AddMeetingPresenter @Inject constructor(private val getUserProfileInteract
 
     override fun getPlaceFromTitle(placeName: String): Place? {
         val tempPlaceList = paperPlacesInteractor.all()
-        if(placeName.equals("My Place")){
+        if (placeName.equals("My Place")) {
             var myPlace: Place? = null
-            for(place in tempPlaceList){
-                if(!place.openPlace && place.ownerId.equals(getUserProfile()?.id))
+            for (place in tempPlaceList) {
+                if (!place.openPlace && place.ownerId.equals(getUserProfile()?.id))
                     myPlace = place
             }
             return myPlace
-        }else {
+        } else {
             if (tempPlaceList.size > 0)
                 return tempPlaceList.filter { it.name.equals(placeName) }.get(0)
             else

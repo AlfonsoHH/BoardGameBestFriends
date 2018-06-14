@@ -2,11 +2,12 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.games
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 interface GamesContract {
 
-    interface View: BaseView{
+    interface View: BaseNotificationView {
 
         fun setData(games: ArrayList<Game>)
         fun setupRecycler()

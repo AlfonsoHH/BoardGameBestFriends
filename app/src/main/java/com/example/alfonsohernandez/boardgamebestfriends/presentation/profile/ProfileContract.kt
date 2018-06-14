@@ -13,15 +13,15 @@ import java.util.*
  */
 interface ProfileContract {
 
-    interface View :
-            //BaseNotificationView {
-            BaseView {
+    interface View : BaseNotificationView {
 
         fun setData(userProfile: User?)
         fun setRegionData(region: Region)
         fun startPlaceDetail(id: String)
         fun startAddMyPlaceDialog()
         fun setPhotoImage(image: Any)
+
+        fun updateRegion()
 
     }
 
@@ -32,6 +32,8 @@ interface ProfileContract {
         fun getRealPathFromURI(contentUri: Uri): String
         fun myPlaceOnActualRegion()
         fun getRegionData(regionId: String)
+        fun getRegionId(cityName: String): String
+        fun getRegionList(): ArrayList<Region>
 
     }
 

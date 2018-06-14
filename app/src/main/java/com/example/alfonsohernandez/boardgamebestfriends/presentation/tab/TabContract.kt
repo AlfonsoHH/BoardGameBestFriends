@@ -11,19 +11,9 @@ class TabContract {
     interface View: BaseView {
 
         fun setData()
-
         fun successLoadingRegions()
-        fun successChangingRegion()
 
     }
 
-    interface Presenter {
-
-        fun getRegionList(): ArrayList<Region>
-        fun getRegionId(cityName: String): String
-        fun modifyUserInFirebaseDB(userId: String,user: User)
-        fun saveUserInPaper(user: User)
-        fun clearPaper()
-
-    }
+    interface Presenter {}
 }

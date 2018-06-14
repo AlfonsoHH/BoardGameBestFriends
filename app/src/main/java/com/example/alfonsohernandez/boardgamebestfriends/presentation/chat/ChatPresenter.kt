@@ -14,18 +14,33 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.messaging.RemoteMessage
+import durdinapps.rxfirebase2.RxFirebaseDatabase
+import io.reactivex.Maybe
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import javax.inject.Inject
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DataSnapshot
+import io.reactivex.disposables.CompositeDisposable
 
-class ChatPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+
+class ChatPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                        private val getUserProfileInteractor: GetUserProfileInteractor,
                                         private val paperGroupsInteractor: PaperGroupsInteractor,
                                         private val getSingleUserInteractor: GetSingleUserInteractor,
                                         private val getGroupUsersInteractor: GetGroupUsersInteractor,
                                         private val getMessagesInteractor: GetMessagesInteractor,
                                         private val sendMessageInteractor: SendMessageInteractor,
-                                        private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): ChatContract.Presenter, BasePresenter<ChatContract.View>() {
+                                        private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                        ): ChatContract.Presenter,
+                                            BasePushPresenter<ChatContract.View>() {
 
     private val TAG = "ChatPresenter"
     var groupId = ""
@@ -34,11 +49,22 @@ class ChatPresenter @Inject constructor(private val getUserProfileInteractor: Ge
 
     var userList = arrayListOf<User>()
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView() {
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: ChatContract.View?, groupId: String) {
         this.view = view
         this.groupId = groupId
         firebaseEvent("Showing chat",TAG)
         getGroupUsers(this.groupId)
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -47,48 +73,53 @@ class ChatPresenter @Inject constructor(private val getUserProfileInteractor: Ge
 
     override fun firebaseEvent(id: String, activityName: String) {
         newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+
     }
 
     fun getGroupUsers(groupId: String){
-        getGroupUsersInteractor
-                .getFirebaseDataGroupUsers(groupId)
+        compositeDisposable.add(getGroupUsersInteractor
+                .getFirebaseDataGroupUsers(groupId).toObservable()
+                .flatMapIterable { it.children }
+                .flatMap { getSingleUser(it.key) }
+                .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     view?.showProgress(false)
-                    for(h in it.children){
-                        getSingleUser(h.key)
+                    paperGroupsInteractor.get(groupId)?.let {group ->
+                        loadFirebaseChat(group)
                     }
                     hasFinished = true
                 }, {
+                    Timber.e(it)
                     view?.showProgress(false)
                     view?.showError(R.string.chatErrorLoadingChat)
-                })
+                }))
     }
 
-    fun getSingleUser(userId: String){
-        getSingleUserInteractor
-                .getFirebaseDataSingleUser(userId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.showProgress(false)
-                    val actualUser = it.getValue(User::class.java)
-                    actualUser?.let {actUsr ->
-                        userList.add(actUsr)
-                    }
-                    if(hasFinished)
-                        paperGroupsInteractor.get(groupId)?.let {group ->
-                            loadFirebaseChat(group)
+    fun getSingleUser(userId: String): Observable<Boolean> {
+        return Observable.create { obs ->
+            getSingleUserInteractor
+                    .getFirebaseDataSingleUser(userId)
+                    .map {
+                        val actualUser = it.getValue(User::class.java)
+                        actualUser?.let {actUsr ->
+                            userList.add(actUsr)
                         }
-                },{
-                    view?.showProgress(false)
-                    view?.showError(R.string.chatErrorLoadingGroupData)
-                })
+                    }
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({ obs.onNext(true)
+                        obs.onComplete() },
+                            { obs.onError(it) },
+                            { obs.onComplete() })
+        }
+
     }
 
     override fun loadFirebaseChat(group: Group) {
-        getMessagesInteractor
+        compositeDisposable.add(
+                getMessagesInteractor
                 .getFirebaseDataMessages(groupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -98,16 +129,16 @@ class ChatPresenter @Inject constructor(private val getUserProfileInteractor: Ge
                     for (h in it.children) {
                         val message = h.getValue(Message::class.java)
                         message?.let { msg ->
+
                             for (user in userList) {
                                 if (user.id.equals(msg.userId)) {
                                     msg.userName = user.userName
                                     msg.userPhoto = user.photo
                                     msg.userProvider = user.service
-                                    msg.user = false
-                                    if (user.id.equals(getUserProfile()?.id))
-                                        msg.user = true
+                                    msg.user = (user.id.equals(getUserProfile()?.id))
                                 }
                             }
+
                             messageList.add(msg)
                         }
                     }
@@ -115,7 +146,7 @@ class ChatPresenter @Inject constructor(private val getUserProfileInteractor: Ge
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.chatErrorLoadingChat)
-                })
+                }))
     }
 
     override fun sendMessage(message: Message) {

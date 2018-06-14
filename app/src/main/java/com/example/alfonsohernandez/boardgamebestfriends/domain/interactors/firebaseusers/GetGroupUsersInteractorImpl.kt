@@ -3,6 +3,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fir
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.UsersRepository
 import com.google.firebase.database.DataSnapshot
 import io.reactivex.Maybe
+import io.reactivex.Observable
 
 class GetGroupUsersInteractorImpl (private val usersRepository: UsersRepository): GetGroupUsersInteractor{
     override fun getFirebaseDataGroupUsers(groupId: String): Maybe<DataSnapshot> {

@@ -59,17 +59,6 @@
             <Space
                 android:layout_width="match_parent"
                 android:layout_height="4dp" />
-
-            <TextView
-                android:id="@+id/groupDetailTVresidence"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="Granada, Spain"
-                android:textAlignment="center" />
-
-            <Space
-                android:layout_width="match_parent"
-                android:layout_height="4dp" />
 <!--
             <LinearLayout
                 android:layout_width="match_parent"
@@ -249,14 +238,14 @@
 
     </LinearLayout>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_input_add"
-        android:visibility="gone"/>
+        <ImageView
+            android:id="@+id/fab"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/addmember"
+            android:layout_gravity="center|bottom"
+            android:layout_margin="@dimen/fab_margin"
+            android:elevation="40dp"/>
 
     </FrameLayout>
 

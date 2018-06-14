@@ -20,13 +20,17 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
-class MeetingDetailPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class MeetingDetailPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                                 private val getUserProfileInteractor: GetUserProfileInteractor,
                                                  private val paperMeetingsInteractor: PaperMeetingsInteractor,
                                                  private val getSingleGameInteractor: GetSingleGameInteractor,
                                                  private val getSinglePlaceInteractor: GetSinglePlaceInteractor,
@@ -37,7 +41,8 @@ class MeetingDetailPresenter @Inject constructor(private val getUserProfileInter
                                                  private val removeMeetingToUserInteractor: RemoveMeetingToUserInteractor,
                                                  private val setTopicInteractor: SetTopicInteractor,
                                                  private val clearTopicInteractor: ClearTopicInteractor,
-                                                 private val firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): MeetingDetailContract.Presenter, BasePresenter<MeetingDetailContract.View>() {
+                                                 private val firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                                ): MeetingDetailContract.Presenter, BasePushPresenter<MeetingDetailContract.View>() {
 
     private val TAG = "MeetingDetailPresenter"
 
@@ -47,11 +52,15 @@ class MeetingDetailPresenter @Inject constructor(private val getUserProfileInter
     fun setView(view: MeetingDetailContract.View?, meetingId: String) {
         this.view = view
         this.meetingId = meetingId
-        view?.showProgress(true)
         if(!meetingId.equals("")) {
             getMeetingData(meetingId)
             firebaseEvent("Showing a Meeting", TAG)
         }
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -212,8 +221,8 @@ class MeetingDetailPresenter @Inject constructor(private val getUserProfileInter
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
                 .subscribe({
-                    view?.showProgress(false)
                     view?.setGameData(it.getValue(Game::class.java)!!)
+                    view?.showProgress(false)
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.meetingDetailErrorGame)
@@ -228,8 +237,8 @@ class MeetingDetailPresenter @Inject constructor(private val getUserProfileInter
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        view?.showProgress(false)
                         view?.setPlaceData(it.getValue(Place::class.java)!!)
+                        view?.showProgress(false)
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingDetailErrorPlace)
@@ -245,12 +254,12 @@ class MeetingDetailPresenter @Inject constructor(private val getUserProfileInter
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        view?.showProgress(false)
                         view?.clearFriendsData()
                         for (h in it.children) {
                             if (h.getValue(Boolean::class.java)!!)
                                 getFriendData(h.key)
                         }
+                        view?.showProgress(false)
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingDetailErrorMembers)

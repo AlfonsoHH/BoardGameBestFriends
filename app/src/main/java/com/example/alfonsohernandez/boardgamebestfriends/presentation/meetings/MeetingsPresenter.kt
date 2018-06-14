@@ -16,6 +16,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.Paper
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.PaperMeetingsRepository
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.PaperPlacesRepository
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.text.SimpleDateFormat
@@ -28,7 +31,8 @@ import kotlin.collections.ArrayList
  * Created by alfonsohernandez on 06/04/2018.
  */
 
-class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                            private val getUserProfileInteractor: GetUserProfileInteractor,
                                             private val paperMeetingsInteractor: PaperMeetingsInteractor,
                                             private val getOpenMeetingsInteractor: GetOpenMeetingsInteractor,
                                             private val getUserMeetingsInteractor: GetUserMeetingsInteractor,
@@ -39,7 +43,9 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                                             private val setTopicInteractor: SetTopicInteractor,
                                             private val clearTopicInteractor: ClearTopicInteractor,
                                             private val removeMeetingInteractor: RemoveMeetingInteractor,
-                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : MeetingsContract.Presenter, BasePresenter<MeetingsContract.View>() {
+                                            private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                            ) : MeetingsContract.Presenter,
+                                                BasePushPresenter<MeetingsContract.View>() {
 
     var kind = ""
     var search = ""
@@ -54,6 +60,11 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
             this.kind = kind
             initialDataChooser()
         }
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -106,7 +117,6 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        view?.showProgress(false)
                         allMeetings.clear()
                         for (h in it.children) {
                             val actualMeetings = h.getValue(Meeting::class.java)
@@ -124,6 +134,7 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                             getPlaceMeetings()
                         else
                             getOpenMeetings()
+                        view?.showProgress(false)
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingsErrorLoading)
@@ -134,6 +145,7 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
     fun getOpenMeetings(){
         val tempMeetingList = arrayListOf<Meeting>()
         for(meeting in paperMeetingsInteractor.all()) {
+            meeting.label = ""
             if (meeting.vacants > 0) {
                 if (search.isEmpty()) {
                     if (meeting.groupId.equals("open")) {
@@ -160,7 +172,6 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        view?.showProgress(false)
                         //var exist: Boolean
                         for (h in it.children) {
                             for (meeting in paperMeetingsInteractor.all()) {
@@ -177,25 +188,26 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                                         }
                                     }
                                 }
-
                             }
                         }
                         tempMeetingList = ArrayList(tempMeetingList.sortedWith(compareBy({ it.date.substring(it.date.length - 2, it.date.length) }, { it.date.substring(it.date.length - 5, it.date.length - 3) }, { it.date.substring(it.date.length - 8, it.date.length - 6) }, { it.date.substring(0, it.date.lastIndexOf("_")) })))
                         setListTopics(tempMeetingList)
                         view?.setData(tempMeetingList)
+                        view?.showProgress(false)
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingsErrorLoading)
                     }, {
-                        view?.showProgress(false)
                         tempMeetingList = ArrayList(tempMeetingList.sortedWith(compareBy({ it.date.substring(it.date.length - 2, it.date.length) }, { it.date.substring(it.date.length - 5, it.date.length - 3) }, { it.date.substring(it.date.length - 8, it.date.length - 6) }, { it.date.substring(0, it.date.lastIndexOf("_")) })))
                         setListTopics(tempMeetingList)
                         view?.setData(tempMeetingList)
+                        view?.showProgress(false)
                     })
         }
     }
 
     fun getUserMeetings() {
+        val tempMeetingList = arrayListOf<Meeting>()
         getUserProfile()?.let { user ->
             view?.showProgress(true)
             getUserMeetingsInteractor
@@ -203,9 +215,9 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        val tempMeetingList = arrayListOf<Meeting>()
                         for (h in it.children) {
                             for (meeting in paperMeetingsInteractor.all()) {
+                                meeting.label = ""
                                 if (meeting.id.equals(h.key)) {
                                     if (meeting.creatorId.equals(user.id) && h.getValue(Boolean::class.java)!!)
                                         meeting.label = "Admin Playing"
@@ -226,6 +238,9 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingsErrorLoading)
+                    },{
+                        view?.showProgress(false)
+                        getUserPlaces(tempMeetingList)
                     })
         }
     }
@@ -275,6 +290,11 @@ class MeetingsPresenter @Inject constructor(private val getUserProfileInteractor
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingsErrorLoading)
+                    },{
+                        view?.showProgress(false)
+                        tempMeetingList = ArrayList(tempMeetingList.sortedWith(compareBy({ it.date.substring(it.date.length - 2, it.date.length) }, { it.date.substring(it.date.length - 5, it.date.length - 3) }, { it.date.substring(it.date.length - 8, it.date.length - 6) }, { it.date.substring(0, it.date.lastIndexOf("_")) })))
+                        setListTopics(tempMeetingList)
+                        view?.setData(tempMeetingList)
                     })
         }
     }

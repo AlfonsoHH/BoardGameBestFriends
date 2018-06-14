@@ -4,6 +4,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 
 /**
  * Created by alfonsohernandez on 06/04/2018.
@@ -20,6 +21,7 @@ interface LoginContract {
     interface Presenter {
 
         fun getUsersData(userId: String,user: User)
+        fun getAuthUser(): FirebaseUser?
 
         fun loginWithEmail(email: String, password: String)
         fun loginWithCredentials(credential: AuthCredential, fromFacebook: Boolean)

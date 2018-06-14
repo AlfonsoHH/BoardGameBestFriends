@@ -28,6 +28,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_meeting_detail.*
 import javax.inject.Inject
@@ -54,14 +56,27 @@ class MeetingDetailActivity : AppCompatActivity(),
         supportActionBar?.setTitle(getString(R.string.meetingDetailToolbarTitle))
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
+        showProgress(true)
+
         val intent = intent.extras
-        meetingId = intent.getString("id","")
+        intent?.let {
+            meetingId = it.getString("id", "")
+        }
 
         injectDependencies()
         setupRecycler()
         presenter.setView(this,meetingId)
 
         meetingDetailTVjoin.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -77,7 +92,7 @@ class MeetingDetailActivity : AppCompatActivity(),
         meetingDetailTVmeetingDetail.text = meeting.title
         meetingDetailTVmeetingDescription.text = meeting.description
         meetingDetailTVhour.text = meeting.date.substring(0,meeting.date.lastIndexOf("_"))
-        meetingDetailTVdate.text = meeting.date.substring(meeting.date.lastIndexOf("_")+1,meeting.date.length-1)
+        meetingDetailTVdate.text = meeting.date.substring(meeting.date.lastIndexOf("_")+1,meeting.date.length)
         meetingDetailTVvacants.text = meeting.vacants.toString() + getString(R.string.meetingDetailVacants)
 
         meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)

@@ -21,6 +21,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.A
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.fragment_meetings.*
 import javax.inject.Inject
 
@@ -59,6 +61,15 @@ class MeetingsFragment : Fragment(),
         searchMeeting.setOnQueryTextListener(this)
         swipeContainerMeetings.setOnRefreshListener(this)
         fab.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(activity!!,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun startAddMeeting(){
@@ -157,5 +168,10 @@ class MeetingsFragment : Fragment(),
             showSuccess(R.string.meetingsSuccessAdding)
             presenter.cacheDataChooser()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.cacheDataChooser()
     }
 }

@@ -10,7 +10,10 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.user
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.ArrayList
@@ -19,17 +22,25 @@ import javax.inject.Inject
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class PlacesPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                          private val getUserProfileInteractor: GetUserProfileInteractor,
                                           private val paperRegionsInteractor: PaperRegionsInteractor,
                                           private val paperPlacesInteractor: PaperPlacesInteractor,
                                           private val getPlacesInteractor: GetPlacesInteractor,
                                           private val removePlaceInteractor: RemovePlaceInteractor,
-                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : PlacesContract.Presenter, BasePresenter<PlacesContract.View>() {
+                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                        ) : PlacesContract.Presenter,
+                                            BasePushPresenter<PlacesContract.View>() {
 
     private val TAG = "PlacesPresenter"
 
     fun setView(view: PlacesContract.View?) {
         this.view = view
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -78,6 +89,10 @@ class PlacesPresenter @Inject constructor(private val getUserProfileInteractor: 
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.placesErrorPlaces)
+                    },{
+                        paperPlacesInteractor.clear()
+                        setPlacesData()
+                        view?.showProgress(false)
                     })
         }
     }

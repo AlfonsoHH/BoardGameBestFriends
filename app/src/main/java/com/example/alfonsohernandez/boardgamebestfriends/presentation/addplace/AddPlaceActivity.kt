@@ -18,6 +18,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.OpenHoursDialog
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_add_place.*
 import java.io.File
@@ -53,19 +55,32 @@ class AddPlaceActivity : BasePermissionActivity(),
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         val intent = intent.extras
-        id = intent.getString("id", "")
-        action = intent.getString("action", "")
-        kind = intent.getString("kind", "")
+        intent?.let {
+            id = it.getString("id", "")
+            action = it.getString("action", "")
+            kind = it.getString("kind", "")
+        }
 
         injectDependencies()
         presenter.setView(this)
 
-        if(action.equals("modify"))
+        if(action.equals("modify")) {
             presenter.getPlace(id)
+            supportActionBar?.setTitle(getString(R.string.addPlaceToolbarTitleModify))
+        }
 
         super.callbackPermissions = this
         addPlaceIVphoto.setOnClickListener(this)
         addPlaceIVopeningHours.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -258,5 +273,16 @@ class AddPlaceActivity : BasePermissionActivity(),
             }
         }
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
+            callbackPermissions?.onImageReceived(data,true)
+            photoModified = true
+        }else if(requestCode == 2 && resultCode == Activity.RESULT_OK && data != null){
+            callbackPermissions?.onImageReceived(data,false)
+            photoModified = true
+        }
     }
 }

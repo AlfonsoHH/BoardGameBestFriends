@@ -27,6 +27,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import java.io.File
 
@@ -60,8 +62,10 @@ class AddGroupActivity : BasePermissionActivity(),
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         val intent = intent.extras
-        id = intent.getString("id", "")
-        action = intent.getString("action", "")
+        intent?.let {
+            id = it.getString("id", "")
+            action = it.getString("action", "")
+        }
 
         injectDependencies()
         setupRecycler()
@@ -73,10 +77,20 @@ class AddGroupActivity : BasePermissionActivity(),
             addGroupRV.setVisibility(false)
             fab.setVisibility(false)
             presenter.getGroupData(id)
+            supportActionBar?.setTitle(getString(R.string.addGroupToolbarTitleModify))
         }
 
         fab.setOnClickListener(this)
         addGroupIVphoto.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun addGroup(){
@@ -95,7 +109,8 @@ class AddGroupActivity : BasePermissionActivity(),
                     url,
                     addGroupETtitle.text.toString(),
                     addGroupETdescription.text.toString(),
-                    presenter.getUserProfile()?.id ?: return)
+                    presenter.getUserProfile()?.id ?: return,
+                    0)
 
             if (action.equals("modify"))
                 presenter.saveImage(group,
@@ -203,6 +218,17 @@ class AddGroupActivity : BasePermissionActivity(),
             R.id.toolbar_add -> { addGroup() }
         }
         return true
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK && data != null) {
+            callbackPermissions?.onImageReceived(data,true)
+            photoModified = true
+        }else if(requestCode == 2 && resultCode == Activity.RESULT_OK && data != null){
+            callbackPermissions?.onImageReceived(data,false)
+            photoModified = true
+        }
     }
 
 }

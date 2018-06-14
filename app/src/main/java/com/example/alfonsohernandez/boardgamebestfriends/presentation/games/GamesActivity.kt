@@ -23,6 +23,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterGames
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail.GameDetailActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.activity_games.*
 import javax.inject.Inject
 
@@ -50,9 +52,11 @@ class GamesActivity : AppCompatActivity(),
         setContentView(R.layout.activity_games)
 
         val extras = intent.extras
-        searchGames.setQuery(extras.getString("search", ""), true)
-        kind = extras.getString("kind", "")
-        kindAdding = extras.getString("kindAdding", "")
+        extras?.let {
+            searchGames.setQuery(it.getString("search", ""), true)
+            kind = it.getString("kind", "")
+            kindAdding = it.getString("kindAdding", "")
+        }
 
         injectDependencies()
         setupRecycler()
@@ -90,6 +94,15 @@ class GamesActivity : AppCompatActivity(),
         } else {
             fab.setVisibility(false)
         }
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -207,7 +220,7 @@ class GamesActivity : AppCompatActivity(),
         when (item.itemId) {
             R.id.toolbar_bgg -> {
                 DialogFactory.callbackInput = this
-                DialogFactory.buildInputDialog(this,getString(R.string.gamesToolbarSyncDialog))
+                DialogFactory.buildInputDialog(this@GamesActivity,getString(R.string.gamesToolbarSyncDialog)).show()
             }
         }
         return true

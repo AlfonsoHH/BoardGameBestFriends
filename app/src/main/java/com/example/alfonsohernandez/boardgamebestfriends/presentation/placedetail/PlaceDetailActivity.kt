@@ -18,6 +18,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addplace.AddPlaceActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_place_detail.*
 import javax.inject.Inject
@@ -42,14 +44,25 @@ class PlaceDetailActivity : AppCompatActivity(), PlaceDetailContract.View, View.
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         val intent = intent.extras
-        placeId = intent.getString("id", "")
-        kind = intent.getString("kind", "")
+        intent?.let {
+            placeId = it.getString("id", "")
+            kind = it.getString("kind", "")
+        }
 
         injectDependencies()
         presenter.setView(this, placeId)
 
         placeDetailIVmeetingsIcon.setOnClickListener(this)
         placeDetailIVgamesIcon.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     override fun onClick(v: View?) {

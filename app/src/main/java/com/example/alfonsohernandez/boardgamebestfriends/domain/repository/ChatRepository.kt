@@ -3,6 +3,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.domain.repository
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.Query
 import durdinapps.rxfirebase2.RxFirebaseDatabase
 import io.reactivex.Flowable
 
@@ -15,6 +16,6 @@ class ChatRepository {
     }
 
     fun getMessagesRx(groupId: String): Flowable<DataSnapshot> {
-        return RxFirebaseDatabase.observeValueEvent(firebaseInstance.child("groups").child(groupId).child("chat"))
+        return RxFirebaseDatabase.observeValueEvent(firebaseInstance.child("groups").child(groupId).child("chat").orderByKey())
     }
 }

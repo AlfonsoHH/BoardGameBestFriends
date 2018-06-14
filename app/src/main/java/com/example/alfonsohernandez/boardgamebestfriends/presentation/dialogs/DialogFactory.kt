@@ -61,7 +61,7 @@ object DialogFactory {
         alertDialog.setTitle(title)
 
         val input = EditText(context)
-        input.inputType = InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        input.inputType = InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS
         alertDialog.setView(input)
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, context.getString(R.string.groupsYes),object: DialogInterface.OnClickListener{

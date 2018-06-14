@@ -19,6 +19,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.profile.Pr
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.signup.SignUpActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.splash.SplashActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import dagger.Subcomponent
 
 @Subcomponent(modules = arrayOf(PresentationModule::class))

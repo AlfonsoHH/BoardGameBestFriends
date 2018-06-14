@@ -13,18 +13,21 @@ import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import jp.wasabeef.glide.transformations.CropCircleTransformation
+import timber.log.Timber
 
 class AdapterChat: RecyclerView.Adapter<AdapterChat.ViewHolder>() {
     var messageList: ArrayList<Message> = arrayListOf()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bindItems(messageList.get(position))
+        Timber.e("Pos: $position with ${messageList.get(position)}")
+        holder.bindItem(messageList.get(position))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater
                 .from(parent.context)
                 .inflate(R.layout.item_message, parent, false)
+
         return ViewHolder(v)
     }
 
@@ -33,35 +36,55 @@ class AdapterChat: RecyclerView.Adapter<AdapterChat.ViewHolder>() {
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bindItems(message: Message) {
 
-            val txtUser = itemView.findViewById<TextView>(R.id.itemMessageUser)
-            val llOther = itemView.findViewById<LinearLayout>(R.id.itemMessageLLother)
-            val txtBody = itemView.findViewById<TextView>(R.id.itemMessageText)
-            val txtDate = itemView.findViewById<TextView>(R.id.itemMessageDate)
-            val llMe = itemView.findViewById<LinearLayout>(R.id.itemMessageLLme)
-            val txtBodyMe = itemView.findViewById<TextView>(R.id.itemMessageTextMe)
-            val txtDateMe = itemView.findViewById<TextView>(R.id.itemMessageDateMe)
-            val photo = itemView.findViewById<ImageView>(R.id.itemMessageIVphoto)
+        var txtUser: TextView? = null
+        var llOther: LinearLayout? = null
+        var txtBody: TextView? = null
+        var txtDate: TextView? = null
+        var llMe: LinearLayout? = null
+        var txtBodyMe: TextView? = null
+        var txtDateMe: TextView? = null
+        var photo: ImageView? = null
+
+        init {
+            txtUser = itemView.findViewById<TextView>(R.id.itemMessageUser)
+            llOther = itemView.findViewById<LinearLayout>(R.id.itemMessageLLother)
+            txtBody = itemView.findViewById<TextView>(R.id.itemMessageText)
+            txtDate = itemView.findViewById<TextView>(R.id.itemMessageDate)
+            llMe = itemView.findViewById<LinearLayout>(R.id.itemMessageLLme)
+            txtBodyMe = itemView.findViewById<TextView>(R.id.itemMessageTextMe)
+            txtDateMe = itemView.findViewById<TextView>(R.id.itemMessageDateMe)
+            photo = itemView.findViewById<ImageView>(R.id.itemMessageIVphoto)
+        }
+
+
+        fun bindItem(message: Message) {
+            Timber.e("message -> ${message.text}")
 
             message.user?.let {
                 if (it) {
-                    llMe.setVisibility(true)
-                    llOther.setVisibility(false)
-                    txtBodyMe.text = message.text
+                    llMe?.setVisibility(true)
+                    llOther?.setVisibility(false)
+                    txtBodyMe?.text = message.text
                     txtDateMe?.text = message.date
-                    photo.setVisibility(false)
-                    txtUser.setVisibility(false)
+                    photo?.setVisibility(false)
+                    txtUser?.setVisibility(false)
                 } else {
                     txtUser?.text = message.userName
                     txtBody?.text = message.text
                     txtDate?.text = message.date
+                    photo?.setVisibility(true)
+                    txtUser?.setVisibility(true)
+                    llMe?.setVisibility(false)
+                    llOther?.setVisibility(true)
 
                     if (!message.userPhoto.equals("url")) {
                         Glide.with(itemView)
                                 .load(message.userPhoto)
                                 .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
-                                .into(photo)
+                                .into(photo ?: return)
+                    } else {
+
                     }
                 }
             }

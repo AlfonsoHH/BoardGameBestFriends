@@ -37,7 +37,7 @@ class ApiModule() {
     fun providesHttpClient(loggingInterceptor: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
                 .addInterceptor(ExpiredSessionInterceptor())
-                .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+                .addInterceptor(loggingInterceptor)
                 .build()
     }
 

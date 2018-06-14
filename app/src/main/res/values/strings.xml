@@ -90,7 +90,7 @@
     <string name="meetingDetailErrorJoiningMeeting">Error, unable to join the meeting</string>
     <string name="meetingDetailErrorLevingMeeting">Error, unable to leave meeting</string>
     <string name="meetingDetailErrorCancelMeeting">Error, unable to cancel meeting</string>
-    <string name="meetingsToolbarTitle">Meetings</string>
+    <string name="meetingsToolbarTitle">Open Meetings</string>
     <string name="meetingsToolbarTitleUser">My Meetings</string>
     <string name="meetingsToolbarTitleGroup">Group´s Meetings</string>
     <string name="meetingsToolbarTitlePlace">Place´s Meetings</string>
@@ -304,5 +304,10 @@
     <string name="signUpErrorAlreadyExist">Error, an user with this email already exist</string>
     <string name="signUpErrorPasswordLenght">Error, password should have at least 6 characters length</string>
     <string name="loginErrorEmpty">Error, one or more fields are empty</string>
+    <string name="addMeetingErrorMeetingUsers">Error, unable to access meeting users</string>
+    <string name="addMeetingErrorMeetingInfo">Error, unable to access vacant info</string>
+    <string name="addGroupToolbarTitleModify">Modify Group</string>
+    <string name="addMeetingToolbarTitleModify">Modify Meeting</string>
+    <string name="addPlaceToolbarTitleModify">Modify Place</string>
 
 </resources>

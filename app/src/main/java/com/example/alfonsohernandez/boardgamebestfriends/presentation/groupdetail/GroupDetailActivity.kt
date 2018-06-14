@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.text.InputType
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -19,7 +18,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.PresentationModule
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
-import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
@@ -28,6 +26,8 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup.A
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_group_detail.*
 import javax.inject.Inject
@@ -53,7 +53,9 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         val extras = intent.extras
-        groupId = extras.getString("id")
+        extras?.let {
+            groupId = it.getString("id")
+        }
 
         injectDependencies()
         setupRecycler()
@@ -62,6 +64,15 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
         groupDetailIVchat.setOnClickListener(this)
         groupDetailIVgames.setOnClickListener(this)
         groupDetailIVmeetings.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(this,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -136,10 +147,6 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
                 }
             })
         }
-    }
-
-    override fun setRegionData(region: Region) {
-        groupDetailTVresidence.text = region.city + ", " + region.country
     }
 
     override fun setFriendData(user: User) {

@@ -14,6 +14,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
@@ -22,7 +25,8 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class GamesPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                         private val getUserProfileInteractor: GetUserProfileInteractor,
                                          private val paperGamesInteractor: PaperGamesInteractor,
                                          private val getUserGamesInteractor: GetUserGamesInteractor,
                                          private val getGroupGamesInteractor: GetGroupGamesInteractor,
@@ -36,48 +40,25 @@ class GamesPresenter @Inject constructor(private val getUserProfileInteractor: G
                                          private val removeGameToUserInteractor: RemoveGameToUserInteractor,
                                          private val removeGameToGroupInteractor: RemoveGameToGroupInteractor,
                                          private val removeGameToPlaceInteractor: RemoveGameToPlaceInteractor,
-                                         private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GamesContract.Presenter, BasePresenter<GamesContract.View>(){
+                                         private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                        ): GamesContract.Presenter,
+                                        BasePushPresenter<GamesContract.View>(){
 
     private val TAG = "GamesPresenter"
 
     var kind = ""
     var search = ""
 
-    private var mTimer1: Timer? = null
-    private var mTt1: TimerTask? = null
-    private val mTimerHandler = Handler()
-
-    private fun stopTimer() {
-        if (mTimer1 != null) {
-            mTimer1!!.cancel()
-            mTimer1!!.purge()
-            view?.showProgressDialog(false)
-        }
-    }
-
-    private fun startTimer(listGameDetails: ArrayList<String>) {
-        mTimer1 = Timer()
-        var counter = 0
-        mTt1 = object : TimerTask() {
-            override fun run() {
-                mTimerHandler.post {
-                    if(counter<=listGameDetails.size-1) {
-                        getGameDetail(listGameDetails.get(counter))
-                        counter = counter + 1
-                    }else{
-                        stopTimer()
-                    }
-                }
-            }
-        }
-        mTimer1!!.schedule(mTt1, 1, 5000)
-    }
-
     fun setView(view: GamesContract.View?, kind: String) {
         this.view = view
         this.kind = kind
         firebaseEvent("Showing games",TAG)
         dataChooser()
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -90,7 +71,6 @@ class GamesPresenter @Inject constructor(private val getUserProfileInteractor: G
 
     override fun getBGGdata(bggId: String) {
         view?.showProgress(true)
-        view?.showProgressDialog(true)
         getBggXmlGameCollectionInteractor
                 .getGameCollectionXML(bggId)
                 .observeOn(AndroidSchedulers.mainThread())
@@ -99,6 +79,7 @@ class GamesPresenter @Inject constructor(private val getUserProfileInteractor: G
                     if(it.item != null) {
                         val listGameDetails = arrayListOf<String>()
                         it.item?.let { games ->
+                            view?.showProgressDialog(true)
                             for (game in games) {
                                 if (paperGamesInteractor.get(game?.objectid.toString()) != null)
                                     addGameBgg(true, paperGamesInteractor.get(game?.objectid.toString())!!)
@@ -109,6 +90,7 @@ class GamesPresenter @Inject constructor(private val getUserProfileInteractor: G
                         }
                         view?.showProgress(false)
                     }
+                    dataChooser()
                 }, {
                     view?.showProgressDialog(false)
                     view?.showProgress(false)
@@ -339,6 +321,37 @@ class GamesPresenter @Inject constructor(private val getUserProfileInteractor: G
             else
                 view?.showError(R.string.gamesErrorRemoveDatabase)
         }
+    }
+
+    private var mTimer1: Timer? = null
+    private var mTt1: TimerTask? = null
+    private val mTimerHandler = Handler()
+
+    private fun stopTimer() {
+        if (mTimer1 != null) {
+            mTimer1!!.cancel()
+            mTimer1!!.purge()
+            view?.showProgressDialog(false)
+            dataChooser()
+        }
+    }
+
+    private fun startTimer(listGameDetails: ArrayList<String>) {
+        mTimer1 = Timer()
+        var counter = 0
+        mTt1 = object : TimerTask() {
+            override fun run() {
+                mTimerHandler.post {
+                    if(counter<=listGameDetails.size-1) {
+                        getGameDetail(listGameDetails.get(counter))
+                        counter = counter + 1
+                    }else{
+                        stopTimer()
+                    }
+                }
+            }
+        }
+        mTimer1!!.schedule(mTt1, 1, 5000)
     }
 
 }

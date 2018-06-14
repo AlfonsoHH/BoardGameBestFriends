@@ -3,12 +3,14 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import com.example.alfonsohernandez.boardgamebestfriends.BuildConfig
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.components.AppComponent
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.components.DaggerAppComponent
 import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.modules.AppModule
 import com.facebook.FacebookSdk
 import com.facebook.appevents.AppEventsLogger
 import com.google.firebase.database.FirebaseDatabase
+import timber.log.Timber
 import javax.inject.Inject
 
 class App : Application(), Application.ActivityLifecycleCallbacks {
@@ -36,7 +38,11 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
         FacebookSdk.sdkInitialize(getApplicationContext())
         AppEventsLogger.activateApp(this)
 
-        //FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+
+        if (BuildConfig.DEBUG) {
+            Timber.plant(Timber.DebugTree())
+        }
 
         component.inject(this)
 

@@ -15,19 +15,23 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.lang.reflect.Member
 import javax.inject.Inject
 
-class GroupDetailPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                               private val getUserProfileInteractor: GetUserProfileInteractor,
                                                private val paperGroupsInteractor: PaperGroupsInteractor,
                                                private val addGroupToUserInteractor: AddGroupToUserInteractor,
                                                private val getSingleUserFromMailInteractor: GetSingleUserFromMailInteractor,
-                                               private val getRegionInteractor: GetRegionInteractor,
                                                private val getGroupUsersInteractor: GetGroupUsersInteractor,
                                                private val getSingleUserInteractor: GetSingleUserInteractor,
-                                               private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): GroupDetailContract.Presenter, BasePresenter<GroupDetailContract.View>() {
+                                               private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                                ): GroupDetailContract.Presenter, BasePushPresenter<GroupDetailContract.View>() {
 
     private val TAG = "GroupDetailPresenter"
     var groupId = ""
@@ -41,6 +45,11 @@ class GroupDetailPresenter @Inject constructor(private val getUserProfileInterac
             getMembersData(groupId)
             firebaseEvent("Showing a Group", TAG)
         }
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {
@@ -55,24 +64,6 @@ class GroupDetailPresenter @Inject constructor(private val getUserProfileInterac
         paperGroupsInteractor.get(groupId)?.let {
             view?.setGroupData(it)
         }
-        getUserProfile()?.let{
-            getRegionData(it.regionId)
-        }
-    }
-
-    fun getRegionData(regionId: String) {
-        view?.showProgress(true)
-        getRegionInteractor
-                .getFirebaseDataSingleRegion(regionId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    view?.showProgress(false)
-                    view?.setRegionData(it.getValue(Region::class.java)!!)
-                },{
-                    view?.showProgress(false)
-                    view?.showError(R.string.groupDetailErrorRegion)
-                })
     }
 
     fun getMembersData(groupId: String) {

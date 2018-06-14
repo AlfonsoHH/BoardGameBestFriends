@@ -29,6 +29,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.Di
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.placedetail.PlaceDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -44,6 +45,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.fragment_places.*
 import java.util.*
@@ -104,6 +106,15 @@ class PlacesFragment : Fragment(),
                 startAddPlace()
             }
         })
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(activity!!,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {

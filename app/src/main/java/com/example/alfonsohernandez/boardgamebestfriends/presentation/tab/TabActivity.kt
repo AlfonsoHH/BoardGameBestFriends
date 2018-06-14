@@ -30,7 +30,9 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import com.google.firebase.auth.FirebaseAuth
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -40,71 +42,35 @@ import de.mateware.snacky.Snacky
 import timber.log.Timber
 
 class TabActivity : AppCompatActivity(),
-        TabContract.View,
-        DialogFactory.CitySelectedCallback{
+        TabContract.View{
 
     @Inject
     lateinit var presenter: TabPresenter
-
-    lateinit var spinnerArrayAdapterCountry: ArrayAdapter<String>
-    lateinit var spinnerArrayAdapterCity: ArrayAdapter<String>
 
     private val TAG = "TabActivity"
 
     lateinit var adapter: AdapterTabPager
     var kind = ""
+    var otherTab = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_tab)
         setSupportActionBar(tabToolbar)
 
-        setSupportActionBar(tabToolbar)
         supportActionBar?.setTitle(getString(R.string.app_name))
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
 
         injectDependencies()
         presenter.setView(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            var locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-            var locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-
-            if (locationFine || locationCoarse) {
-                Dexter.withActivity(this@TabActivity)
-                        .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
-                                Manifest.permission.ACCESS_COARSE_LOCATION)
-                        .withListener(object : MultiplePermissionsListener {
-                            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                                Snacky.builder()
-                                        .setActivity(this@TabActivity)
-                                        .setActionText(getString(R.string.tabSnackySettings))
-                                        .setActionClickListener(object : View.OnClickListener {
-                                            override fun onClick(v: View?) {
-                                                openPermissionsSettings(this@TabActivity)
-                                            }
-                                        })
-                                        .setText(getString(R.string.tabSnackyText))
-                                        .setDuration(Snacky.LENGTH_LONG)
-                                        .build()
-                                        .show()
-                            }
-
-                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                                locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                                locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                                if (locationFine || locationCoarse) {
-                                    Toast.makeText(this@TabActivity, getString(R.string.tabPermissions), Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }).check()
-            }
-
-        }
+        askForPermissions()
 
         val intent = intent.extras
-        kind = intent.getString("kind","")
+        intent?.let {
+            kind = it.getString("kind", "")
+            otherTab = it.getInt("otherTab", 0)
+        }
 
         if(kind.contains("buddy-"))
             supportActionBar?.setTitle(getString(R.string.meetingsToolbarTitleUser))
@@ -159,7 +125,6 @@ class TabActivity : AppCompatActivity(),
         tab_layout.addTab(tab_layout.newTab().setText(getString(R.string.tabProfile)))
     }
 
-
     private fun setTabLayout() {
         adapter = AdapterTabPager(supportFragmentManager,
                 tab_layout.tabCount,
@@ -175,30 +140,22 @@ class TabActivity : AppCompatActivity(),
             override fun onTabUnselected(tab: TabLayout.Tab) {}
             override fun onTabReselected(tab: TabLayout.Tab) {}
         })
+
+        if(otherTab != 0) {
+            val tab = tab_layout.getTabAt(otherTab)
+            tab!!.select()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.toolbar, menu)
         if(!kind.equals(""))
             menu.getItem(4).setVisible(true)
-        menu.getItem(2).setVisible(true)
         return true
-    }
-
-    override fun onCitySelectedChoosed(city: String) {
-        presenter.getUserProfile()?.let{
-            it.regionId = presenter.getRegionId(city)
-            presenter.modifyUserInFirebaseDB(it.id, it)
-        }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.toolbar_region -> {
-                DialogFactory.callbackCity = this
-                DialogFactory.buildChooseRegionDialog(this,presenter.getRegionList()).show()
-            }
             R.id.toolbar_clear -> {
                 val intent = Intent(this, TabActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
@@ -224,12 +181,43 @@ class TabActivity : AppCompatActivity(),
         Timber.d(TAG + " " + getString(R.string.tabSuccessLoadRegion))
     }
 
-    override fun successChangingRegion() {
-        presenter.clearPaper()
-        val intent = Intent(this,TabActivity::class.java)
-        intent.putExtra("kind",kind)
-        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-        startActivity(intent)
+    fun askForPermissions(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            var locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            var locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+
+            if (locationFine || locationCoarse) {
+                Dexter.withActivity(this@TabActivity)
+                        .withPermissions(Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION)
+                        .withListener(object : MultiplePermissionsListener {
+                            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                                Snacky.builder()
+                                        .setActivity(this@TabActivity)
+                                        .setActionText(getString(R.string.tabSnackySettings))
+                                        .setActionClickListener(object : View.OnClickListener {
+                                            override fun onClick(v: View?) {
+                                                openPermissionsSettings(this@TabActivity)
+                                            }
+                                        })
+                                        .setText(getString(R.string.tabSnackyText))
+                                        .setDuration(Snacky.LENGTH_LONG)
+                                        .build()
+                                        .show()
+                            }
+
+                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                                locationFine = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                locationCoarse = ActivityCompat.checkSelfPermission(this@TabActivity, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                if (locationFine || locationCoarse) {
+                                    Toast.makeText(this@TabActivity, getString(R.string.tabPermissions), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }).check()
+            }
+
+        }
     }
 
 }

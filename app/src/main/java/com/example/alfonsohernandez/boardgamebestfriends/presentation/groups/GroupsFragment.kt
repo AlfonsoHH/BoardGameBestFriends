@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -22,6 +21,8 @@ import kotlinx.android.synthetic.main.fragment_groups.*
 import javax.inject.Inject
 import android.app.Activity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.google.firebase.messaging.RemoteMessage
 
 /**
  * A simple [Fragment] subclass.
@@ -52,6 +53,15 @@ class GroupsFragment : Fragment(),
 
         swipeContainerGroups.setOnRefreshListener(this)
         fab.setOnClickListener(this)
+    }
+
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(activity!!,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
     }
 
     fun injectDependencies() {
@@ -134,6 +144,11 @@ class GroupsFragment : Fragment(),
             showSuccess(R.string.groupsSuccessAdding)
             presenter.updateGroupsFromCache()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        presenter.updateGroupsFromCache()
     }
 
 }

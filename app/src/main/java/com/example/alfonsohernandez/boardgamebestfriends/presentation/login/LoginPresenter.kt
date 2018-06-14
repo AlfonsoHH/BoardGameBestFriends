@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.login
 
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.GetCurrentAuthUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithCredentialsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseauth.LoginWithEmailInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseregions.GetAllRegionInteractor
@@ -16,6 +17,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import com.google.firebase.auth.AuthCredential
+import com.google.firebase.auth.FirebaseUser
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -25,6 +27,7 @@ import javax.inject.Inject
  */
 
 class LoginPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+                                         private val getCurrentAuthUserInteractor: GetCurrentAuthUserInteractor,
                                          private val loginWithEmailInteractor: LoginWithEmailInteractor,
                                          private val loginWithCredentialsInteractor: LoginWithCredentialsInteractor,
                                          private val paperRegionsInteractor: PaperRegionsInteractor,
@@ -45,6 +48,10 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
 
     override fun getUserProfile(): User? {
         return getUserProfileInteractor.getProfile()
+    }
+
+    override fun getAuthUser(): FirebaseUser?{
+        return getCurrentAuthUserInteractor.getFirebaseCurrentAuthUser()
     }
 
     override fun firebaseEvent(id: String, activityName: String) {
@@ -74,16 +81,21 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 .subscribeOn(Schedulers.io())
                 .subscribe({
                     view?.showProgress(false)
-                    if(it.additionalUserInfo.isNewUser)
-                        view?.chooseRegion(fromFacebook)
-                    else
-                        getSingleUser(it.user.uid)
+                    var user = it.user
+                    if(user != null) {
+                        if (it.additionalUserInfo.isNewUser)
+                            view?.chooseRegion(fromFacebook)
+                        else
+                            hasChoosenARegion(user.uid,fromFacebook)
+                    }
                 },{
                     view?.showProgress(false)
                     if(fromFacebook)
                         view?.showError(R.string.loginErrorFacebook)
                     else
                         view?.showError(R.string.loginErrorGmail)
+                },{
+                    view?.showProgress(false)
                 })
     }
 
@@ -119,6 +131,28 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 regionId = region.id
         }
         return regionId
+    }
+
+    fun hasChoosenARegion(userId: String, fromFacebook: Boolean){
+        view?.showProgress(true)
+        getSingleUserInteractor
+                .getFirebaseDataSingleUser(userId)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe({
+                    view?.showProgress(false)
+                    var user = it.getValue(User::class.java)!!
+                    if(user.regionId.equals(""))
+                        view?.chooseRegion(fromFacebook)
+                    else
+                        saveUserInPaper(user)
+                },{
+                    view?.showProgress(false)
+                    view?.showError(R.string.loginErrorLoadingUsers)
+                },{
+                    view?.showProgress(false)
+                    view?.chooseRegion(fromFacebook)
+                })
     }
 
     override fun getSingleUser(userId: String) {

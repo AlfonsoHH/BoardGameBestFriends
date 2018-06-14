@@ -1,6 +1,7 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.*
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
@@ -8,11 +9,13 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseV
  */
 interface AddMeetingContract {
 
-    interface View: BaseView{
+    interface View: BaseNotificationView {
 
         fun addGameToSpinner(gamesTitle: String)
         fun addGamesToSpinner(games: ArrayList<Game>)
         fun itsGame(game: String): Boolean
+
+        fun setData(meeting: Meeting, place: Place, group:Group,game:Game)
 
         fun finishAddMeeting()
 
@@ -21,6 +24,7 @@ interface AddMeetingContract {
     interface Presenter{
 
         fun saveMeeting(meeting: Meeting, playing: Boolean)
+        fun modifyMeeting(meeting: Meeting, playing: Boolean)
 
         fun getMyPlacee(): Place?
         fun getMeetingData(meetingId: String)

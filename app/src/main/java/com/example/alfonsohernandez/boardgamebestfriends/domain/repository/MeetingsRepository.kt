@@ -20,11 +20,6 @@ class MeetingsRepository {
 
     fun addMeetingToUser(regionId: String, userId: String, playing: Boolean, meetingId: String){
         firebaseInstance.child("user-meetings").child(userId).child(regionId).child(meetingId).setValue(playing)
-//        if(playing) {
-//            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).setValue(true)
-//        }else{
-//            firebaseInstance.child("meeting-users").child(regionId).child(meetingId).child(userId).removeValue()
-//        }
     }
 
     fun addMeetingToPlace(placeId: String, meetingId: String){

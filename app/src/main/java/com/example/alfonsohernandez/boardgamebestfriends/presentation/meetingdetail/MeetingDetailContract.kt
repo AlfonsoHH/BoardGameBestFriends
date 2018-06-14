@@ -4,11 +4,12 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 interface MeetingDetailContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setMeetingData(meeting: Meeting)
         fun setGameData(game: Game)

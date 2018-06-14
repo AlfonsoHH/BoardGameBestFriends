@@ -9,6 +9,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.user
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
+import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -16,9 +19,12 @@ import javax.inject.Inject
 /**
  * Created by alfonsohernandez on 06/04/2018.
  */
-class GameDetailPresenter @Inject constructor(private val getUserProfileInteractor: GetUserProfileInteractor,
+class GameDetailPresenter @Inject constructor(private val fcmHandler: FCMHandler,
+                                              private val getUserProfileInteractor: GetUserProfileInteractor,
                                               private val paperGamesInteractor: PaperGamesInteractor,
-                                              private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor) : GameDetailContract.Presenter, BasePresenter<GameDetailContract.View>() {
+                                              private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
+                                            ) : GameDetailContract.Presenter,
+                                                BasePushPresenter<GameDetailContract.View>() {
 
     private val TAG = "GameDetailPresenter"
 
@@ -27,6 +33,11 @@ class GameDetailPresenter @Inject constructor(private val getUserProfileInteract
         if (!gameId.equals(""))
             getGameData(gameId)
         firebaseEvent("Showing game", TAG)
+        fcmHandler.push = this
+    }
+
+    override fun pushReceived(rm: RemoteMessage) {
+        view?.showNotification(rm)
     }
 
     override fun getUserProfile(): User? {

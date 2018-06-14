@@ -3,6 +3,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.meetings
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**
@@ -10,7 +11,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseV
  */
 interface MeetingsContract {
 
-    interface View: BaseView {
+    interface View: BaseNotificationView {
 
         fun setData(meetings: Collection<Meeting>?)
         fun getSearchData():String?

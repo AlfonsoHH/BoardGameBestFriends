@@ -26,14 +26,22 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addplace.AddPlaceActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionFragment
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdetail.GroupDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.login.LoginActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.placedetail.PlaceDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.signup.SignUpActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
+import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.RemoteMessage
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -45,7 +53,10 @@ import kotlinx.android.synthetic.main.fragment_profile.*
 import java.io.File
 import javax.inject.Inject
 
-class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
+class ProfileFragment : Fragment(),
+        ProfileContract.View,
+        DialogFactory.CitySelectedCallback,
+        View.OnClickListener{
 
     private val TAG = "ProfileFragment"
 
@@ -56,10 +67,6 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
-//    override fun showNotification(title: String) {
-//
-//    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -67,6 +74,7 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
         presenter.setView(this)
 
         profileButtonLogout.setOnClickListener(this)
+        profileIVregion.setOnClickListener(this)
         fragmentProfileIVmyGames.setOnClickListener(this)
         fragmentProfileIVmyMeetings.setOnClickListener(this)
         fragmentProfileIVmyPlace.setOnClickListener(this)
@@ -74,8 +82,17 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
         fragmentProfileIVphoto.setOnClickListener(this)
     }
 
+    override fun showNotification(rm: RemoteMessage) {
+        var nf = NotificationFilter(activity!!,rm)
+        nf.chat()
+        nf.groupUser()
+        nf.groupRemoved()
+        nf.meetingModified()
+        nf.meetingRemoved()
+    }
+
     override fun startPlaceDetail(id: String) {
-        val intent = Intent(context, PlaceDetailActivity::class.java)
+        val intent = Intent(activity, PlaceDetailActivity::class.java)
         intent.putExtra("id", id)
         intent.putExtra("kind", "My Place")
         startActivity(intent)
@@ -89,15 +106,13 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
     }
 
     override fun startAddMyPlaceDialog() {
-        context?.let {ctx ->
-            DialogFactory.buildConfirmDialogTitle(ctx, getString(R.string.profileDialogTitle), getString(R.string.profileDialogMessagge), Runnable {
-                startAddMyPlace()
-            })
-        }
+        DialogFactory.buildConfirmDialogTitle(context!!, getString(R.string.profileDialogTitle), getString(R.string.profileDialogMessagge), Runnable {
+            startAddMyPlace()
+        }).show()
     }
 
     fun startAddMyPlace() {
-        val intent = Intent(context, AddPlaceActivity::class.java)
+        val intent = Intent(activity, AddPlaceActivity::class.java)
         intent.putExtra("kind", "My Place")
         startActivityForResult(intent, 1)
     }
@@ -129,32 +144,26 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
         fragmentProfileTVresidence?.text = region.city + ", " + region.country
     }
 
-    fun dialogCameraGallery(){
-        val alertDilog = android.support.v7.app.AlertDialog.Builder(context!!).create()
-        alertDilog.setMessage(getString(R.string.signUpDialogText))
+    override fun updateRegion() {
+        presenter.cleanPaper()
+        val intent = Intent(activity, TabActivity::class.java)
+        intent.putExtra("otherTab", 3)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+        startActivity(intent)
+    }
 
-        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_POSITIVE, getString(R.string.signUpDialogGallery), { dialogInterface, i ->
-            val intent = Intent()
-            intent.setType("image/*")
-            intent.setAction(Intent.ACTION_GET_CONTENT)
-            startActivityForResult(intent, 1)
-        })
-
-        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEGATIVE, getString(R.string.signUpDialogCamera), { dialogInterface, i ->
-            val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
-            startActivityForResult(cameraIntent, 2)
-        })
-
-        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEUTRAL, getString(R.string.signUpDialogUpdate), { dialogInterface, i ->
-            val intent = Intent(context, SignUpActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-            startActivity(intent)
-        })
-        alertDilog.show()
+    override fun onCitySelectedChoosed(city: String) {
+        var user = presenter.getUserProfile()
+        user!!.regionId = presenter.getRegionId(city)
+        presenter.saveUser(user!!)
     }
 
     override fun onClick(v: View?) {
         when (v?.id) {
+            R.id.profileIVregion -> {
+                DialogFactory.callbackCity = this
+                DialogFactory.buildChooseRegionDialog(context!!,presenter.getRegionList()).show()
+            }
             R.id.profileButtonLogout -> {
                 FirebaseAuth.getInstance().signOut()
                 LoginManager.getInstance().logOut()
@@ -163,14 +172,14 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
             }
             R.id.fragmentProfileIVmyGames -> {
                 presenter.getUserProfile()?.let {
-                    val intent = Intent(context, GamesActivity::class.java)
+                    val intent = Intent(activity, GamesActivity::class.java)
                     intent.putExtra("kind", "buddy-" + it.id)
                     startActivity(intent)
                 }
             }
             R.id.fragmentProfileIVmyMeetings -> {
                 presenter.getUserProfile()?.let {
-                    val intent = Intent(context, TabActivity::class.java)
+                    val intent = Intent(activity, TabActivity::class.java)
                     intent.putExtra("tab", 0)
                     intent.putExtra("kind", "buddy-" + it.id)
                     startActivity(intent)
@@ -180,76 +189,28 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
                 presenter.myPlaceOnActualRegion()
             }
             R.id.fragmentProfileIVmodify-> {
-                context?.let {ctx ->
-                    DialogFactory.buildConfirmDialog(ctx, getString(R.string.profileDialogModify), Runnable {
-                        fragmentProfileIVphoto.setDrawingCacheEnabled(true)
-                        fragmentProfileIVphoto.buildDrawingCache()
-                        val bitmap = (fragmentProfileIVphoto.getDrawable() as BitmapDrawable).getBitmap()
+                DialogFactory.buildConfirmDialog(context!!, getString(R.string.profileDialogModify), Runnable {
+                    fragmentProfileIVphoto.setDrawingCacheEnabled(true)
+                    fragmentProfileIVphoto.buildDrawingCache()
+                    val bitmap = (fragmentProfileIVphoto.getDrawable() as BitmapDrawable).getBitmap()
 
-                        presenter.saveImage(bitmap)
+                    presenter.saveImage(bitmap)
 
-                        fragmentProfileIVmodify.setVisibility(false)
-                    })
-                }
+                    fragmentProfileIVmodify.setVisibility(false)
+                })
             }
             R.id.fragmentProfileIVphoto-> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    var camera = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                    var needsWrite = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-
-                    if (!camera && !needsWrite) {
-                        dialogCameraGallery()
-                    } else {
-                        Dexter.withActivity(activity)
-                                .withPermissions(Manifest.permission.CAMERA,
-                                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                .withListener(object : MultiplePermissionsListener {
-                                    override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
-                                        Snacky.builder()
-                                                .setActivity(activity)
-                                                .setActionText(getString(R.string.signUpSnackySettings))
-                                                .setActionClickListener(object : View.OnClickListener {
-                                                    override fun onClick(v: View?) {
-                                                        openPermissionsSettings(activity!!)
-                                                    }
-                                                })
-                                                .setText(getString(R.string.signUpSnackyText))
-                                                .setDuration(Snacky.LENGTH_LONG)
-                                                .build()
-                                                .show()
-                                    }
-
-                                    override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                                        camera = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                                        needsWrite = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                                        if (!camera && !needsWrite) {
-                                            dialogCameraGallery()
-                                        } else {
-                                            Toast.makeText(context, getString(R.string.signUpDialogPermissions), Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
-                                }).check()
-                    }
-                }else{
-                    dialogCameraGallery()
-                }
+                askForPermissions()
             }
         }
     }
 
-    fun openPermissionsSettings(activity: FragmentActivity){
-        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()))
-        intent.addCategory(Intent.CATEGORY_DEFAULT)
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        activity.startActivity(intent)
-    }
-
     override fun showError(stringId: Int) {
-        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
     override fun showSuccess(stringId: Int) {
-        Toast.makeText(context, getString(stringId), Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, getString(stringId), Toast.LENGTH_SHORT).show()
     }
 
     override fun showProgress(isLoading: Boolean) {
@@ -272,6 +233,80 @@ class ProfileFragment : Fragment(), ProfileContract.View, View.OnClickListener {
         }else if(requestCode == 2 && resultCode == Activity.RESULT_OK && data != null){
             val photo = data.extras.get("data") as Bitmap
             setPhotoImage(photo)
+        }
+    }
+
+    fun dialogCameraGallery(){
+        val alertDilog = android.support.v7.app.AlertDialog.Builder(context!!).create()
+        alertDilog.setMessage(getString(R.string.signUpDialogText))
+
+        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_POSITIVE, getString(R.string.signUpDialogGallery), { dialogInterface, i ->
+            val intent = Intent()
+            intent.setType("image/*")
+            intent.setAction(Intent.ACTION_GET_CONTENT)
+            startActivityForResult(intent, 1)
+        })
+
+        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEGATIVE, getString(R.string.signUpDialogCamera), { dialogInterface, i ->
+            val cameraIntent = Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE)
+            startActivityForResult(cameraIntent, 2)
+        })
+
+        alertDilog.setButton(android.support.v7.app.AlertDialog.BUTTON_NEUTRAL, getString(R.string.signUpDialogUpdate), { dialogInterface, i ->
+            val intent = Intent(activity, SignUpActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
+        })
+        alertDilog.show()
+    }
+
+    fun openPermissionsSettings(activity: FragmentActivity){
+        val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + activity.getPackageName()))
+        intent.addCategory(Intent.CATEGORY_DEFAULT)
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        activity.startActivity(intent)
+    }
+
+    fun askForPermissions(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            var camera = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+            var needsWrite = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+
+            if (!camera && !needsWrite) {
+                dialogCameraGallery()
+            } else {
+                Dexter.withActivity(activity)
+                        .withPermissions(Manifest.permission.CAMERA,
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(object : MultiplePermissionsListener {
+                            override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
+                                Snacky.builder()
+                                        .setActivity(activity)
+                                        .setActionText(getString(R.string.signUpSnackySettings))
+                                        .setActionClickListener(object : View.OnClickListener {
+                                            override fun onClick(v: View?) {
+                                                openPermissionsSettings(activity!!)
+                                            }
+                                        })
+                                        .setText(getString(R.string.signUpSnackyText))
+                                        .setDuration(Snacky.LENGTH_LONG)
+                                        .build()
+                                        .show()
+                            }
+
+                            override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                                camera = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                                needsWrite = ActivityCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                                if (!camera && !needsWrite) {
+                                    dialogCameraGallery()
+                                } else {
+                                    Toast.makeText(activity, getString(R.string.signUpDialogPermissions), Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }).check()
+            }
+        }else{
+            dialogCameraGallery()
         }
     }
 }
