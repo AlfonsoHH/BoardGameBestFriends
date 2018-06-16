@@ -22,4 +22,13 @@ object Snacktory {
                 .show()
     }
 
+    fun snacktoryNoAction(activity: Activity, text: String){
+        Snacky
+                .builder()
+                .setActivity(activity)
+                .setText(text)
+                .build()
+                .show()
+    }
+
 }

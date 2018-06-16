@@ -6,6 +6,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -16,6 +17,13 @@ class SplashPresenter @Inject constructor(private val getCurrentAuthUserInteract
                                           private val getSingleUserInteractor: GetSingleUserInteractor): SplashContract.Presenter , BasePresenter<SplashContract.View>(){
 
     private val TAG = "SplashPresenter"
+
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
 
     fun setView(view: SplashContract.View?) {
         this.view = view
@@ -32,7 +40,7 @@ class SplashPresenter @Inject constructor(private val getCurrentAuthUserInteract
     }
 
     fun getUser(userId: String){
-        getSingleUserInteractor
+        compositeDisposable.add(getSingleUserInteractor
                 .getFirebaseDataSingleUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -45,7 +53,7 @@ class SplashPresenter @Inject constructor(private val getCurrentAuthUserInteract
                     view?.showError(R.string.loginErrorLoadingUsers)
                 },{
                     view?.startLogin()
-                })
+                }))
     }
 
     override fun getUserProfile(): User? {

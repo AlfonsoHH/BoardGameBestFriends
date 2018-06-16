@@ -18,7 +18,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation
  * Created by alfonsohernandez on 15/03/2018.
  */
 
-class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
+class AdapterMeetings : RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
 
     private val TAG = "AdapterMeetings"
 
@@ -55,11 +55,11 @@ class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
 
             txtTitle?.text = meeting.title
             txtDescription?.text = meeting.description
-            txtHour?.text = meeting.date.substring(0,meeting.date.lastIndexOf("_"))
-            txtDate?.text = meeting.date.substring(meeting.date.lastIndexOf("_")+1,meeting.date.length)
+            txtHour?.text = meeting.date.substring(0, meeting.date.lastIndexOf("_"))
+            txtDate?.text = meeting.date.substring(meeting.date.lastIndexOf("_") + 1, meeting.date.length)
             txtVacants?.text = meeting.vacants.toString() + " Vacants"
 
-            if(meeting.label!=null) {
+            if (meeting.label != null) {
 
                 val hostingLL = itemView.findViewById<LinearLayout>(R.id.itemMeetingsLLhosting)
                 val openTV = itemView.findViewById<TextView>(R.id.itemMeetingsTVopen)
@@ -74,24 +74,104 @@ class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
 
                 hostingLL.setVisibility(true)
 
-                if (meeting.label.equals("Open"))
+                if (meeting.label.equals("Open")) {
                     openTV.setVisibility(true)
-                if (meeting.label.equals("Group"))
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Group")) {
+                    openTV.setVisibility(false)
                     groupTV.setVisibility(true)
-                if (meeting.label.equals("Host"))
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Host")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
                     hostingTV.setVisibility(true)
-                if (meeting.label.equals("Playing"))
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Playing")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
                     assistingTV.setVisibility(true)
-                if (meeting.label.equals("Admin"))
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Admin")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
                     adminTV.setVisibility(true)
-                if (meeting.label.equals("Admin Host"))
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Admin Host")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
                     adminHostTV.setVisibility(true)
-                if (meeting.label.equals("Admin Playing"))
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Admin Playing")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
                     adminPlayingTV.setVisibility(true)
-                if (meeting.label.equals("Playing Host"))
+                    hostingAssistingTV.setVisibility(false)
+                    adminHostPlayingTV.setVisibility(false)                }
+                if (meeting.label.equals("Playing Host")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
                     hostingAssistingTV.setVisibility(true)
-                if (meeting.label.equals("Admin Playing Host"))
+                    adminHostPlayingTV.setVisibility(false)
+                }
+                if (meeting.label.equals("Admin Playing Host")) {
+                    openTV.setVisibility(false)
+                    groupTV.setVisibility(false)
+                    hostingTV.setVisibility(false)
+                    assistingTV.setVisibility(false)
+                    adminTV.setVisibility(false)
+                    adminHostTV.setVisibility(false)
+                    adminPlayingTV.setVisibility(false)
+                    hostingAssistingTV.setVisibility(false)
                     adminHostPlayingTV.setVisibility(true)
+                }
             }
 
             Glide.with(itemView)
@@ -99,7 +179,7 @@ class AdapterMeetings: RecyclerView.Adapter<AdapterMeetings.ViewHolder>() {
                     .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
                     .into(photoGame)
 
-            if(!meeting.placePhoto.equals("url")) {
+            if (!meeting.placePhoto.equals("url")) {
                 Glide.with(itemView)
                         .load(meeting.placePhoto)
                         .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))

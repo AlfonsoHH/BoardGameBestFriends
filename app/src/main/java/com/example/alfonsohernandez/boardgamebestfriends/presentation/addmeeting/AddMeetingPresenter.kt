@@ -25,6 +25,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -51,7 +52,13 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
     private val TAG = "AddMeetingPresenter"
 
     var myPlace: Place? = null
-    var listGames = arrayListOf<Game>()
+
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
 
     fun setView(view: AddMeetingContract.View?) {
         this.view = view
@@ -103,7 +110,7 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
     override fun modifyMeeting(meeting: Meeting, playing: Boolean) {
         getUserProfile()?.let { user ->
             view?.showProgress(true)
-            getSingleMeetingInteractor
+            compositeDisposable.add(getSingleMeetingInteractor
                     .getFirebaseDataSingleMeeting(user.regionId,meeting.id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -128,7 +135,7 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorMeetingInfo)
-                    })
+                    }))
         }
     }
 
@@ -160,7 +167,7 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
     override fun getUserGames(userId: String) {
         getUserProfile()?.let { user ->
             view?.showProgress(true)
-            getUserGamesInteractor
+            compositeDisposable.add(getUserGamesInteractor
                     .getFirebaseDataUserGames(user.id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -177,14 +184,14 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
-                    })
+                    }))
         }
     }
 
     override fun getGroupGames(groupId: String?) {
         if (groupId != null) {
             view?.showProgress(true)
-            getGroupGamesInteractor
+            compositeDisposable.add(getGroupGamesInteractor
                     .getFirebaseDataGroupGames(groupId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -198,14 +205,14 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
-                    })
+                    }))
         }
     }
 
     override fun getPlaceGames(placeId: String?) {
         if (placeId != null) {
             view?.showProgress(true)
-            getPlaceGamesInteractor
+            compositeDisposable.add(getPlaceGamesInteractor
                     .getFirebaseDataPlaceGames(placeId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -219,7 +226,7 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
-                    })
+                    }))
         }
     }
 

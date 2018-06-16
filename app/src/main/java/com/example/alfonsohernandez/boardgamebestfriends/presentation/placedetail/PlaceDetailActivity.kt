@@ -58,11 +58,7 @@ class PlaceDetailActivity : AppCompatActivity(), PlaceDetailContract.View, View.
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
     }
 
     override fun onClick(v: View?) {
@@ -84,7 +80,7 @@ class PlaceDetailActivity : AppCompatActivity(), PlaceDetailContract.View, View.
     }
 
     override fun onDestroy() {
-        presenter.setView(null, "")
+        presenter.unsetView()
         super.onDestroy()
     }
 

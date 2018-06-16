@@ -15,6 +15,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.util.ArrayList
 import javax.inject.Inject
@@ -34,8 +35,21 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     private val TAG = "PlacesPresenter"
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetViewFragment(){
+        this.view = null
+        compositeDisposable.clear()
+    }
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: PlacesContract.View?) {
         this.view = view
+        loadPlacesData()
         fcmHandler.push = this
     }
 
@@ -67,7 +81,7 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     override fun loadPlacesData() {
         getUserProfile()?.let { user ->
             view?.showProgress(true)
-            getPlacesInteractor
+            compositeDisposable.add(getPlacesInteractor
                     .getFirebaseDataOpenPlaces(user.regionId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -85,15 +99,15 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                         }
                         paperPlacesInteractor.clear()
                         paperPlacesInteractor.addAll(placesList)
-                        setPlacesData()
+//                        setPlacesData()
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.placesErrorPlaces)
                     },{
                         paperPlacesInteractor.clear()
-                        setPlacesData()
+//                        setPlacesData()
                         view?.showProgress(false)
-                    })
+                    }))
         }
     }
 

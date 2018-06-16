@@ -74,11 +74,7 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
     }
 
     fun injectDependencies() {
@@ -86,7 +82,7 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
     }
 
     override fun onDestroy() {
-        presenter.setView(null)
+        presenter.unsetView()
         super.onDestroy()
     }
 

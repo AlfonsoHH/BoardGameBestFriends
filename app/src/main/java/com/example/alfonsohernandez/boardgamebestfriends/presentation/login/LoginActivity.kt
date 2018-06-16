@@ -124,6 +124,11 @@ class LoginActivity : AppCompatActivity(),
         App.instance.component.plus(PresentationModule()).inject(this)
     }
 
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent) {
         if(resultCode == Activity.RESULT_OK) {
             if (requestCode == RC_SIGN_IN) {

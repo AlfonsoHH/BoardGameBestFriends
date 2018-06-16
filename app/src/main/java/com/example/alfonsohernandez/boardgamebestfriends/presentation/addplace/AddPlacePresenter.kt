@@ -21,6 +21,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -46,6 +47,11 @@ class AddPlacePresenter @Inject constructor(private val fcmHandler: FCMHandler,
     private val TAG = "AddPlacePresenter"
 
     lateinit var region: Region
+
+
+    fun unsetView(){
+        this.view = null
+    }
 
     fun setView(view: AddPlaceContract.View?) {
         this.view = view

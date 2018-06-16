@@ -110,7 +110,7 @@ class TabActivity : AppCompatActivity(),
     }
 
     override fun onDestroy() {
-        presenter.setView(null)
+        presenter.unsetView()
         super.onDestroy()
     }
 

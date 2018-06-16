@@ -24,6 +24,14 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         this.activity = activity
     }
 
+    fun allNotifications(){
+        chat()
+        goToGroups()
+        goToGroupDetail()
+        goToMeetings()
+        goToMeetingDetail()
+    }
+
     fun chat() {
         if (title.contains("Chat")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
@@ -35,7 +43,7 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         }
     }
 
-    fun groupUser(){
+    fun goToGroupDetail(){
         if(title.contains("Group user")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
                 var intent = Intent(activity, GroupDetailActivity::class.java)
@@ -46,7 +54,7 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         }
     }
 
-    fun groupRemoved(){
+    fun goToGroups(){
         if(title.contains("Group removed")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
                 var intent = Intent(activity, TabActivity::class.java)
@@ -57,7 +65,7 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         }
     }
 
-    fun meetingRemoved(){
+    fun goToMeetings(){
         if(title.contains("Meeting removed")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
                 var intent = Intent(activity, TabActivity::class.java)
@@ -67,8 +75,8 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         }
     }
 
-    fun meetingModified(){
-        if(title.contains("Meeting modified")) {
+    fun goToMeetingDetail(){
+        if(title.contains("Meeting modified") || title.contains("Meeting starting soon")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
                 var intent = Intent(activity, MeetingDetailActivity::class.java)
                 var extras = intent.extras
@@ -77,4 +85,5 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
             })
         }
     }
+
 }

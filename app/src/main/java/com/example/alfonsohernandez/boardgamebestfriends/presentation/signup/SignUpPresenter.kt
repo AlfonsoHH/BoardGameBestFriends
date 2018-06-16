@@ -15,6 +15,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
@@ -34,6 +35,13 @@ class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: 
 
     private val TAG = "SignUpPresenter"
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: SignUpContract.View?) {
         this.view = view
         getRegionData()
@@ -50,7 +58,7 @@ class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: 
 
     fun createUser(email: String, password: String){
         view?.showProgress(true)
-        createMailUserInteractor
+        compositeDisposable.add(createMailUserInteractor
                 .createAuthMailUser(email,password)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -64,7 +72,7 @@ class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: 
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.signUpErrorAuthentification)
-                })
+                }))
     }
 
     override fun saveImage(name: String, user: User, data: Bitmap) {
@@ -93,7 +101,7 @@ class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: 
 
     override fun getUsersData(userMail: String, password: String) {
         view?.showProgress(true)
-        getAllUsersInteractor
+        compositeDisposable.add(getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -113,7 +121,7 @@ class SignUpPresenter @Inject constructor(private val getUserProfileInteractor: 
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.signUpErrorAllUsers)
-                })
+                }))
     }
 
     override fun saveUserData(userId:String, user: User) {

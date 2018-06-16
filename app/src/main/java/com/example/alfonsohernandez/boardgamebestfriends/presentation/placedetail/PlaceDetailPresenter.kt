@@ -23,9 +23,14 @@ class PlaceDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
                                                private val paperPlacesInteractor: PaperPlacesInteractor,
                                                private val paperRegionsInteractor: PaperRegionsInteractor,
                                                private val firebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
-                                                ): PlaceDetailContract.Presenter, BasePushPresenter<PlaceDetailContract.View>() {
+                                                ): PlaceDetailContract.Presenter,
+                                                    BasePushPresenter<PlaceDetailContract.View>() {
 
     private val TAG = "PlaceDetailPresenter"
+
+    fun unsetView(){
+        this.view = null
+    }
 
     fun setView(view: PlaceDetailContract.View?, placeId: String) {
         this.view = view

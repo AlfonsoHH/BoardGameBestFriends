@@ -19,6 +19,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.lang.reflect.Member
 import javax.inject.Inject
@@ -36,6 +37,13 @@ class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
     private val TAG = "GroupDetailPresenter"
     var groupId = ""
     var membersList = arrayListOf<User>()
+
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
 
     fun setView(view: GroupDetailContract.View?, groupId: String) {
         this.view = view
@@ -68,7 +76,7 @@ class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
 
     fun getMembersData(groupId: String) {
         view?.showProgress(true)
-        getGroupUsersInteractor
+        compositeDisposable.add(getGroupUsersInteractor
                 .getFirebaseDataGroupUsers(groupId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -80,12 +88,12 @@ class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.groupDetailErrorMembers)
-                })
+                }))
     }
 
     fun getMemberData(memberId: String) {
         view?.showProgress(true)
-        getSingleUserInteractor
+        compositeDisposable.add(getSingleUserInteractor
                 .getFirebaseDataSingleUser(memberId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -99,12 +107,12 @@ class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.groupDetailErrorMembers)
-                })
+                }))
     }
 
     override fun getFriendFromMailData(email: String) {
         view?.showProgress(true)
-        getSingleUserFromMailInteractor
+        compositeDisposable.add(getSingleUserFromMailInteractor
                 .getFirebaseDataSingleUserFromMail(email)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -127,7 +135,7 @@ class GroupDetailPresenter @Inject constructor(private val fcmHandler: FCMHandle
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.addGroupErrorBuddy)
-                })
+                }))
     }
 
     override fun saveNewMember(user: User, groupId: String) {

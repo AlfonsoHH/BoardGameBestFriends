@@ -52,6 +52,7 @@ class ChatPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     var compositeDisposable = CompositeDisposable()
 
     fun unsetView() {
+        this.view = null
         compositeDisposable.dispose()
     }
 
@@ -77,6 +78,7 @@ class ChatPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     }
 
     fun getGroupUsers(groupId: String){
+        view?.showProgress(true)
         compositeDisposable.add(getGroupUsersInteractor
                 .getFirebaseDataGroupUsers(groupId).toObservable()
                 .flatMapIterable { it.children }
@@ -110,7 +112,7 @@ class ChatPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({ obs.onNext(true)
-                        obs.onComplete() },
+                            obs.onComplete() },
                             { obs.onError(it) },
                             { obs.onComplete() })
         }
@@ -118,6 +120,7 @@ class ChatPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     }
 
     override fun loadFirebaseChat(group: Group) {
+        view?.showProgress(true)
         compositeDisposable.add(
                 getMessagesInteractor
                 .getFirebaseDataMessages(groupId)

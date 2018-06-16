@@ -18,6 +18,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 import java.lang.Thread.sleep
@@ -49,6 +50,13 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     var kind = ""
     var search = ""
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: GamesContract.View?, kind: String) {
         this.view = view
         this.kind = kind
@@ -71,7 +79,7 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     override fun getBGGdata(bggId: String) {
         view?.showProgress(true)
-        getBggXmlGameCollectionInteractor
+        compositeDisposable.add(getBggXmlGameCollectionInteractor
                 .getGameCollectionXML(bggId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -95,11 +103,11 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                     view?.showProgressDialog(false)
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorBGG)
-                })
+                }))
     }
 
     fun getGameDetail(gameId: String){
-        getBggGameDetailInteractor
+        compositeDisposable.add(getBggGameDetailInteractor
                 .getGameDetail(gameId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -116,7 +124,7 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                     }
                 }, {
                     view?.showError(R.string.gameDetailErrorLoading)
-                })
+                }))
     }
 
     override fun gameExistDB(game: Game) {
@@ -178,7 +186,7 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     override fun getUserGamesData() {
         view?.showProgress(true)
-        getUserGamesInteractor
+        compositeDisposable.add(getUserGamesInteractor
                 .getFirebaseDataUserGames(kind.substring(6, kind.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -202,12 +210,12 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
-                })
+                }))
     }
 
     override fun getGroupGamesData() {
         view?.showProgress(true)
-        getGroupGamesInteractor
+        compositeDisposable.add(getGroupGamesInteractor
                 .getFirebaseDataGroupGames(kind.substring(6, kind.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -232,12 +240,12 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
-                })
+                }))
     }
 
     override fun getPlaceGamesData() {
         view?.showProgress(true)
-        getPlaceGamesInteractor
+        compositeDisposable.add(getPlaceGamesInteractor
                 .getFirebaseDataPlaceGames(kind.substring(6, kind.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -261,7 +269,7 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
-                })
+                }))
     }
 
     override fun addRemoveItem(adding: Boolean, itemId: String, kind: String) {

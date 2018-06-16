@@ -27,6 +27,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatA
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_group_detail.*
@@ -69,10 +70,17 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
         nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.goToGroups()
+        nf.goToGroupDetail()
+        nf.goToMeetings()
+        if(groupId.equals(nf.topic)) {
+            if (rm.notification!!.title!!.contains("Group user")) {
+                presenter.getMembersData(groupId)
+                Snacktory.snacktoryNoAction(this, nf.text)
+            }
+        }else{
+            nf.goToMeetingDetail()
+        }
     }
 
     fun injectDependencies() {
@@ -95,7 +103,7 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
     }
 
     override fun onDestroy() {
-        presenter.setView(null, "")
+        presenter.unsetView()
         super.onDestroy()
     }
 

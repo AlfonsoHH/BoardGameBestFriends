@@ -61,10 +61,10 @@ class ChatActivity : AppCompatActivity(),
         var nf = NotificationFilter(this,rm)
         if(!nf.topic.equals(groupId))
             nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.goToGroups()
+        nf.goToGroupDetail()
+        nf.goToMeetings()
+        nf.goToMeetingDetail()
     }
 
     fun injectDependencies() {

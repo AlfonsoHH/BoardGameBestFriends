@@ -21,6 +21,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.profile.Pr
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -48,6 +49,13 @@ class AddGroupPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     var userList = arrayListOf<User>()
     var groupUserList = arrayListOf<User>()
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView() {
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: AddGroupContract.View?) {
         this.view = view
         getUserProfile()?.let {
@@ -72,7 +80,7 @@ class AddGroupPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     fun getAllUser() {
         view?.showProgress(true)
-        getAllUsersInteractor
+        compositeDisposable.add(getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -84,18 +92,18 @@ class AddGroupPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.addGroupErrorMembers)
-                })
+                }))
     }
 
     override fun getGroupData(groupId: String) {
-        paperGroupsInteractor.get(groupId)?.let{
+        paperGroupsInteractor.get(groupId)?.let {
             view?.setData(it)
         }
     }
 
     override fun getFriendData(email: String) {
         view?.showProgress(true)
-        getSingleUserFromMailInteractor
+        compositeDisposable.add(getSingleUserFromMailInteractor
                 .getFirebaseDataSingleUserFromMail(email)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -128,10 +136,10 @@ class AddGroupPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.addGroupErrorBuddy)
-                },{
+                }, {
                     view?.showProgress(false)
                     view?.showError(R.string.addGroupErrorBuddy)
-                })
+                }))
     }
 
     override fun saveImage(group: Group, data: Bitmap, modify: Boolean, userList: ArrayList<String>?) {

@@ -86,11 +86,7 @@ class AddGroupActivity : BasePermissionActivity(),
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
     }
 
     fun addGroup(){
@@ -163,7 +159,7 @@ class AddGroupActivity : BasePermissionActivity(),
     }
 
     override fun onDestroy() {
-        presenter.setView(null)
+        presenter.unsetView()
         super.onDestroy()
     }
 

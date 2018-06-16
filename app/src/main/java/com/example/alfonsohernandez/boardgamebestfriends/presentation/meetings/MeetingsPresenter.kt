@@ -20,6 +20,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,12 +55,22 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     private val TAG = "MeetingsPresenter"
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetViewFragment(){
+        this.view = null
+        compositeDisposable.clear()
+    }
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: MeetingsContract.View?, kind: String) {
         this.view = view
-        if(view!=null) {
-            this.kind = kind
-            initialDataChooser()
-        }
+        this.kind = kind
+        initialDataChooser()
         fcmHandler.push = this
     }
 
@@ -112,7 +123,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     fun loadAllMeetings(kind: String) {
         getUserProfile()?.let {user ->
             view?.showProgress(true)
-            getOpenMeetingsInteractor
+            compositeDisposable.add(getOpenMeetingsInteractor
                     .getFirebaseDataOpenMeetings(user.regionId)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -138,7 +149,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.meetingsErrorLoading)
-                    })
+                    }))
         }
     }
 
@@ -167,12 +178,11 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
         getUserProfile()?.let {user ->
             view?.showProgress(true)
             var tempMeetingList = tempMeetingList
-            getUserGroupsInteractor
+            compositeDisposable.add(getUserGroupsInteractor
                     .getFirebaseDataUserGroups(user.id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
-                        //var exist: Boolean
                         for (h in it.children) {
                             for (meeting in paperMeetingsInteractor.all()) {
                                 if (meeting.vacants > 0) {
@@ -202,7 +212,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                         setListTopics(tempMeetingList)
                         view?.setData(tempMeetingList)
                         view?.showProgress(false)
-                    })
+                    }))
         }
     }
 
@@ -210,7 +220,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
         val tempMeetingList = arrayListOf<Meeting>()
         getUserProfile()?.let { user ->
             view?.showProgress(true)
-            getUserMeetingsInteractor
+            compositeDisposable.add(getUserMeetingsInteractor
                     .getFirebaseDataUserMeetings(user.regionId, kind.substring(6, kind.length))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -241,7 +251,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                     },{
                         view?.showProgress(false)
                         getUserPlaces(tempMeetingList)
-                    })
+                    }))
         }
     }
 
@@ -249,7 +259,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
         getUserProfile()?.let { user ->
             var tempMeetingList = tempMeetingList
             view?.showProgress(true)
-            getUserPlacesInteractor
+            compositeDisposable.add(getUserPlacesInteractor
                     .getFirebaseDataUserPlaces(user.regionId, user.id)
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
@@ -295,14 +305,14 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                         tempMeetingList = ArrayList(tempMeetingList.sortedWith(compareBy({ it.date.substring(it.date.length - 2, it.date.length) }, { it.date.substring(it.date.length - 5, it.date.length - 3) }, { it.date.substring(it.date.length - 8, it.date.length - 6) }, { it.date.substring(0, it.date.lastIndexOf("_")) })))
                         setListTopics(tempMeetingList)
                         view?.setData(tempMeetingList)
-                    })
+                    }))
         }
     }
 
     fun getGroupMeetings() {
         view?.showProgress(true)
         var tempMeetingList = arrayListOf<Meeting>()
-        getGroupMeetingsInteractor
+        compositeDisposable.add(getGroupMeetingsInteractor
                 .getFirebaseDataGroupMeetings(kind.substring(6, kind.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -325,13 +335,13 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.meetingsErrorLoading)
-                })
+                }))
     }
 
     fun getPlaceMeetings() {
         view?.showProgress(true)
         var tempMeetingList = arrayListOf<Meeting>()
-        getPlaceMeetingsInteractor
+        compositeDisposable.add(getPlaceMeetingsInteractor
                 .getFirebaseDataPlaceMeetings(kind.substring(6, kind.length))
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -354,7 +364,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.meetingsErrorLoading)
-                })
+                }))
     }
 
     override fun removeMeeting(meetingId: String) {

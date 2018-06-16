@@ -31,6 +31,11 @@ class SplashActivity : AppCompatActivity(), SplashContract.View {
         App.instance.component.plus(PresentationModule()).inject(this)
     }
 
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
     override fun startAPP(){
         val intent = Intent(this,TabActivity::class.java)
         startActivity(intent)

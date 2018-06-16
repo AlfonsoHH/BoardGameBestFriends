@@ -29,6 +29,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_meeting_detail.*
@@ -73,10 +74,17 @@ class MeetingDetailActivity : AppCompatActivity(),
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
         nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.goToGroups()
+        nf.goToGroupDetail()
+        nf.goToMeetings()
+        if(meetingId.equals(nf.topic)) {
+            if (rm.notification!!.title!!.contains("Meeting modified")) {
+                presenter.getMeetingData(meetingId)
+                Snacktory.snacktoryNoAction(this, nf.text)
+            }
+        }else{
+            nf.goToMeetingDetail()
+        }
     }
 
     fun injectDependencies() {
@@ -84,7 +92,7 @@ class MeetingDetailActivity : AppCompatActivity(),
     }
 
     override fun onDestroy() {
-        presenter.setView(null,"")
+        presenter.unsetView()
         super.onDestroy()
     }
 

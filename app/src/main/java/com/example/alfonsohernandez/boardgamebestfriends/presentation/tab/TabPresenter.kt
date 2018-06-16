@@ -17,6 +17,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.repository.PaperGamesRepository
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -30,6 +31,13 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                                        private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter, BasePresenter<TabContract.View>() {
 
     private val TAG: String = "TabPresenter"
+
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
 
     fun setView(view: TabContract.View?) {
         this.view = view
@@ -48,7 +56,7 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
 
     fun loadAllGames() {
         paperGamesInteractor.clear()
-        getAllGamesInteractor
+        compositeDisposable.add(getAllGamesInteractor
                 .getFirebaseDataAllGames()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -61,7 +69,7 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                     paperGamesInteractor.addAll(gameList)
                 },{
                     view?.showError(R.string.gamesErrorLoading)
-                })
+                }))
     }
 
 }

@@ -84,11 +84,17 @@ class ProfileFragment : Fragment(),
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(activity!!,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
+    }
+
+    override fun onDestroyView() {
+        presenter.unsetView()
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
     }
 
     override fun startPlaceDetail(id: String) {
@@ -119,11 +125,6 @@ class ProfileFragment : Fragment(),
 
     fun injectDependencies() {
         App.instance.component.plus(PresentationModule()).inject(this)
-    }
-
-    override fun onDestroy() {
-        presenter.setView(null)
-        super.onDestroy()
     }
 
     override fun setData(userProfile: User?) {

@@ -22,6 +22,7 @@ import javax.inject.Inject
 import android.app.Activity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
 
 /**
@@ -55,13 +56,26 @@ class GroupsFragment : Fragment(),
         fab.setOnClickListener(this)
     }
 
+    override fun onDestroyView() {
+        presenter.unsetViewFragment()
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(activity!!,rm)
         nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.goToMeetingDetail()
+        nf.goToGroupDetail()
+        nf.goToGroups()
+        if(nf.title.contains("Group removed")){
+            presenter.getGroupsDataRx()
+            Snacktory.snacktoryNoAction(activity!!, nf.text)
+        }
     }
 
     fun injectDependencies() {
@@ -101,11 +115,6 @@ class GroupsFragment : Fragment(),
         startActivity(intent)
     }
 
-    override fun onDestroy() {
-        presenter.setView(null)
-        super.onDestroy()
-    }
-
     override fun setData(groups: ArrayList<Group>) {
         adapter.groupList.clear()
         adapter.groupList.addAll(groups)
@@ -135,7 +144,7 @@ class GroupsFragment : Fragment(),
 
     override fun onRefresh() {
         adapter.groupList.clear()
-        presenter.getGroupsData()
+        presenter.getGroupsDataRx()
         swipeContainerGroups?.isRefreshing = false
     }
 

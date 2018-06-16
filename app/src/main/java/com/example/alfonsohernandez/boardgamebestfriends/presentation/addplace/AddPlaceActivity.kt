@@ -76,15 +76,16 @@ class AddPlaceActivity : BasePermissionActivity(),
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
     }
 
     fun injectDependencies() {
         App.instance.component.plus(PresentationModule()).inject(this)
+    }
+
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
     }
 
     override fun onOpeningHoursChoosed(openingHours: ArrayList<String>) {

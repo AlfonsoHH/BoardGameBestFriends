@@ -56,8 +56,7 @@ class PlacesFragment : Fragment(),
         GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleMap.OnMarkerClickListener,
-        PlacesContract.View,
-        SwipeRefreshLayout.OnRefreshListener{
+        PlacesContract.View{
 
     private val TAG = "PlacesFragment"
 
@@ -99,8 +98,6 @@ class PlacesFragment : Fragment(),
         injectDependencies()
         presenter.setView(this)
 
-        swipeContainerPlaces.setOnRefreshListener(this)
-
         fab.setOnClickListener(object : View.OnClickListener{
             override fun onClick(v: View?) {
                 startAddPlace()
@@ -110,15 +107,21 @@ class PlacesFragment : Fragment(),
 
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(activity!!,rm)
-        nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.allNotifications()
     }
 
     fun injectDependencies() {
         App.instance.component.plus(PresentationModule()).inject(this)
+    }
+
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
+    override fun onDestroyView() {
+        presenter.unsetViewFragment()
+        super.onDestroyView()
     }
 
     override fun setData(places: ArrayList<Place>) {
@@ -186,7 +189,7 @@ class PlacesFragment : Fragment(),
                 fusedLocationClient.lastLocation
                         .addOnSuccessListener { location: Location? ->
                             mMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(presenter.getRegion(), 12f))
-                            presenter.loadPlacesData()
+                            setData(presenter.getPlacesData())
                         }
             }
         }
@@ -291,11 +294,6 @@ class PlacesFragment : Fragment(),
         val intent = Intent(context, AddPlaceActivity::class.java)
         intent.putExtra("id","")
         startActivityForResult(intent,1)
-    }
-
-    override fun onRefresh() {
-        presenter.loadPlacesData()
-        swipeContainerPlaces.isRefreshing = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
@@ -21,7 +22,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.A
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.fragment_meetings.*
 import javax.inject.Inject
@@ -66,10 +69,13 @@ class MeetingsFragment : Fragment(),
     override fun showNotification(rm: RemoteMessage) {
         var nf = NotificationFilter(activity!!,rm)
         nf.chat()
-        nf.groupUser()
-        nf.groupRemoved()
-        nf.meetingModified()
-        nf.meetingRemoved()
+        nf.goToMeetingDetail()
+        nf.goToGroupDetail()
+        nf.goToGroups()
+        if(nf.title.contains("Meeting removed")){
+            presenter.initialDataChooser()
+            Snacktory.snacktoryNoAction(activity!!, nf.text)
+        }
     }
 
     fun startAddMeeting(){
@@ -77,9 +83,14 @@ class MeetingsFragment : Fragment(),
         startActivityForResult(intent,1)
     }
 
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
     override fun onDestroyView() {
+        presenter.unsetViewFragment()
         super.onDestroyView()
-        presenter.setView(null,"")
     }
 
     fun injectDependencies() {

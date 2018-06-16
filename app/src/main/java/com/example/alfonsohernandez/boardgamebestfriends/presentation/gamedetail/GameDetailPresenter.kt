@@ -13,6 +13,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -27,6 +28,10 @@ class GameDetailPresenter @Inject constructor(private val fcmHandler: FCMHandler
                                                 BasePushPresenter<GameDetailContract.View>() {
 
     private val TAG = "GameDetailPresenter"
+
+    fun unsetView(){
+        this.view = null
+    }
 
     fun setView(view: GameDetailContract.View?, gameId: String) {
         this.view = view

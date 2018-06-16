@@ -68,6 +68,11 @@ class SignUpActivity : BasePermissionActivity(),
         App.instance.component.plus(PresentationModule()).inject(this)
     }
 
+    override fun onDestroy() {
+        presenter.unsetView()
+        super.onDestroy()
+    }
+
     override fun onImageReceived(intent: Intent, fromGallery: Boolean) {
         if(fromGallery)
             setPhotoImage(File(presenter.getRealPathFromURI(intent.data)))

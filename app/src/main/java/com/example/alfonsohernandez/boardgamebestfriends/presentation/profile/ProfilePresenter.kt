@@ -53,6 +53,10 @@ class ProfilePresenter @Inject constructor(private val fcmHandler: FCMHandler,
     private val TAG = "ProfilePresenter"
     lateinit var myPlace: Place
 
+    fun unsetView(){
+        this.view = null
+    }
+
     fun setView(view: ProfileContract.View?) {
         this.view = view
         getUserProfile()?.let{

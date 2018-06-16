@@ -19,6 +19,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -41,6 +42,13 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
 
     private val TAG = "LoginPresenter"
 
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
+
     fun setView(view: LoginContract.View?) {
         this.view = view
         loadRegions()
@@ -60,7 +68,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
 
     override fun loginWithEmail(email: String, password: String){
         view?.showProgress(true)
-        loginWithEmailInteractor
+        compositeDisposable.add(loginWithEmailInteractor
                 .loginAuthWithMail(email,password)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -70,12 +78,12 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.loginErrorEmail)
-                })
+                }))
     }
 
     override fun loginWithCredentials(credential: AuthCredential, fromFacebook: Boolean){
         view?.showProgress(true)
-        loginWithCredentialsInteractor
+        compositeDisposable.add(loginWithCredentialsInteractor
                 .loginAuthWithCredentials(credential)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -96,12 +104,12 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                         view?.showError(R.string.loginErrorGmail)
                 },{
                     view?.showProgress(false)
-                })
+                }))
     }
 
     override fun loadRegions() {
         view?.showProgress(true)
-        getAllRegionInteractor
+        compositeDisposable.add(getAllRegionInteractor
                 .getFirebaseDataAllRegions()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -117,7 +125,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.loginErrorLoadingRegion)
-                })
+                }))
     }
 
     override fun getRegions(): ArrayList<Region>{
@@ -135,7 +143,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
 
     fun hasChoosenARegion(userId: String, fromFacebook: Boolean){
         view?.showProgress(true)
-        getSingleUserInteractor
+        compositeDisposable.add(getSingleUserInteractor
                 .getFirebaseDataSingleUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -152,12 +160,12 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 },{
                     view?.showProgress(false)
                     view?.chooseRegion(fromFacebook)
-                })
+                }))
     }
 
     override fun getSingleUser(userId: String) {
         view?.showProgress(true)
-        getSingleUserInteractor
+        compositeDisposable.add(getSingleUserInteractor
                 .getFirebaseDataSingleUser(userId)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -167,12 +175,12 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.loginErrorLoadingUsers)
-                })
+                }))
     }
 
     override fun getUsersData(userId: String,user: User) {
         view?.showProgress(true)
-        getAllUsersInteractor
+        compositeDisposable.add(getAllUsersInteractor
                 .getFirebaseDataAllUsers()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeOn(Schedulers.io())
@@ -192,7 +200,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.loginErrorLoadingUsers)
-                })
+                }))
     }
 
     override fun saveUserInFirebaseDB(userId: String,user: User) {

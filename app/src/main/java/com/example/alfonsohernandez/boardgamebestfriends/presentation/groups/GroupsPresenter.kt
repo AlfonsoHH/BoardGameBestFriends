@@ -17,7 +17,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseP
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
@@ -40,12 +42,23 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     private val TAG = "GroupsPresenter"
 
-    var notLoading = false
     var adapterList = arrayListOf<Group>()
+
+    var compositeDisposable = CompositeDisposable()
+
+    fun unsetViewFragment(){
+        this.view = null
+        compositeDisposable.clear()
+    }
+
+    fun unsetView(){
+        this.view = null
+        compositeDisposable.dispose()
+    }
 
     fun setView(view: GroupsContract.View?) {
         this.view = view
-        getGroupsData()
+        getGroupsDataRx()
         fcmHandler.push = this
     }
 
@@ -61,58 +74,54 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
         newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
     }
 
-    fun getGroupsData() {
-        getUserProfile()?.let {
+    fun getGroupsDataRx() {
+        adapterList = arrayListOf()
+        getUserProfile()?.let {usr ->
             view?.showProgress(true)
-            getUserGroupsInteractor
-                    .getFirebaseDataUserGroups(it.id)
+            compositeDisposable.add(getUserGroupsInteractor
+                    .getFirebaseDataUserGroups(usr.id).toObservable()
+                    .flatMapIterable { it.children }
+                    .flatMap { getSingleGroupDataRx(it.key) }
+                    .toList()
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribeOn(Schedulers.io())
                     .subscribe({
                         view?.showProgress(false)
-                        notLoading = false
-                        adapterList = arrayListOf()
-                        for (h in it.children) {
-                            getSingleGroupData(h.key)
-                        }
-                        notLoading = true
-                    }, {
-                        view?.showProgress(false)
-                        view?.showError(R.string.groupsErrorLoading)
-                    },{
-                        view?.showProgress(false)
-                    })
-        }
-    }
-
-    fun getSingleGroupData(groupId: String) {
-        view?.showProgress(true)
-        getSingleGroupInteractor
-                .getFirebaseDataSingleGroup(groupId)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    SetTopicInteractor.setFCMtopic(groupId)
-                    view?.showProgress(false)
-                    val group = it.getValue(Group::class.java)
-                    group?.let { grp ->
-                        var meetingsCount = 0
-                        for (meeting in paperMeetingsInteractor.all()) {
-                            if (meeting.groupId.equals(grp.id))
-                                meetingsCount = meetingsCount + 1
-                        }
-                        grp.meetings = meetingsCount
-                        adapterList.add(grp)
-                    }
-                    if(notLoading) {
                         paperGroupsInteractor.clear()
                         paperGroupsInteractor.addAll(adapterList)
                         view?.setData(paperGroupsInteractor.all())
+                    }, {
+                        view?.showProgress(false)
+                        view?.showError(R.string.groupsErrorLoading)
+                    }))
+        }
+    }
+
+    fun getSingleGroupDataRx(groupId: String): Observable<Boolean> {
+        return Observable.create { obs ->
+            getSingleGroupInteractor
+                    .getFirebaseDataSingleGroup(groupId)
+                    .map {
+                        SetTopicInteractor.setFCMtopic(groupId)
+                        val group = it.getValue(Group::class.java)
+                        group?.let { grp ->
+                            var meetingsCount = 0
+                            for (meeting in paperMeetingsInteractor.all()) {
+                                if (meeting.groupId.equals(grp.id))
+                                    meetingsCount = meetingsCount + 1
+                            }
+                            grp.meetings = meetingsCount
+                            adapterList.add(grp)
+                        }
                     }
-                },{
-                    view?.showProgress(false)
-                    view?.showError(R.string.groupsErrorLoading)
-                })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(Schedulers.io())
+                    .subscribe({
+                        obs.onNext(true)
+                        obs.onComplete() },
+                            { obs.onError(it) },
+                            { obs.onComplete() })
+        }
     }
 
     override fun updateGroupsFromCache() {
