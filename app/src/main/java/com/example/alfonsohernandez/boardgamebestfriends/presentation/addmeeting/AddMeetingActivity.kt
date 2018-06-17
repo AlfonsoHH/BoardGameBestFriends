@@ -47,6 +47,8 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_meeting)
 
+        //COMMENT RANDOM TO TEST
+
         setSupportActionBar(addMeetingToolbar)
         supportActionBar?.setTitle(getString(R.string.addMeetingToolbarTitle))
         supportActionBar?.setIcon(R.drawable.toolbarbgbf)
