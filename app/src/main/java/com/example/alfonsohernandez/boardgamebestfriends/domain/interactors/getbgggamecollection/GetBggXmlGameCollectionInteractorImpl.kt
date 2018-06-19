@@ -6,6 +6,6 @@ import io.reactivex.Single
 
 class GetBggXmlGameCollectionInteractorImpl (private val bggXmlApi: BggXMLapi) : GetBggXmlGameCollectionInteractor {
     override fun getGameCollectionXML(bggId: String): Single<Items> {
-        return bggXmlApi.getGameColletionRxJava(bggId,"1","boardgame")
+        return bggXmlApi.getGameColletionRxJava(bggId,"1","boardgameexpansion")
     }
 }

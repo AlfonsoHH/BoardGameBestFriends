@@ -21,7 +21,6 @@ interface PlacesContract {
     interface Presenter {
 
         fun getRegion(): LatLng?
-        fun loadPlacesData()
         fun setPlacesData()
         fun getPlacesData(): ArrayList<Place>
         fun removePlace(place: Place)

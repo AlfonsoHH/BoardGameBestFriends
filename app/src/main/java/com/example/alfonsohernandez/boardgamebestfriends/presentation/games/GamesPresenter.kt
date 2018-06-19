@@ -210,6 +210,8 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 }, {
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
+                },{
+                    view?.showProgress(false)
                 }))
     }
 

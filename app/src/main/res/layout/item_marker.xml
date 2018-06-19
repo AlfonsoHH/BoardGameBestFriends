@@ -2,14 +2,15 @@
 <LinearLayout android:orientation="vertical"
     android:gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="200dp"
-    android:layout_height="240dp"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:padding="10dp"
         android:orientation="vertical"
         android:background="@color/lightGrey"
@@ -17,7 +18,7 @@
 
         <TextView
             android:id="@+id/itemMarkerTVtitle"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Name of the Place"
             android:textAlignment="center"
@@ -26,7 +27,7 @@
 
         <TextView
             android:id="@+id/itemMarkerTVaddress"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             tools:text="Address"
             android:textAlignment="center"
@@ -82,9 +83,8 @@
     </FrameLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="100dp"
-        android:layout_weight="1"
         android:orientation="horizontal"
         android:gravity="center">
 

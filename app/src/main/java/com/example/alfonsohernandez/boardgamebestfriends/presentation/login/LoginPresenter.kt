@@ -11,6 +11,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.fire
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetSingleUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.ModifyUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperregions.PaperRegionsInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.topic.SetTopicInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.SaveUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
@@ -38,6 +39,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                                          private val addUserInteractor: AddUserInteractor,
                                          private val modifyUserInteractor: ModifyUserInteractor,
                                          private val getAllRegionInteractor: GetAllRegionInteractor,
+                                         private val setTopicInteractor: SetTopicInteractor,
                                          private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): LoginContract.Presenter, BasePresenter<LoginContract.View>() {
 
     private val TAG = "LoginPresenter"
@@ -228,6 +230,7 @@ class LoginPresenter @Inject constructor(private val getUserProfileInteractor: G
                 .save(user)
                 .subscribe({
                     firebaseEvent("Login in", TAG)
+                    setTopicInteractor.setFCMtopic(user.id)
                     view?.nextActivity()
                 },{
                     view?.showError(R.string.loginErrorSavingUser)

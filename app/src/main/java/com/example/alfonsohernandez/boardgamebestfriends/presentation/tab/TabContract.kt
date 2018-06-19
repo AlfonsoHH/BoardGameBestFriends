@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.tab
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Region
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
 
 /**

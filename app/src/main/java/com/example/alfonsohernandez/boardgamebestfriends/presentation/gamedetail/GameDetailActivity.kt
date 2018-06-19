@@ -10,12 +10,13 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.injection.module
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.activity_game_detail.*
 import javax.inject.Inject
 
-class GameDetailActivity : AppCompatActivity(), GameDetailContract.View {
+class GameDetailActivity : BaseNotificationActivity(), GameDetailContract.View {
 
     private val TAG = "GameDetailActivity"
 
@@ -44,8 +45,8 @@ class GameDetailActivity : AppCompatActivity(), GameDetailContract.View {
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     fun injectDependencies() {

@@ -55,7 +55,8 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:hint="@string/chatTypeHint"/>
+                android:hint="@string/chatTypeHint"
+                android:maxLength="40"/>
 
         </LinearLayout>
 

@@ -27,7 +27,6 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                                           private val getUserProfileInteractor: GetUserProfileInteractor,
                                           private val paperRegionsInteractor: PaperRegionsInteractor,
                                           private val paperPlacesInteractor: PaperPlacesInteractor,
-                                          private val getPlacesInteractor: GetPlacesInteractor,
                                           private val removePlaceInteractor: RemovePlaceInteractor,
                                           private val newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor
                                         ) : PlacesContract.Presenter,
@@ -49,7 +48,6 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     fun setView(view: PlacesContract.View?) {
         this.view = view
-        loadPlacesData()
         fcmHandler.push = this
     }
 
@@ -75,39 +73,6 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 return LatLng(0.0, 0.0)
         }else {
             return LatLng(0.0, 0.0)
-        }
-    }
-
-    override fun loadPlacesData() {
-        getUserProfile()?.let { user ->
-            view?.showProgress(true)
-            compositeDisposable.add(getPlacesInteractor
-                    .getFirebaseDataOpenPlaces(user.regionId)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribeOn(Schedulers.io())
-                    .subscribe({
-                        view?.showProgress(false)
-                        val placesList = arrayListOf<Place>()
-                        for (h in it.children) {
-                            val place = h.getValue(Place::class.java)
-                            if (place != null) {
-                                if (place.openPlace)
-                                    placesList.add(place)
-                                if (!place.openPlace && place.ownerId.equals(user.id))
-                                    placesList.add(place)
-                            }
-                        }
-                        paperPlacesInteractor.clear()
-                        paperPlacesInteractor.addAll(placesList)
-//                        setPlacesData()
-                    }, {
-                        view?.showProgress(false)
-                        view?.showError(R.string.placesErrorPlaces)
-                    },{
-                        paperPlacesInteractor.clear()
-//                        setPlacesData()
-                        view?.showProgress(false)
-                    }))
         }
     }
 

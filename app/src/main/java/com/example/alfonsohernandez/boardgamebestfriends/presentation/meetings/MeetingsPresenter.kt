@@ -96,6 +96,7 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
         view?.getSearchData()?.let {
             search = it
         }
+
         if (kind.contains("buddy-"))
             loadAllMeetings("buddy-")
         else if (kind.contains("group-"))
@@ -104,6 +105,8 @@ class MeetingsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
             loadAllMeetings("place-")
         else
             loadAllMeetings("")
+
+        //subscribeMeetings()
     }
 
     override fun cacheDataChooser() {

@@ -161,7 +161,9 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:inputType="textPersonName"
-                android:hint="@string/addMeetingTitleHint" />
+                android:hint="@string/addMeetingTitleHint"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+                android:maxLength="20"/>
 
         </LinearLayout>
 
@@ -188,7 +190,9 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="@string/addMeetingDescriptionHint" />
+            android:hint="@string/addMeetingDescriptionHint"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+            android:maxLength="40"/>
 
         </LinearLayout>
 

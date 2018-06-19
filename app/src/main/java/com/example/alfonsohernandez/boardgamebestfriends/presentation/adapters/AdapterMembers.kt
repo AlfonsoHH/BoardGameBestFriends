@@ -49,6 +49,8 @@ class AdapterMembers : RecyclerView.Adapter<AdapterMembers.ViewHolder>() {
                         .load(member.photo)
                         .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
                         .into(photo)
+            }else{
+                photo.setImageResource(R.drawable.profile)
             }
 
             itemView.setOnClickListener({

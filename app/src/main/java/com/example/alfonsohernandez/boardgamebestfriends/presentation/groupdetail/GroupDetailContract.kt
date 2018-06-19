@@ -12,6 +12,7 @@ interface GroupDetailContract {
 
         fun setGroupData(group: Group)
         fun setFriendData(user: User)
+        fun clearFriendsData()
 
     }
 

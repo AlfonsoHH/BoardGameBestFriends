@@ -85,8 +85,8 @@ class AddGroupActivity : BasePermissionActivity(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     fun addGroup(){

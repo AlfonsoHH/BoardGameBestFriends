@@ -79,7 +79,18 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
 
     override fun getMeetingData(meetingId: String) {
         paperMeetingsInteractor.get(meetingId)?.let { meeting ->
-            view?.setData(meeting, paperPlacesInteractor.get(meeting.placeId)!!,paperGroupsInteractor.get(meeting.groupId)!!, paperGamesInteractor.get(meeting.gameId)!!)
+            paperPlacesInteractor.get(meeting.placeId)?.let { place ->
+                var group = paperGroupsInteractor.get(meeting.groupId)
+                if (group != null){
+                    paperGamesInteractor.get(meeting.gameId)?.let { game ->
+                        view?.setData(meeting, place, group, game)
+                    }
+                }else {
+                    paperGamesInteractor.get(meeting.gameId)?.let { game ->
+                        view?.setData(meeting, place, Group("", "url", "Open"), game)
+                    }
+                }
+            }
         }
     }
 

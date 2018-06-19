@@ -8,6 +8,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdetai
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.google.firebase.messaging.RemoteMessage
+import android.app.PendingIntent
+import android.os.Bundle
+
 
 class NotificationFilter(activity: Activity, rm: RemoteMessage) {
 
@@ -79,7 +82,7 @@ class NotificationFilter(activity: Activity, rm: RemoteMessage) {
         if(title.contains("Meeting modified") || title.contains("Meeting starting soon")) {
             Snacktory.snacktoryBase(activity, text, Runnable {
                 var intent = Intent(activity, MeetingDetailActivity::class.java)
-                var extras = intent.extras
+                var extras = Bundle()
                 extras.putString("id", topic)
                 startActivity(activity,intent,extras)
             })

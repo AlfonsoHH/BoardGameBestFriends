@@ -245,7 +245,8 @@
             android:src="@drawable/addmember"
             android:layout_gravity="center|bottom"
             android:layout_margin="@dimen/fab_margin"
-            android:elevation="40dp"/>
+            android:elevation="40dp"
+            android:visibility="gone"/>
 
     </FrameLayout>
 

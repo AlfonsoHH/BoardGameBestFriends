@@ -28,6 +28,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
@@ -36,7 +37,7 @@ import kotlinx.android.synthetic.main.activity_meeting_detail.*
 import javax.inject.Inject
 
 
-class MeetingDetailActivity : AppCompatActivity(),
+class MeetingDetailActivity : BaseNotificationActivity(),
         MeetingDetailContract.View,
         View.OnClickListener{
 
@@ -72,18 +73,23 @@ class MeetingDetailActivity : AppCompatActivity(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.goToGroups()
-        nf.goToGroupDetail()
-        nf.goToMeetings()
-        if(meetingId.equals(nf.topic)) {
+        setNotificacion(rm)
+        chat()
+        goToGroups()
+        goToGroupDetail()
+        goToMeetings()
+        addedToNewGroup()
+        if(meetingId.equals(topic)) {
             if (rm.notification!!.title!!.contains("Meeting modified")) {
-                presenter.getMeetingData(meetingId)
-                Snacktory.snacktoryNoAction(this, nf.text)
+                runOnUiThread(object: Runnable {
+                    override fun run() {
+                        presenter.getMeetingData(meetingId)
+                        Snacktory.snacktoryNoAction(this@MeetingDetailActivity, text)
+                    }
+                })
             }
         }else{
-            nf.goToMeetingDetail()
+            goToMeetingDetail()
         }
     }
 

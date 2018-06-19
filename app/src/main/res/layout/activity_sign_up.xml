@@ -51,7 +51,9 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="@string/signUpHintUser" />
+            android:hint="@string/signUpHintUser"
+            android:maxLength="30"
+            android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "/>
 
         <EditText
             android:id="@+id/signUpTVemail"
@@ -59,7 +61,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textEmailAddress"
-            android:hint="@string/signUpHintEmail" />
+            android:hint="@string/signUpHintEmail"
+            android:maxLength="40"/>
 
         <EditText
             android:id="@+id/signUpTVpassword"
@@ -67,7 +70,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="@string/signUpHintPassword" />
+            android:hint="@string/signUpHintPassword"
+            android:maxLength="15"/>
 
         <EditText
             android:id="@+id/signUpTVpasswordConfirm"
@@ -75,7 +79,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:inputType="textPassword"
-            android:hint="@string/signUpHintPasswordConfirm" />
+            android:hint="@string/signUpHintPasswordConfirm"
+            android:maxLength="15"/>
 
         <View
             android:layout_width="match_parent"

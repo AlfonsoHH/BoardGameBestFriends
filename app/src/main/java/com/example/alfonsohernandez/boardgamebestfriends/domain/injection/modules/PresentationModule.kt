@@ -73,10 +73,14 @@ class PresentationModule {
     @Provides
     @ActivityScope
     fun providesTabPresenter(getUserProfileInteractor: GetUserProfileInteractor,
+                             getPlacesInteractor: GetPlacesInteractor,
+                             paperPlacesInteractor: PaperPlacesInteractor,
                              paperGamesInteractor: PaperGamesInteractor,
                              getAllGamesInteractor: GetAllGamesInteractor,
                              newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): TabContract.Presenter {
         return TabPresenter(getUserProfileInteractor,
+                getPlacesInteractor,
+                paperPlacesInteractor,
                 paperGamesInteractor,
                 getAllGamesInteractor,
                 newUseFirebaseAnalyticsInteractor)
@@ -144,14 +148,12 @@ class PresentationModule {
                                 getUserProfileInteractor: GetUserProfileInteractor,
                                 paperRegionsInteractor: PaperRegionsInteractor,
                                 paperPlacesInteractor: PaperPlacesInteractor,
-                                getPlacesInteractor: GetPlacesInteractor,
                                 removePlaceInteractor: RemovePlaceInteractor,
                                 newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): PlacesContract.Presenter {
         return PlacesPresenter(fcmHandler,
                 getUserProfileInteractor,
                 paperRegionsInteractor,
                 paperPlacesInteractor,
-                getPlacesInteractor,
                 removePlaceInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
@@ -381,6 +383,7 @@ class PresentationModule {
                                addUserInteractor: AddUserInteractor,
                                modifyUserInteractor: ModifyUserInteractor,
                                getAllRegionInteractor: GetAllRegionInteractor,
+                               setTopicInteractor: SetTopicInteractor,
                                newUseFirebaseAnalyticsInteractor: NewUseFirebaseAnalyticsInteractor): LoginContract.Presenter {
         return LoginPresenter(getUserProfileInteractor,
                 getCurrentAuthUserInteractor,
@@ -393,6 +396,7 @@ class PresentationModule {
                 addUserInteractor,
                 modifyUserInteractor,
                 getAllRegionInteractor,
+                setTopicInteractor,
                 newUseFirebaseAnalyticsInteractor)
     }
 

@@ -16,6 +16,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addplace.AddPlaceActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
@@ -24,7 +25,9 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_place_detail.*
 import javax.inject.Inject
 
-class PlaceDetailActivity : AppCompatActivity(), PlaceDetailContract.View, View.OnClickListener {
+class PlaceDetailActivity : BaseNotificationActivity(),
+        PlaceDetailContract.View,
+        View.OnClickListener {
 
     private val TAG = "PlaceDetailActivity"
     var placeId = ""
@@ -57,8 +60,8 @@ class PlaceDetailActivity : AppCompatActivity(), PlaceDetailContract.View, View.
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     override fun onClick(v: View?) {

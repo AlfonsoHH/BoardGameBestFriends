@@ -25,7 +25,7 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_sign_up.*
 import java.io.File
 
-abstract class BasePermissionActivity: AppCompatActivity() {
+abstract class BasePermissionActivity: BaseNotificationActivity() {
 
     fun askForPermissionLocation(activity: Activity){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

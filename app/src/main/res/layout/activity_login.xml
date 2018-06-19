@@ -95,7 +95,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textEmailAddress"
-        android:hint="@string/loginMailHint"/>
+        android:hint="@string/loginMailHint"
+        android:maxLength="40"/>
 
     <EditText
         android:id="@+id/loginETpassword"
@@ -103,7 +104,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword"
-        android:hint="@string/loginPasswordHint"/>
+        android:hint="@string/loginPasswordHint"
+        android:maxLength="15"/>
 
     <View
         android:layout_width="match_parent"

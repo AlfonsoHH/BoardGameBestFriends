@@ -20,7 +20,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMeetings
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdetail.GroupDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
@@ -34,6 +36,10 @@ class MeetingsFragment : Fragment(),
         View.OnClickListener,
         SearchView.OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener {
+
+    var topic = ""
+    var title = ""
+    var text = ""
 
     @Inject
     lateinit var presenter: MeetingsPresenter
@@ -67,14 +73,24 @@ class MeetingsFragment : Fragment(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(activity!!,rm)
-        nf.chat()
-        nf.goToMeetingDetail()
-        nf.goToGroupDetail()
-        nf.goToGroups()
-        if(nf.title.contains("Meeting removed")){
-            presenter.initialDataChooser()
-            Snacktory.snacktoryNoAction(activity!!, nf.text)
+        topic = rm.from!!
+        topic = topic.substring(8, topic.length)
+        title = rm.notification!!.title!!
+        text = rm.notification!!.title + "\n" + rm.notification!!.body
+
+        chat()
+        goToGroupDetail()
+        goToGroups()
+        goToMeetingDetail()
+        addedToNewGroup()
+
+        if(title.contains("Meeting removed")){
+            activity!!.runOnUiThread(object: Runnable {
+                override fun run() {
+                    presenter.initialDataChooser()
+                    Snacktory.snacktoryNoAction(activity!!, text)
+                }
+            })
         }
     }
 
@@ -184,5 +200,51 @@ class MeetingsFragment : Fragment(),
     override fun onResume() {
         super.onResume()
         presenter.cacheDataChooser()
+    }
+
+    fun chat() {
+        if (title.contains("Chat")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, ChatActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToGroupDetail(){
+        if(title.contains("Group user")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, GroupDetailActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToGroups(){
+        if(title.contains("Group removed")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, TabActivity::class.java)
+                intent.putExtra("otherTab", 1)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun addedToNewGroup(){
+        if(title.contains("Added to:")){
+            Snacktory.snacktoryNoAction(activity!!,text)
+        }
+    }
+
+    fun goToMeetingDetail(){
+        if(title.contains("Meeting modified") || title.contains("Meeting starting soon")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, MeetingDetailActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
     }
 }

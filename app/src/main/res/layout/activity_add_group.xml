@@ -54,7 +54,9 @@
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textSize="18sp"
-                android:hint="@string/addGroupTitleHint"/>
+                android:hint="@string/addGroupTitleHint"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+                android:maxLength="20"/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -71,7 +73,9 @@
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textSize="18sp"
-                android:hint="@string/addGroupDescriptionHint"/>
+                android:hint="@string/addGroupDescriptionHint"
+                android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
+                android:maxLength="30"/>
 
         </LinearLayout>
 

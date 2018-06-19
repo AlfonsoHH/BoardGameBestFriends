@@ -84,7 +84,7 @@ class AdapterChat: RecyclerView.Adapter<AdapterChat.ViewHolder>() {
                                 .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
                                 .into(photo ?: return)
                     } else {
-
+                        photo!!.setImageResource(R.drawable.profile)
                     }
                 }
             }

@@ -30,9 +30,11 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.messaging.RemoteMessage
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken

@@ -23,7 +23,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup.AddGroupActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
@@ -33,7 +35,10 @@ import jp.wasabeef.glide.transformations.CropCircleTransformation
 import kotlinx.android.synthetic.main.activity_group_detail.*
 import javax.inject.Inject
 
-class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.OnClickListener {
+class GroupDetailActivity : BaseNotificationActivity(),
+        GroupDetailContract.View,
+        View.OnClickListener,
+        DialogFactory.DialogInputCallback{
 
     private val TAG = "GroupDetailActivity"
     var groupId: String = ""
@@ -68,18 +73,24 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.chat()
-        nf.goToGroups()
-        nf.goToGroupDetail()
-        nf.goToMeetings()
-        if(groupId.equals(nf.topic)) {
+        setNotificacion(rm)
+        chat()
+        goToGroups()
+        goToMeetingDetail()
+        goToMeetings()
+        addedToNewGroup()
+        if(groupId.equals(topic)) {
             if (rm.notification!!.title!!.contains("Group user")) {
-                presenter.getMembersData(groupId)
-                Snacktory.snacktoryNoAction(this, nf.text)
+                runOnUiThread(object: Runnable {
+                    override fun run() {
+                        clearFriendsData()
+                        presenter.getMembersData(groupId)
+                        Snacktory.snacktoryNoAction(this@GroupDetailActivity, text)
+                    }
+                })
             }
         }else{
-            nf.goToMeetingDetail()
+            goToGroupDetail()
         }
     }
 
@@ -139,22 +150,19 @@ class GroupDetailActivity : AppCompatActivity(), GroupDetailContract.View, View.
             fab.setVisibility(true)
             fab.setOnClickListener(object : View.OnClickListener {
                 override fun onClick(v: View?) {
-                    val builder = AlertDialog.Builder(this@GroupDetailActivity)
-                    builder.setTitle(getString(R.string.groupDetailDialog))
-
-                    val input = EditText(applicationContext)
-                    input.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-                    builder.setView(input)
-
-                    builder.setPositiveButton(getString(R.string.groupDetailDialogAccept)) { dialog, which -> presenter.getFriendFromMailData(input.text.toString()) }
-                    builder.setNegativeButton(getString(R.string.groupDetailDialogCancel)) { dialog, which -> dialog.cancel() }
-
-                    val dialog = builder.create()
-                    dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
-                    dialog.show()
+                    DialogFactory.callbackInput = this@GroupDetailActivity
+                    DialogFactory.buildInputDialog(this@GroupDetailActivity,getString(R.string.groupDetailDialog)).show()
                 }
             })
         }
+    }
+
+    override fun getDialogInput(input: String) {
+        presenter.getFriendFromMailData(input)
+    }
+
+    override fun clearFriendsData() {
+        adapter.memberList.clear()
     }
 
     override fun setFriendData(user: User) {

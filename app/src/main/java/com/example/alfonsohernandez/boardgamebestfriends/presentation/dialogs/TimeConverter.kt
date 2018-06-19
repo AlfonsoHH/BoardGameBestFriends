@@ -7,7 +7,7 @@ import java.text.SimpleDateFormat
 class TimeConverter (private val context: Context) {
 
     fun convertHoursToString(openMor: String, closeMor: String, aftDif: Boolean, openAft: String, closeAft: String): String{
-        if (!openMor.equals("") && !closeMor.equals("") && SimpleDateFormat("hh:MM").parse(openMor).before(SimpleDateFormat("hh:MM").parse(closeMor))) {
+        if (!openMor.equals("") && !closeMor.equals("") && (openMor.substring(0,2).toInt() < closeMor.substring(0,2).toInt() || (openMor.substring(0,2).toInt() == closeMor.substring(0,2).toInt() && openMor.substring(3,5).toInt() < closeMor.substring(3,5).toInt()))) {
             return convertHours(openMor, closeMor, aftDif, openAft, closeAft)
         } else {
             return ""

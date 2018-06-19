@@ -48,7 +48,7 @@ class ApiModule() {
             val response = chain.proceed(request)
             if (response.code() == 202) {
                 val newRequest = request.newBuilder().build()
-                Thread.sleep(2000)
+                Thread.sleep(3000)
                 return chain.proceed(newRequest)
             } else {
                 return response

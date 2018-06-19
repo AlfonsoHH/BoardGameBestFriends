@@ -36,6 +36,8 @@ interface AddPlaceContract {
 
         fun getPlace(placeId: String)
 
+        fun oppositeRules(firstRule: Int, secondRule: Int, thirdRule: Int): Boolean
+
     }
 
 }

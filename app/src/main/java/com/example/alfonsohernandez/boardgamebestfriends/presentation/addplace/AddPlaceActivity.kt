@@ -75,8 +75,8 @@ class AddPlaceActivity : BasePermissionActivity(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     fun injectDependencies() {
@@ -119,43 +119,51 @@ class AddPlaceActivity : BasePermissionActivity(),
 
     fun addModifyPlace(){
         if(!addPlaceETtitle.text.toString().equals("") && !addPlaceETaddress.text.toString().equals("") && (!url.equals("url") || photoModified)) {
-            var open: Boolean = false
-            var hours1: String? = null
-            var hours2: String? = null
-            var hours3: String? = null
-            if (!kind.equals("My Place")) {
-                open = true
-                if (!addPlaceTVhours1.text.toString().equals(""))
-                    hours1 = addPlaceTVdays1.text.toString() + "_" + addPlaceTVhours1.text.toString()
-                if (!addPlaceTVhours2.text.toString().equals(""))
-                    hours2 = addPlaceTVdays2.text.toString() + "_" + addPlaceTVhours2.text.toString()
-                if (!addPlaceTVhours3.text.toString().equals(""))
-                    hours3 = addPlaceTVdays3.text.toString() + "_" + addPlaceTVhours3.text.toString()
-            }
-            addPlaceIVphoto.setDrawingCacheEnabled(true)
-            addPlaceIVphoto.buildDrawingCache()
-            val bitmap = (addPlaceIVphoto.getDrawable() as BitmapDrawable).getBitmap()
+            if(addPlaceSpinner1.selectedItemPosition != addPlaceSpinner2.selectedItemPosition && addPlaceSpinner1.selectedItemPosition != addPlaceSpinner3.selectedItemPosition && addPlaceSpinner2.selectedItemPosition != addPlaceSpinner3.selectedItemPosition) {
+                if(presenter.oppositeRules(addPlaceSpinner1.selectedItemPosition,addPlaceSpinner2.selectedItemPosition,addPlaceSpinner3.selectedItemPosition)) {
+                    var open: Boolean = false
+                    var hours1: String? = null
+                    var hours2: String? = null
+                    var hours3: String? = null
+                    if (!kind.equals("My Place")) {
+                        open = true
+                        if (!addPlaceTVhours1.text.toString().equals(""))
+                            hours1 = addPlaceTVdays1.text.toString() + "_" + addPlaceTVhours1.text.toString()
+                        if (!addPlaceTVhours2.text.toString().equals(""))
+                            hours2 = addPlaceTVdays2.text.toString() + "_" + addPlaceTVhours2.text.toString()
+                        if (!addPlaceTVhours3.text.toString().equals(""))
+                            hours3 = addPlaceTVdays3.text.toString() + "_" + addPlaceTVhours3.text.toString()
+                    }
+                    addPlaceIVphoto.setDrawingCacheEnabled(true)
+                    addPlaceIVphoto.buildDrawingCache()
+                    val bitmap = (addPlaceIVphoto.getDrawable() as BitmapDrawable).getBitmap()
 
-            presenter.getUserProfile()?.let {
-                val place = Place(id, url,
-                        addPlaceETtitle.text.toString(), addPlaceETaddress.text.toString(),
-                        0.0, 0.0,
-                        addPlaceSpinner1.selectedItemId.toInt(), addPlaceSpinner2.selectedItemId.toInt(), addPlaceSpinner3.selectedItemId.toInt(),
-                        it.id,
-                        open,
-                        hours1, hours2, hours3)
+                    presenter.getUserProfile()?.let {
+                        val place = Place(id, url,
+                                addPlaceETtitle.text.toString(), addPlaceETaddress.text.toString(),
+                                0.0, 0.0,
+                                addPlaceSpinner1.selectedItemId.toInt(), addPlaceSpinner2.selectedItemId.toInt(), addPlaceSpinner3.selectedItemId.toInt(),
+                                it.id,
+                                open,
+                                hours1, hours2, hours3)
 
-                if (action.equals("modify")) {
-                    presenter.saveImage(place,
-                            bitmap,
-                            photoModified,
-                            true)
-                } else {
-                    presenter.saveImage(place,
-                            bitmap,
-                            photoModified,
-                            false)
+                        if (action.equals("modify")) {
+                            presenter.saveImage(place,
+                                    bitmap,
+                                    photoModified,
+                                    true)
+                        } else {
+                            presenter.saveImage(place,
+                                    bitmap,
+                                    photoModified,
+                                    false)
+                        }
+                    }
+                }else{
+                    showError(R.string.addPlaceErrorRulesOpposite)
                 }
+            }else{
+                showError(R.string.addPlaceErrorRulesDifferent)
             }
         }else{
             showError(R.string.addPlaceErrorEmpty)
@@ -183,6 +191,10 @@ class AddPlaceActivity : BasePermissionActivity(),
                     .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
                     .into(addPlaceIVphoto)
             url = place.photo
+        }
+
+        if(place.openPlace){
+            addPlaceLLopen.setVisibility(false)
         }
 
         addPlaceETtitle.setText(place.name)

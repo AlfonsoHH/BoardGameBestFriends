@@ -10,6 +10,6 @@ interface BggXMLapi {
     fun getGameDetailRxJava(@Query("id") id: String,@Query("stats") stats: String): Single<com.example.alfonsohernandez.boardgamebestfriends.domain.models.XMLgameDetail.Items>
 
     @GET("/xmlapi2/collection")
-    fun getGameColletionRxJava(@Query("username") username: String,@Query("own") own: String,@Query("subtype") subtype: String): Single<com.example.alfonsohernandez.boardgamebestfriends.domain.models.XMLgameCollection.Items>
+    fun getGameColletionRxJava(@Query("username") username: String,@Query("own") own: String,@Query("excludesubtype") excludesubtype: String): Single<com.example.alfonsohernandez.boardgamebestfriends.domain.models.XMLgameCollection.Items>
 
 }

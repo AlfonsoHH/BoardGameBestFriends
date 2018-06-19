@@ -171,4 +171,25 @@ class AddPlacePresenter @Inject constructor(private val fcmHandler: FCMHandler,
     override fun getRealPathFromURI(contentUri: Uri): String {
         return getPathFromUriInteractor.getPathFromUri(contentUri)
     }
+
+    override fun oppositeRules(firstRule: Int, secondRule: Int, thirdRule: Int): Boolean{
+        var notOpposite = true
+        if(nextOne(firstRule,secondRule,thirdRule) || nextOne(secondRule,firstRule,thirdRule) || nextOne(thirdRule,firstRule,secondRule))
+            notOpposite =false
+        return notOpposite
+    }
+
+    fun nextOne(a:Int,b:Int,c:Int): Boolean{
+        var consecutive = false
+        if(a != 6) {
+            if (a % 2 == 0) {
+                if (a == b - 1 || a == c - 1)
+                    consecutive = true
+            } else {
+                if (a == b + 1 || a == c + 1)
+                    consecutive = true
+            }
+        }
+        return consecutive
+    }
 }

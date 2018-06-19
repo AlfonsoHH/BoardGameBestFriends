@@ -12,6 +12,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Message
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterChat
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.FirebaseDatabase
@@ -25,7 +26,7 @@ import javax.inject.Inject
 
 
 
-class ChatActivity : AppCompatActivity(),
+class ChatActivity : BaseNotificationActivity(),
         ChatContract.View,
         View.OnClickListener{
 
@@ -58,13 +59,14 @@ class ChatActivity : AppCompatActivity(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        if(!nf.topic.equals(groupId))
-            nf.chat()
-        nf.goToGroups()
-        nf.goToGroupDetail()
-        nf.goToMeetings()
-        nf.goToMeetingDetail()
+        setNotificacion(rm)
+        if(!topic.equals(groupId))
+            chat()
+        goToGroups()
+        goToGroupDetail()
+        goToMeetings()
+        goToMeetingDetail()
+        addedToNewGroup()
     }
 
     fun injectDependencies() {

@@ -20,6 +20,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.google.firebase.messaging.RemoteMessage
 import jp.wasabeef.glide.transformations.CropCircleTransformation
@@ -29,7 +30,7 @@ import java.util.*
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
-class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
+class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
 
     private val TAG = "AddMeetingActivity"
 
@@ -75,8 +76,8 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     fun injectDependencies() {
@@ -93,10 +94,12 @@ class AddMeetingActivity : AppCompatActivity(), AddMeetingContract.View {
         addMeetingTVdate.text = meeting.date.substring(6, meeting.date.length)
         addMeetingETtitle.setText(meeting.title)
         addMeetingETdescription.setText(meeting.description)
-        Glide.with(this)
-                .load(group.photo)
-                .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
-                .into(addMeetingIVwho)
+        if(!group.photo.equals("url")) {
+            Glide.with(this)
+                    .load(group.photo)
+                    .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
+                    .into(addMeetingIVwho)
+        }
         addMeetingTVwho.setVisibility(true)
         addMeetingTVwho.text = group.title
         Glide.with(this)

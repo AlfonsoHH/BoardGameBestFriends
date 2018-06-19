@@ -58,6 +58,9 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     fun setView(view: GroupsContract.View?) {
         this.view = view
+//        for(group in adapterList){
+//            ClearTopicInteractor.clearFCMtopic(group.id)
+//        }
         getGroupsDataRx()
         fcmHandler.push = this
     }

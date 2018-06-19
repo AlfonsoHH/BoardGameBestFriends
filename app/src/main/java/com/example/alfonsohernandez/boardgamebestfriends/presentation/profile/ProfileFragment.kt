@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,6 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addplace.AddPlaceActivity
-import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePermissionFragment
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.games.GamesActivity
@@ -36,11 +34,10 @@ import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdet
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.placedetail.PlaceDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.signup.SignUpActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.tab.TabActivity
-import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
-import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.facebook.login.LoginManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.iid.FirebaseInstanceId
 import com.google.firebase.messaging.RemoteMessage
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
@@ -57,6 +54,10 @@ class ProfileFragment : Fragment(),
         ProfileContract.View,
         DialogFactory.CitySelectedCallback,
         View.OnClickListener{
+
+    var topic = ""
+    var title = ""
+    var text = ""
 
     private val TAG = "ProfileFragment"
 
@@ -83,8 +84,17 @@ class ProfileFragment : Fragment(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(activity!!,rm)
-        nf.allNotifications()
+        topic = rm.from!!
+        topic = topic.substring(8, topic.length)
+        title = rm.notification!!.title!!
+        text = rm.notification!!.title + "\n" + rm.notification!!.body
+
+        chat()
+        goToGroups()
+        goToGroupDetail()
+        goToMeetings()
+        goToMeetingDetail()
+        addedToNewGroup()
     }
 
     override fun onDestroyView() {
@@ -310,4 +320,60 @@ class ProfileFragment : Fragment(),
             dialogCameraGallery()
         }
     }
+
+    fun chat() {
+        if (title.contains("Chat")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, ChatActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToGroupDetail(){
+        if(title.contains("Group user")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, GroupDetailActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToGroups(){
+        if(title.contains("Group removed")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, TabActivity::class.java)
+                intent.putExtra("otherTab", 1)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToMeetings(){
+        if(title.contains("Meeting removed")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, TabActivity::class.java)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun goToMeetingDetail(){
+        if(title.contains("Meeting modified") || title.contains("Meeting starting soon")) {
+            Snacktory.snacktoryBase(activity!!, text, Runnable {
+                var intent = Intent(activity!!, MeetingDetailActivity::class.java)
+                intent.putExtra("id", topic)
+                startActivity(intent)
+            })
+        }
+    }
+
+    fun addedToNewGroup(){
+        if(title.contains("Added to:")){
+            Snacktory.snacktoryNoAction(activity!!,text)
+        }
+    }
+
 }

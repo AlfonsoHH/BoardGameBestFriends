@@ -21,6 +21,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterGames
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.dialogs.DialogFactory
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail.GameDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
@@ -28,7 +29,7 @@ import com.google.firebase.messaging.RemoteMessage
 import kotlinx.android.synthetic.main.activity_games.*
 import javax.inject.Inject
 
-class GamesActivity : AppCompatActivity(),
+class GamesActivity : BaseNotificationActivity(),
         GamesContract.View,
         SearchView.OnQueryTextListener,
         SwipeRefreshLayout.OnRefreshListener,
@@ -97,8 +98,8 @@ class GamesActivity : AppCompatActivity(),
     }
 
     override fun showNotification(rm: RemoteMessage) {
-        var nf = NotificationFilter(this,rm)
-        nf.allNotifications()
+        setNotificacion(rm)
+        allNotifications()
     }
 
     fun injectDependencies() {
