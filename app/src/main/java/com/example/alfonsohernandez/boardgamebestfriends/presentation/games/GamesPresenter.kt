@@ -9,9 +9,11 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getb
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamecollection.GetBggXmlGameCollectionInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.getbgggamedetail.GetBggGameDetailInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
+import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Meeting
+import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
@@ -29,6 +31,7 @@ import kotlin.collections.ArrayList
 class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                                          private val getUserProfileInteractor: GetUserProfileInteractor,
                                          private val paperGamesInteractor: PaperGamesInteractor,
+                                         private val paperPlacesInteractor: PaperPlacesInteractor,
                                          private val getUserGamesInteractor: GetUserGamesInteractor,
                                          private val getGroupGamesInteractor: GetGroupGamesInteractor,
                                          private val getPlaceGamesInteractor: GetPlaceGamesInteractor,
@@ -75,6 +78,17 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     override fun firebaseEvent(id: String, activityName: String) {
         newUseFirebaseAnalyticsInteractor.sendingDataFirebaseAnalytics(id,activityName)
+    }
+
+    override fun itIsMyPlace(): Boolean{
+        var myPlace = false
+        getUserProfile()?.let { user ->
+            paperPlacesInteractor.get(kind.substring(6, kind.length))?.let { place ->
+                if (place.ownerId.equals(user.id))
+                    myPlace = true
+            }
+        }
+        return myPlace
     }
 
     override fun getBGGdata(bggId: String) {
@@ -242,6 +256,8 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
+                },{
+                    view?.showProgress(false)
                 }))
     }
 
@@ -271,6 +287,8 @@ class GamesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                 },{
                     view?.showProgress(false)
                     view?.showError(R.string.gamesErrorLoading)
+                },{
+                    view?.showProgress(false)
                 }))
     }
 

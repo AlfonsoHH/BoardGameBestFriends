@@ -97,7 +97,7 @@
     <string name="placesToolbarTitle">Places</string>
     <string name="placesErrorPlaces">Error, unable to load places</string>
     <string name="addPlaceWhen">When?</string>
-    <string name="meetingDetailVacants">VACANTS</string>
+    <string name="meetingDetailVacants"> VACANTS</string>
     <string name="itemMarkerOpen">Open</string>
     <string name="itemMeetingsAssisting">Playing</string>
     <string name="itemMeetingsHosting">Host</string>
@@ -247,5 +247,9 @@
     <string name="addPlaceToolbarTitleModify">Modify Place</string>
     <string name="addPlaceErrorRulesDifferent">Error, you must choose 3 different behaviour rules for your place</string>
     <string name="addPlaceErrorRulesOpposite">Error, you can not choose opposite rules</string>
+    <string name="profileSuccessNewMyPlace">Success, you just added a new personal place associated to this region</string>
+    <string name="addMeetingErrorNoGames">Error, you must choose a valid game</string>
+    <string name="addMeetingNoPersonalGames">No personal games</string>
+    <string name="itemGroupsMeetings">meetings</string>
 
 </resources>

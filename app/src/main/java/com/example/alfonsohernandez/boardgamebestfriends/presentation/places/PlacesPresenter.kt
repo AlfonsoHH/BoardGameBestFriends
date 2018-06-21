@@ -77,11 +77,29 @@ class PlacesPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     }
 
     override fun setPlacesData() {
-        view?.setData(paperPlacesInteractor.all())
+        getUserProfile()?.let { user ->
+            var placesList = arrayListOf<Place>()
+            for (place in paperPlacesInteractor.all()) {
+                if (place.openPlace)
+                    placesList.add(place)
+                if (!place.openPlace && place.ownerId.equals(user.id))
+                    placesList.add(place)
+            }
+            view?.setData(placesList)
+        }
     }
 
     override fun getPlacesData(): ArrayList<Place> {
-        return paperPlacesInteractor.all()
+        var placesList = arrayListOf<Place>()
+        getUserProfile()?.let { user ->
+            for (place in paperPlacesInteractor.all()) {
+                if (place.openPlace)
+                    placesList.add(place)
+                if (!place.openPlace && place.ownerId.equals(user.id))
+                    placesList.add(place)
+            }
+        }
+        return placesList
     }
 
     override fun removePlace(place: Place) {

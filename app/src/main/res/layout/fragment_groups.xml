@@ -31,21 +31,30 @@
                     android:layout_width="match_parent"
                     android:layout_height="10dp"/>
 
+                <FrameLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/rvGroupFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:visibility="gone"/>
+
+                </FrameLayout>
+
             </LinearLayout>
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+
 
 
     </LinearLayout>

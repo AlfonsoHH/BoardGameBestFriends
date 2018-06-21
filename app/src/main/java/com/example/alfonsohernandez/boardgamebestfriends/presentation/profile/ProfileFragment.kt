@@ -130,7 +130,7 @@ class ProfileFragment : Fragment(),
     fun startAddMyPlace() {
         val intent = Intent(activity, AddPlaceActivity::class.java)
         intent.putExtra("kind", "My Place")
-        startActivityForResult(intent, 1)
+        startActivityForResult(intent, 3)
     }
 
     fun injectDependencies() {
@@ -208,7 +208,7 @@ class ProfileFragment : Fragment(),
                     presenter.saveImage(bitmap)
 
                     fragmentProfileIVmodify.setVisibility(false)
-                })
+                }).show()
             }
             R.id.fragmentProfileIVphoto-> {
                 askForPermissions()
@@ -244,6 +244,8 @@ class ProfileFragment : Fragment(),
         }else if(requestCode == 2 && resultCode == Activity.RESULT_OK && data != null){
             val photo = data.extras.get("data") as Bitmap
             setPhotoImage(photo)
+        }else if(requestCode == 3 && resultCode == Activity.RESULT_OK){
+            showSuccess(R.string.profileSuccessNewMyPlace)
         }
     }
 

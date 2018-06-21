@@ -74,12 +74,14 @@ class GamesActivity : BaseNotificationActivity(),
             } else if (kind.contains("group-")) {
                 supportActionBar?.setTitle(getString(R.string.gamesToolbarTitleGroup))
             } else if (kind.contains("place-")) {
+                if(!presenter.itIsMyPlace())
+                    fab.setVisibility(false)
                 supportActionBar?.setTitle(getString(R.string.gamesToolbarTitlePlace))
             } else {
                 supportActionBar?.setTitle(getString(R.string.gamesToolbarTitleAll))
             }
         }
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         searchGames.setOnQueryTextListener(this)
         swipeContainerGames.setOnRefreshListener(this)

@@ -68,7 +68,7 @@ class LoginActivity : AppCompatActivity(),
 
         setSupportActionBar(loginToolbar)
         supportActionBar?.setTitle(getString(R.string.loginToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         injectDependencies()
         presenter.setView(this)

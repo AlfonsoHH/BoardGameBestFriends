@@ -27,8 +27,11 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembersDetail
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addmeeting.AddMeetingActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetail.GameDetailActivity
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.placedetail.PlaceDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.NotificationFilter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.utils.Snacktory
 import com.google.firebase.messaging.RemoteMessage
@@ -42,10 +45,12 @@ class MeetingDetailActivity : BaseNotificationActivity(),
         View.OnClickListener{
 
     private val TAG = "MeetingDetailActivity"
-    var meetingId: String = ""
+    var meetingId = ""
+    var gameId = ""
+    var placeId = ""
     var iAmTheCreator = false
 
-    var adapter = AdapterMembers()
+    var adapter = AdapterMembersDetail()
 
     @Inject
     lateinit var presenter: MeetingDetailPresenter
@@ -56,7 +61,7 @@ class MeetingDetailActivity : BaseNotificationActivity(),
 
         setSupportActionBar(meetingDetailToolbar)
         supportActionBar?.setTitle(getString(R.string.meetingDetailToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         showProgress(true)
 
@@ -70,6 +75,8 @@ class MeetingDetailActivity : BaseNotificationActivity(),
         presenter.setView(this,meetingId)
 
         meetingDetailTVjoin.setOnClickListener(this)
+        meetingDetailIVgame.setOnClickListener(this)
+        meetingDetailIVplace.setOnClickListener(this)
     }
 
     override fun showNotification(rm: RemoteMessage) {
@@ -138,6 +145,16 @@ class MeetingDetailActivity : BaseNotificationActivity(),
                     meetingDetailTVjoin.text = getString(R.string.meetingDetailJoin)
                 }
             }
+            R.id.meetingDetailIVgame -> {
+                var intent = Intent(this, GameDetailActivity::class.java)
+                intent.putExtra("id",gameId)
+                startActivity(intent)
+            }
+            R.id.meetingDetailIVplace -> {
+                var intent = Intent(this, PlaceDetailActivity::class.java)
+                intent.putExtra("id",placeId)
+                startActivity(intent)
+            }
         }
     }
 
@@ -160,18 +177,21 @@ class MeetingDetailActivity : BaseNotificationActivity(),
     }
 
     override fun setGameData(game: Game) {
+        gameId = game.id
+
         Glide.with(this)
                 .load(game.photo)
                 .apply(RequestOptions.bitmapTransform(CropCircleTransformation()))
                 .into(meetingDetailIVgame)
 
         meetingDetailTVgameTitle.text = game.title
-        meetingDetailRatingBar.rating = game.rating.toFloat()
+        meetingDetailRatingBar.rating = game.rating.toFloat() / 2
         meetingDetailTVplayers.text = game.minPlayers.toString() + " - " + game.maxPlayers.toString()
         meetingDetailTVduration.text = game.playingTime.toString()
     }
 
     override fun setPlaceData(place: Place) {
+        placeId = place.id
         if(!place.photo.equals("url")) {
             Glide.with(this)
                     .load(place.photo)

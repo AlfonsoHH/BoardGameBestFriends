@@ -52,7 +52,7 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
 
         setSupportActionBar(addMeetingToolbar)
         supportActionBar?.setTitle(getString(R.string.addMeetingToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         injectDependencies()
         setupSpinners()
@@ -117,69 +117,73 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
     }
 
     fun addMeeting() {
-        if (!addMeetingTVhour.text.toString().equals("") && !addMeetingTVdate.text.toString().equals("") && !addMeetingETtitle.text.toString().equals("") && !addMeetingETdescription.text.toString().equals("")) {
+        if(!addMeetingSwhat.selectedItem.toString().equals(getString(R.string.addMeetingNoPersonalGames))) {
+            if (!addMeetingTVhour.text.toString().equals(getString(R.string.addMeetingErrorNoGames)) && !addMeetingTVdate.text.toString().equals("") && !addMeetingETtitle.text.toString().equals("") && !addMeetingETdescription.text.toString().equals("")) {
 
-            if (presenter.getMyPlacee() != null || !addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
+                if (presenter.getMyPlacee() != null || !addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
 
-                presenter.getUserProfile()?.let { user ->
-                    if (!action.equals("modify")) {
+                    presenter.getUserProfile()?.let { user ->
+                        if (!action.equals("modify")) {
 
-                        val actualGame = presenter.getGameFromTitle(addMeetingSwhat.selectedItem.toString())
+                            val actualGame = presenter.getGameFromTitle(addMeetingSwhat.selectedItem.toString())
 
-                        var actualPlace = Place()
+                            var actualPlace = Place()
 
-                        if (!addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
-                            presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())?.let {
-                                actualPlace = it
+                            if (!addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
+                                presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())?.let {
+                                    actualPlace = it
+                                }
+                            } else {
+                                presenter.myPlace?.let {
+                                    actualPlace = it
+                                }
                             }
+                            var actualGroup = Group()
+
+                            if (!addMeetingSwho.selectedItem.toString().equals(getString(R.string.addMeetingOpen))) {
+                                presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())?.let {
+                                    actualGroup = it
+                                }
+                            } else {
+                                actualGroup.id = getString(R.string.addMeetingOpen)
+                            }
+
+                            var vacants = actualGame.maxPlayers
+
+                            if (addMeetingCheckbox.isChecked)
+                                vacants = vacants - 1
+
+                            presenter.saveMeeting(Meeting("",
+                                    addMeetingETtitle.text.toString(),
+                                    addMeetingETdescription.text.toString(),
+                                    addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
+                                    actualGroup.id,
+                                    actualPlace.id,
+                                    actualPlace.photo,
+                                    actualGame.id,
+                                    actualGame.photo,
+                                    user.id,
+                                    vacants),
+                                    addMeetingCheckbox.isChecked)
                         } else {
-                            presenter.myPlace?.let {
-                                actualPlace = it
-                            }
+                            presenter.modifyMeeting(Meeting(meetingId,
+                                    addMeetingETtitle.text.toString(),
+                                    addMeetingETdescription.text.toString(),
+                                    addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
+                                    "", "", "", "", "",
+                                    user.id,
+                                    0),
+                                    false)
                         }
-                        var actualGroup = Group()
-
-                        if (!addMeetingSwho.selectedItem.toString().equals(getString(R.string.addMeetingOpen))) {
-                            presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())?.let {
-                                actualGroup = it
-                            }
-                        } else {
-                            actualGroup.id = "open"
-                        }
-
-                        var vacants = actualGame.maxPlayers
-
-                        if (addMeetingCheckbox.isChecked)
-                            vacants = vacants - 1
-
-                        presenter.saveMeeting(Meeting("",
-                                addMeetingETtitle.text.toString(),
-                                addMeetingETdescription.text.toString(),
-                                addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
-                                actualGroup.id,
-                                actualPlace.id,
-                                actualPlace.photo,
-                                actualGame.id,
-                                actualGame.photo,
-                                user.id,
-                                vacants),
-                                addMeetingCheckbox.isChecked)
-                    } else {
-                        presenter.modifyMeeting(Meeting(meetingId,
-                                addMeetingETtitle.text.toString(),
-                                addMeetingETdescription.text.toString(),
-                                addMeetingTVhour.text.toString() + "_" + addMeetingTVdate.text.toString(),
-                                "", "", "", "", "",
-                                user.id,
-                                0),
-                                false)
                     }
+                } else {
+                    showError(R.string.addMeetingErrorMyPlace)
                 }
             } else {
-                showError(R.string.addMeetingErrorMyPlace)
+                showError(R.string.addMeetingErrorEmpty)
             }
-        } else {
-            showError(R.string.addMeetingErrorEmpty)
+        }else{
+            showError(R.string.addMeetingErrorNoGames)
         }
     }
 
@@ -223,7 +227,7 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
     fun setupSpinners() {
         //GROUPS SPINNER
         val groupList = presenter.getUserGroups()
-        groupList.add(0, "Open")
+        groupList.add(0, getString(R.string.addMeetingOpen))
 
         spinnerArrayAdapterGroup = ArrayAdapter(this, android.R.layout.simple_spinner_item, groupList)
         spinnerArrayAdapterGroup.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -239,7 +243,7 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
 
         //PLACES SPINNER
         val placeList = presenter.getPlaces()
-        placeList.add(0, "My Place")
+        placeList.add(0, getString(R.string.addMeetingMyPlace))
 
         spinnerArrayAdapterPlace = ArrayAdapter(this, android.R.layout.simple_spinner_item, placeList)
         spinnerArrayAdapterPlace.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -255,6 +259,7 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
 
         //GAMES SPINNER
         val gameList: MutableList<String> = mutableListOf()
+        gameList.add(getString(R.string.addMeetingNoPersonalGames))
 
         spinnerArrayAdapterGame = ArrayAdapter(this, android.R.layout.simple_spinner_item, gameList)
         spinnerArrayAdapterGame.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -262,16 +267,15 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
     }
 
     fun spinnerItemChange() {
-        spinnerArrayAdapterGame.clear()
         presenter.getUserProfile()?.let {
             presenter.getUserGames(it.id)
         }
-        if (!addMeetingSwho.selectedItem.toString().equals("Open")) {
+        if (!addMeetingSwho.selectedItem.toString().equals(getString(R.string.addMeetingOpen))) {
             val group = presenter.getGroupFromTitle(addMeetingSwho.selectedItem.toString())
             if (group != null)
                 presenter.getGroupGames(group.id)
         }
-        if (!addMeetingSwhere.selectedItem.toString().equals("My place")) {
+        if (!addMeetingSwhere.selectedItem.toString().equals(getString(R.string.addMeetingMyPlace))) {
             val place = presenter.getPlaceFromTitle(addMeetingSwhere.selectedItem.toString())
             if (place != null)
                 presenter.getPlaceGames(place.id)
@@ -284,9 +288,12 @@ class AddMeetingActivity : BaseNotificationActivity(), AddMeetingContract.View {
     }
 
     override fun addGamesToSpinner(games: ArrayList<Game>) {
-        for (game in games) {
-            if (!itsGame(game.title))
-                spinnerArrayAdapterGame.add(game.title)
+        if(games.size != 0) {
+            spinnerArrayAdapterGame.clear()
+            for (game in games) {
+                if (!itsGame(game.title))
+                    spinnerArrayAdapterGame.add(game.title)
+            }
         }
     }
 

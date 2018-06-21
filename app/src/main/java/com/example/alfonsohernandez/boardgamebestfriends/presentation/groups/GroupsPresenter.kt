@@ -58,9 +58,6 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
 
     fun setView(view: GroupsContract.View?) {
         this.view = view
-//        for(group in adapterList){
-//            ClearTopicInteractor.clearFCMtopic(group.id)
-//        }
         getGroupsDataRx()
         fcmHandler.push = this
     }
@@ -92,7 +89,9 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
                         view?.showProgress(false)
                         paperGroupsInteractor.clear()
                         paperGroupsInteractor.addAll(adapterList)
-                        view?.setData(paperGroupsInteractor.all())
+                        var groupList = paperGroupsInteractor.all()
+                        groupList = ArrayList(groupList.sortedBy { it.title })
+                        view?.setData(groupList)
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.groupsErrorLoading)
@@ -128,7 +127,9 @@ class GroupsPresenter @Inject constructor(private val fcmHandler: FCMHandler,
     }
 
     override fun updateGroupsFromCache() {
-        view?.setData(paperGroupsInteractor.all())
+        var groupList = paperGroupsInteractor.all()
+        groupList = ArrayList(groupList.sortedBy { it.title })
+        view?.setData(groupList)
     }
 
     override fun removeGroup(group: Group) {

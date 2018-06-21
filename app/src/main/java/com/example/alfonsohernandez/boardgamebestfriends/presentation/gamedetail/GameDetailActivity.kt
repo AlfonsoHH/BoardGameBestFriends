@@ -2,6 +2,7 @@ package com.example.alfonsohernandez.boardgamebestfriends.presentation.gamedetai
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.text.Html
 import android.util.Log
 import android.widget.Toast
 import com.bumptech.glide.Glide
@@ -32,7 +33,7 @@ class GameDetailActivity : BaseNotificationActivity(), GameDetailContract.View {
 
         setSupportActionBar(gameDetailToolbar)
         supportActionBar?.setTitle(getString(R.string.gameDetailToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val extras = intent.extras
         extras?.let {
@@ -61,7 +62,7 @@ class GameDetailActivity : BaseNotificationActivity(), GameDetailContract.View {
     override fun setData(game: Game) {
         Glide.with(this).load(game.photo).into(gameDetailIVphoto)
         gameDetailTVtitle.text = game.title
-        gameDetailTVdescription.text = game.description
+        gameDetailTVdescription.text = Html.fromHtml(game.description)
         gameDetailTVduration.text = game.playingTime.toString()
         gameDetailTVnumPlayers.text = game.minPlayers.toString() + " - " + game.maxPlayers.toString()
 
@@ -80,7 +81,7 @@ class GameDetailActivity : BaseNotificationActivity(), GameDetailContract.View {
             gameDetailIVgroup.alpha = 0.4f
         }
 
-        gameDetailRatingBar.rating = game.rating.toFloat()
+        gameDetailRatingBar.rating = game.rating.toFloat() / 2
     }
 
     override fun showError(stringId: Int) {

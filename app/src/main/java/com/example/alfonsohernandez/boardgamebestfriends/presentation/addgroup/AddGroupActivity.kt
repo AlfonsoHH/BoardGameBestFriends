@@ -59,7 +59,7 @@ class AddGroupActivity : BasePermissionActivity(),
 
         setSupportActionBar(AddGroupToolbar)
         supportActionBar?.setTitle(getString(R.string.addGroupToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val intent = intent.extras
         intent?.let {

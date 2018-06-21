@@ -197,7 +197,7 @@
             android:gravity="center_vertical"
             android:background="@color/lightGrey"
             android:paddingLeft="90dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="2dp">
 
             <ImageView
                 android:id="@+id/placeDetailIVrule1"
@@ -224,7 +224,7 @@
                     android:id="@+id/placeDetailTVrule1subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:text="Smoking is forbidden"
+                    tools:text="Smoking is forbidden asfoiu asdf asdf asdf asdf dfsa dfsfsd sdf as"
                     android:textSize="14sp"
                     android:gravity="center_vertical"/>
 
@@ -243,7 +243,7 @@
             android:gravity="center_vertical"
             android:background="@color/lightGrey"
             android:paddingLeft="110dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="2dp">
 
             <ImageView
                 android:id="@+id/placeDetailIVrule2"
@@ -289,7 +289,7 @@
             android:gravity="center_vertical"
             android:background="@color/lightGrey"
             android:paddingLeft="90dp"
-            android:paddingVertical="8dp">
+            android:paddingVertical="2dp">
 
             <ImageView
                 android:id="@+id/placeDetailIVrule3"

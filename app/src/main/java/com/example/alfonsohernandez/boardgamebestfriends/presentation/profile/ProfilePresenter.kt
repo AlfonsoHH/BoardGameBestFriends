@@ -131,8 +131,12 @@ class ProfilePresenter @Inject constructor(private val fcmHandler: FCMHandler,
         var myPlaceRegionExist = false
         for (place in paperPlacesInteractor.all()) {
             if (!place.openPlace) {
-                myPlaceRegionExist = true
-                myPlace = place
+                getUserProfile()?.let { user ->
+                    if (place.ownerId.equals(user.id)) {
+                        myPlaceRegionExist = true
+                        myPlace = place
+                    }
+                }
             }
         }
         if (myPlaceRegionExist)

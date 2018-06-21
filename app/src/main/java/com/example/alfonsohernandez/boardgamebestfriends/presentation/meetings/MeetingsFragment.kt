@@ -146,6 +146,7 @@ class MeetingsFragment : Fragment(),
         meetings?.let {
             adapter.meetingsList.clear()
             adapter.meetingsList.addAll(it)
+            adapter.meetingsList.add(Meeting("blank"))
             adapter.notifyDataSetChanged()
         }
     }

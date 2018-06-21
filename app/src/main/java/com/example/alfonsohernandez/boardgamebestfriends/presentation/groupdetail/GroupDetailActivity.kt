@@ -22,6 +22,7 @@ import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.App
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembers
+import com.example.alfonsohernandez.boardgamebestfriends.presentation.adapters.AdapterMembersDetail
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.addgroup.AddGroupActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
@@ -43,7 +44,7 @@ class GroupDetailActivity : BaseNotificationActivity(),
     private val TAG = "GroupDetailActivity"
     var groupId: String = ""
 
-    var adapter = AdapterMembers()
+    var adapter = AdapterMembersDetail()
 
     var iAmTheCreator = false
 
@@ -56,7 +57,7 @@ class GroupDetailActivity : BaseNotificationActivity(),
 
         setSupportActionBar(groupDetailToolbar)
         supportActionBar?.setTitle(getString(R.string.groupDetailToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val extras = intent.extras
         extras?.let {

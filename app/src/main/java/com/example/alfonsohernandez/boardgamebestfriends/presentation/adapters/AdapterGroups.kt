@@ -4,12 +4,14 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions.bitmapTransform
 import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Group
+import com.example.alfonsohernandez.boardgamebestfriends.domain.setVisibility
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 
 /**
@@ -48,27 +50,35 @@ class AdapterGroups : RecyclerView.Adapter<AdapterGroups.ViewHolder>() {
             val txtNumMeetings = itemView.findViewById<TextView>(R.id.itemFriendsTVmeetings)
             val foto = itemView.findViewById<ImageView>(R.id.itemFriendsImageView)
 
-            txtTitle?.text = group.title
-            txtDescription?.text = group.subtitle
-            txtNumMeetings?.text = group.meetings.toString()
+            val wholeItem = itemView.findViewById<FrameLayout>(R.id.wholeItem)
 
-            if (!group.photo.equals("url")) {
-                Glide.with(itemView.context)
-                        .load(group.photo)
-                        .apply(bitmapTransform(CropCircleTransformation()))
-                        .into(foto)
-            }else{
-                foto?.setImageDrawable(itemView.resources.getDrawable(R.drawable.group_icon))
+            if (group.id.equals("blank")){
+                wholeItem.setVisibility(false)
+            }else {
+                wholeItem.setVisibility(true)
+
+                txtTitle?.text = group.title
+                txtDescription?.text = group.subtitle
+                txtNumMeetings?.text = group.meetings.toString()
+
+                if (!group.photo.equals("url")) {
+                    Glide.with(itemView.context)
+                            .load(group.photo)
+                            .apply(bitmapTransform(CropCircleTransformation()))
+                            .into(foto)
+                } else {
+                    foto?.setImageDrawable(itemView.resources.getDrawable(R.drawable.group_icon))
+                }
+
+                itemView.setOnClickListener({
+                    onGroupClickedListener?.invoke(group)
+                })
+
+                itemView.setOnLongClickListener({
+                    onLongClickListener?.invoke(group)
+                    true
+                })
             }
-
-            itemView.setOnClickListener({
-                onGroupClickedListener?.invoke(group)
-            })
-
-            itemView.setOnLongClickListener({
-                onLongClickListener?.invoke(group)
-                true
-            })
         }
     }
 }

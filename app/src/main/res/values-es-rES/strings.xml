@@ -85,7 +85,7 @@
     <string name="tabProfile">Perfil</string>
     <string name="profileMyMeetings">Mis Partidas</string>
     <string name="profileMyGames">Mis Juegos</string>
-    <string name="profileMyPlace">My Casa</string>
+    <string name="profileMyPlace">Mi Casa</string>
     <string name="profileToolbarTitle">Perfil</string>
     <string name="signUpHintUser">Usuario</string>
     <string name="signUpHintEmail">Email</string>
@@ -98,7 +98,7 @@
     <string name="placesToolbarTitle">Lugares</string>
     <string name="placesErrorPlaces">Error, imposible cargar los lu</string>
     <string name="addPlaceWhen">¿Cuándo?</string>
-    <string name="meetingDetailVacants">PLAZAS</string>
+    <string name="meetingDetailVacants"> PLAZAS</string>
     <string name="itemMarkerOpen">Abierto</string>
     <string name="itemMeetingsAssisting">Juego</string>
     <string name="itemMeetingsHosting">Anfitrión</string>
@@ -170,7 +170,7 @@
     <string name="addGroupErrorEmpty">Error, uno o más campos vacios</string>
     <string name="addMeetingErrorEmpty">Error, uno o más campos vacios</string>
     <string name="signUpErrorEmpty">Error, uno o más campos están vacios</string>
-    <string name="meetingDetailNotOpen">No estará abierto el día de la partida</string>
+    <string name="meetingDetailNotOpen">No estará abierto</string>
 
     <string-array name="rulesTitle">
         <item>Fumar permitido</item>
@@ -198,7 +198,7 @@
     <string name="loginErrorLoadingRegion">Error, no se ha podido cargar la información de regiones</string>
     <string name="loginRegionDialogTitle">Asocia una ciudad a tu cuenta</string>
     <string name="loginDialogPositive">Aceptar</string>
-    <string name="loginDialogNegative">Cancel</string>
+    <string name="loginDialogNegative">Cancelar</string>
     <string name="tabSuccessLoadRegion">Conseguido, los datos de las regiones han sido cargados</string>
     <string name="addMeetingErrorMyPlace">Error, no tienes ningún lugar privado en esta región</string>
     <string name="meetingDetailErrorVacant">Error, no se ha podido modificar las plazas vacantes en la partida</string>
@@ -245,5 +245,9 @@
     <string name="addPlaceToolbarTitleModify">Modificar Lugar</string>
     <string name="addPlaceErrorRulesDifferent">Error, debes elegir 3 reglas diferentes para tu negocio</string>
     <string name="addPlaceErrorRulesOpposite">Error, debes elegir reglas opuestas entre si</string>
+    <string name="profileSuccessNewMyPlace">Conseguido, acabas de añadir un nuevo lugar privado a tu región actual</string>
+    <string name="addMeetingErrorNoGames">Error, debes escoger un juego valido</string>
+    <string name="addMeetingNoPersonalGames">Ningún juego propio</string>
+    <string name="itemGroupsMeetings">partidas</string>
 
 </resources>

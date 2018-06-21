@@ -4,23 +4,17 @@ import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseanalytics.NewUseFirebaseAnalyticsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetGroupGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetPlaceGamesInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetSingleGameInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasegames.GetUserGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.AddMeetingInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.AddMeetingToUserInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.GetSingleMeetingInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebasemeetings.ModifyMeetingInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetPlacesInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetSinglePlaceInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseplaces.GetUserPlacesInteractor
-import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.firebaseusers.GetMeetingUsersInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergames.PaperGamesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papergroups.PaperGroupsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.papermeetings.PaperMeetingsInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.paperplaces.PaperPlacesInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.interactors.usermanager.GetUserProfileInteractor
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.*
-import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePresenter
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BasePushPresenter
 import com.example.alfonsohernandez.boardgamebestfriends.push.FCMHandler
 import com.google.firebase.messaging.RemoteMessage
@@ -195,6 +189,8 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
+                    },{
+                        view?.showProgress(false)
                     }))
         }
     }
@@ -216,6 +212,8 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
+                    },{
+                        view?.showProgress(false)
                     }))
         }
     }
@@ -237,6 +235,8 @@ class AddMeetingPresenter @Inject constructor(private val fcmHandler: FCMHandler
                     }, {
                         view?.showProgress(false)
                         view?.showError(R.string.addMeetingErrorGames)
+                    },{
+                        view?.showProgress(false)
                     }))
         }
     }

@@ -1,6 +1,7 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.games
 
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Game
+import com.example.alfonsohernandez.boardgamebestfriends.domain.models.Place
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseNotificationView
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.base.BaseView
@@ -25,6 +26,8 @@ interface GamesContract {
         fun getUserGamesData()
         fun getGroupGamesData()
         fun getPlaceGamesData()
+
+        fun itIsMyPlace(): Boolean
 
         fun dataChooser()
 

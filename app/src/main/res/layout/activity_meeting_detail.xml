@@ -155,9 +155,8 @@
                                 android:orientation="horizontal">
 
                                 <TextView
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
                                     android:text="@string/meetingDetailPlayers"
                                     android:textSize="14sp"
                                     android:textStyle="bold" />
@@ -179,9 +178,8 @@
                                 android:orientation="horizontal">
 
                                 <TextView
-                                    android:layout_width="0dp"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:layout_weight="1"
                                     android:text="@string/meetingDetailDuration"
                                     android:textSize="14sp"
                                     android:textStyle="bold" />
@@ -204,10 +202,10 @@
                             android:layout_height="match_parent" />
 
                         <LinearLayout
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:orientation="vertical">
+                            android:orientation="vertical"
+                            android:paddingHorizontal="10dp">
 
                             <TextView
                                 android:layout_width="match_parent"
@@ -224,9 +222,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="0dp"
                                 android:layout_weight="1"
-                                android:numStars="10"
-                                android:rating="8"
-                                android:stepSize=".5" />
+                                android:numStars="5"
+                                android:rating="3"
+                                android:stepSize=".5"
+                                android:layout_gravity="center"/>
 
                         </LinearLayout>
 
@@ -326,14 +325,18 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="14sp"
-                                tools:text="Pintor Hermenegildo Lanz 7 3B" />
+                                tools:text="Pintor Hermenegildo Lanz 7 3B"
+                                android:ellipsize="end"
+                                android:maxLines="1"/>
 
                             <TextView
                                 android:id="@+id/meetingDetailTVopenHours"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textSize="14sp"
-                                tools:text="10:00 - 14:00 17:00 - 20:30" />
+                                tools:text="10:00 - 14:00 17:00 - 20:30"
+                                android:ellipsize="end"
+                                android:maxLines="1"/>
 
                         </LinearLayout>
 

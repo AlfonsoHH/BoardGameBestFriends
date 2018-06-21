@@ -12,9 +12,9 @@ import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.domain.models.User
 import jp.wasabeef.glide.transformations.CropCircleTransformation
 
-class AdapterMembers : RecyclerView.Adapter<AdapterMembers.ViewHolder>() {
+class AdapterMembersDetail : RecyclerView.Adapter<AdapterMembersDetail.ViewHolder>() {
 
-    private val TAG = "AdapterMembers"
+    private val TAG = "AdapterMembersDetail"
 
     var memberList: ArrayList<User> = arrayListOf()
 
@@ -28,7 +28,7 @@ class AdapterMembers : RecyclerView.Adapter<AdapterMembers.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val v = LayoutInflater
                 .from(parent.context)
-                .inflate(R.layout.item_members_add, parent, false)
+                .inflate(R.layout.item_members_detail, parent, false)
         return ViewHolder(v)
     }
 

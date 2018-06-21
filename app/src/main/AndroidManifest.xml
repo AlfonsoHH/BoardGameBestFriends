@@ -63,7 +63,8 @@
         <activity
             android:name=".presentation.signup.SignUpActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan|adjustResize"/>
         <activity
             android:name=".presentation.gamedetail.GameDetailActivity"
             android:screenOrientation="portrait"
@@ -71,16 +72,18 @@
         <activity
             android:name=".presentation.addmeeting.AddMeetingActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan|adjustResize"/>
         <activity
             android:name=".presentation.addplace.AddPlaceActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="adjustPan|adjustResize"/>
         <activity
             android:name=".presentation.addgroup.AddGroupActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden" />
+            android:windowSoftInputMode="adjustPan|adjustResize"/>
         <activity
             android:name=".presentation.meetingdetail.MeetingDetailActivity"
             android:screenOrientation="portrait"

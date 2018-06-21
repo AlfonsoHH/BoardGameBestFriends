@@ -136,6 +136,7 @@ class GroupsFragment : Fragment(),
     override fun setData(groups: ArrayList<Group>) {
         adapter.groupList.clear()
         adapter.groupList.addAll(groups)
+        adapter.groupList.add(Group("blank"))
         adapter.notifyDataSetChanged()
     }
 

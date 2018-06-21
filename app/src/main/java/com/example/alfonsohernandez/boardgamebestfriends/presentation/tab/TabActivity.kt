@@ -61,7 +61,7 @@ class TabActivity : AppCompatActivity(),
         setSupportActionBar(tabToolbar)
 
         supportActionBar?.setTitle(getString(R.string.app_name))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         injectDependencies()
         presenter.setView(this)

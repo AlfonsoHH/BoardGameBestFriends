@@ -53,7 +53,7 @@ class SignUpActivity : BasePermissionActivity(),
 
         setSupportActionBar(signUpToolbar)
         supportActionBar?.setTitle(getString(R.string.signUpToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         injectDependencies()
         presenter.setView(this)

@@ -1,7 +1,10 @@
 package com.example.alfonsohernandez.boardgamebestfriends.presentation.base
 
 import android.content.Intent
+import android.os.Bundle
+import android.os.PersistableBundle
 import android.support.v7.app.AppCompatActivity
+import com.example.alfonsohernandez.boardgamebestfriends.R
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.chat.ChatActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.groupdetail.GroupDetailActivity
 import com.example.alfonsohernandez.boardgamebestfriends.presentation.meetingdetail.MeetingDetailActivity

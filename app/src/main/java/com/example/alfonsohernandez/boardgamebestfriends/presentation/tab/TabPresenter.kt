@@ -74,10 +74,7 @@ class TabPresenter @Inject constructor(private val getUserProfileInteractor: Get
                         for (h in it.children) {
                             val place = h.getValue(Place::class.java)
                             if (place != null) {
-                                if (place.openPlace)
-                                    placesList.add(place)
-                                if (!place.openPlace && place.ownerId.equals(user.id))
-                                    placesList.add(place)
+                                placesList.add(place)
                             }
                         }
                         paperPlacesInteractor.clear()

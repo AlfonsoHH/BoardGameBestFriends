@@ -163,7 +163,7 @@
                 android:inputType="textPersonName"
                 android:hint="@string/addMeetingTitleHint"
                 android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890 "
-                android:maxLength="20"/>
+                android:maxLength="25"/>
 
         </LinearLayout>
 

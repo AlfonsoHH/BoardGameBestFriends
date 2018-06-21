@@ -44,7 +44,7 @@ class PlaceDetailActivity : BaseNotificationActivity(),
 
         setSupportActionBar(placeDetailToolbar)
         supportActionBar?.setTitle(getString(R.string.placeDetailToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val intent = intent.extras
         intent?.let {

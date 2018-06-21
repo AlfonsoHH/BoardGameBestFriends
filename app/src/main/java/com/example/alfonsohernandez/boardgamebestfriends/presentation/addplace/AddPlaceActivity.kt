@@ -52,7 +52,7 @@ class AddPlaceActivity : BasePermissionActivity(),
 
         setSupportActionBar(AddPlaceToolbar)
         supportActionBar?.setTitle(getString(R.string.addPlaceToolbarTitle))
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val intent = intent.extras
         intent?.let {

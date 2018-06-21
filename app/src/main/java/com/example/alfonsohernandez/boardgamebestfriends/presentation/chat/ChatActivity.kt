@@ -44,7 +44,7 @@ class ChatActivity : BaseNotificationActivity(),
         setContentView(R.layout.activity_chat)
 
         setSupportActionBar(chatToolbar)
-        supportActionBar?.setIcon(R.drawable.toolbarbgbf)
+        supportActionBar?.setIcon(R.drawable.icono_bgbf)
 
         val intent = getIntent().extras
         intent?.let {
@@ -101,9 +101,11 @@ class ChatActivity : BaseNotificationActivity(),
     }
 
     fun sendMessage() {
-        presenter.getUserProfile()?.let {user ->
-            presenter.sendMessage(Message(user.id, chatETmessage.text.toString(), sdf.format(Date())))
-            chatETmessage.setText("")
+        if(!chatETmessage.text.equals("")) {
+            presenter.getUserProfile()?.let { user ->
+                presenter.sendMessage(Message(user.id, chatETmessage.text.toString(), sdf.format(Date())))
+                chatETmessage.setText("")
+            }
         }
     }
 
